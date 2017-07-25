@@ -1,0 +1,96 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package appStates;
+
+import ancient.Main;
+import com.jme3.app.Application;
+import com.jme3.app.SimpleApplication;
+import com.jme3.app.state.AbstractAppState;
+import com.jme3.app.state.AppStateManager;
+import com.jme3.asset.AssetManager;
+import com.jme3.input.InputManager;
+import com.jme3.light.DirectionalLight;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
+import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Node;
+import mapGeneration.WorldMap;
+
+/**
+ *
+ * @author brock
+ */
+public class PlayAppState extends AbstractAppState {
+    private SimpleApplication app;
+    private Node rootNode;
+    private AssetManager assetManager;
+    private AppStateManager stateManager;
+    private InputManager inputManager;
+    private ViewPort viewPort;
+    
+    private Camera cam;
+    private Node node = new Node("stateNode");
+    
+    private WorldMap worldMap;
+  
+    @Override
+    public void initialize(AppStateManager stateManager, Application app) {
+        super.initialize(stateManager, app);
+        this.app = (SimpleApplication)app;
+
+        this.rootNode     = this.app.getRootNode();
+        this.assetManager = this.app.getAssetManager();
+        this.stateManager = this.app.getStateManager();
+        this.inputManager = this.app.getInputManager();
+        this.viewPort     = this.app.getViewPort();
+        
+        viewPort.setBackgroundColor(ColorRGBA.DarkGray);
+        
+        app.getCamera().setLocation(new Vector3f(500, 400, 250));
+        app.getCamera().setFrustumFar(10000);
+        
+        DirectionalLight sun = new DirectionalLight();
+        sun.setDirection(new Vector3f(1.0f, 0.1f, -5.0f).normalize());
+        sun.setColor(ColorRGBA.White);
+        
+        node.addLight(sun);
+        
+        worldMap = new WorldMap();
+        
+        enable();
+    }
+    
+    @Override
+    public void cleanup() {
+        super.cleanup();
+        // unregister all listeners, detach nodes etc
+        this.app.getRootNode().detachChild(node);
+    }
+    
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        if (enabled) {
+            enable();
+        } else {
+            //Pause the state
+        }
+    }
+    
+    private void enable() {
+        rootNode.attachChild(node);
+        app.setState(this);
+    }
+    
+    @Override
+    public void update(float tpf) {
+        
+    }
+    
+    /* Getters and Setters */
+    public Node getNode() { return node; }
+}

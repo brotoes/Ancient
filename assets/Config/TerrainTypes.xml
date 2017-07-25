@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<root>
+<Metrics>
+    <Elevation>
+        <Low>,0</Low>
+        <High>0,</High>
+    </Elevation>
+    <Temperature>
+        <Cold>,-0.5</Cold>
+        <Temperate>-0.5,0.5</Temperate>
+        <Hot>0.5,</Hot>
+    </Temperature>
+</Metrics>
+<Types>
+    <Water>
+        <Color>37,50,130</Color>
+        <Metrics>
+            <Elevation>Low</Elevation>
+            <Temperature>Cold,Temperate,Hot</Temperature>
+        </Metrics>
+    </Water>
+    <Land>
+        <Color>6,94,13</Color>
+        <Metrics>
+            <Elevation>High</Elevation>
+            <Temperature>Cold,Temperate,Hot</Temperature>
+        </Metrics>
+    </Land>
+</Types>
+</root>

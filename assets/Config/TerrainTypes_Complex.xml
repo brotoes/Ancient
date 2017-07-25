@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<root>
+<Metrics>
+    <Elevation>
+        <DeepWater>,-0.3</DeepWater>
+        <ShallowWater>-0.3,0.0</ShallowWater>
+        <Lowlands>0.0,0.4</Lowlands>
+        <Highlands>0.4,0.8</Highlands>
+        <Mountains>1.2,</Mountains>
+    </Elevation>
+    <Temperature>
+        <Cold>,-0.5</Cold>
+        <Temperate>-0.5,0.5</Temperate>
+        <Hot>0.5,</Hot>
+    </Temperature>
+</Metrics>
+<Types>
+    <Ocean>
+        <Color>21,62,127</Color>
+        <Metrics>
+            <Elevation>DeepWater</Elevation>
+            <Temperature>Cold,Temperate,Hot</Temperature>
+        </Metrics>
+    </Ocean>
+    <Coast>
+        <Color>56,157,224</Color>
+        <Metrics>
+            <Elevation>ShallowWater</Elevation>
+            <Temperature>Temperate,Hot</Temperature>
+        </Metrics>
+    </Coast>
+    <Ice>
+        <Color>205,229,244</Color>
+        <Metrics>
+            <Elevation>ShallowWater</Elevation>
+            <Temperature>Cold</Temperature>
+        </Metrics>
+    </Ice>
+    <Steppe>
+        <Color>178,201,104</Color>
+        <Metrics>
+            <Elevation>Lowlands</Elevation>
+            <Temperature>Temperate</Temperature>
+        </Metrics>
+    </Steppe>
+    <Desert>
+        <Color>216,209,164</Color>
+        <Metrics>
+            <Elevation>Highlands</Elevation>
+            <Temperature>Hot</Temperature>
+        </Metrics>
+    </Desert>
+    <Tundra>
+        <Color>137,149,153</Color>
+        <Metrics>
+            <Elevation>Highlands</Elevation>
+            <Temperature>Cold</Temperature>
+        </Metrics>
+    </Tundra>
+    <Boreal>
+        <Color>27,96,46</Color>
+        <Metrics>
+            <Elevation>Lowlands</Elevation>
+            <Temperature>Cold</Temperature>
+        </Metrics>
+    </Boreal>
+    <Forest>
+        <Color>57,158,23</Color>
+        <Metrics>
+            <Elevation>Highlands</Elevation>
+            <Temperature>Temperate</Temperature>
+        </Metrics>
+    </Forest>
+    <Jungle>
+        <Color>4,71,23</Color>
+        <Metrics>
+            <Elevation>Lowlands</Elevation>
+            <Temperature>Hot</Temperature>
+        </Metrics>
+    </Jungle>
+    <Mountains>
+        <Color>184,187,193</Color>
+        <Metrics>
+            <Elevation>Mountains</Elevation>
+            <Temperature>Cold,Temperate,Hot</Temperature>
+        </Metrics>
+    </Mountains>
+</Types>
+</root>
