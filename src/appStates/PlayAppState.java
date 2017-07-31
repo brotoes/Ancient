@@ -5,7 +5,6 @@
  */
 package appStates;
 
-import ancient.Main;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
@@ -13,11 +12,13 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.input.InputManager;
 import com.jme3.light.DirectionalLight;
+import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
+import controllers.CameraController;
+import controllers.InputController;
 import mapGeneration.WorldMap;
 
 /**
@@ -32,16 +33,17 @@ public class PlayAppState extends AbstractAppState {
     private InputManager inputManager;
     private ViewPort viewPort;
     
-    private Camera cam;
-    private Node node = new Node("stateNode");
-    
+    private final Node node = new Node("stateNode");
+    private CameraController camCon;
+    private InputController inputCon;
     private WorldMap worldMap;
+    
+    public PointLight camLight;
   
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
         this.app = (SimpleApplication)app;
-
         this.rootNode     = this.app.getRootNode();
         this.assetManager = this.app.getAssetManager();
         this.stateManager = this.app.getStateManager();
@@ -57,9 +59,16 @@ public class PlayAppState extends AbstractAppState {
         sun.setDirection(new Vector3f(1.0f, 0.1f, -5.0f).normalize());
         sun.setColor(ColorRGBA.White);
         
+        camLight = new PointLight();
+        camLight.setRadius(500.0f);
+        camLight.setColor(ColorRGBA.White);
+        
         node.addLight(sun);
+        node.addLight(camLight);
         
         worldMap = new WorldMap();
+        camCon = new CameraController(this);
+        inputCon = new InputController(this);
         
         enable();
     }
@@ -83,14 +92,16 @@ public class PlayAppState extends AbstractAppState {
     
     private void enable() {
         rootNode.attachChild(node);
-        app.setState(this);
     }
     
     @Override
     public void update(float tpf) {
-        
+        camCon.tick(tpf);
     }
     
     /* Getters and Setters */
+    public SimpleApplication getApp() { return app; }
     public Node getNode() { return node; }
+    public InputManager getInputManager() { return inputManager; }
+    public CameraController getCameraController () { return camCon; }
 }

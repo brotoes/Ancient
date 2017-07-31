@@ -57,7 +57,10 @@ public class WorldMap {
             }
             
             /* Create province */
-            provs[i] = new Province(elevation, temperature, polygon, zPoints, Math.max(0.0f,elevation*zFactor));
+            provs[i] = new Province(elevation, temperature, voronoi, i, zPoints, Math.max(0.0f,elevation*zFactor));
+        }
+        for (Province p : provs) {
+            p.findNeighbors();
         }
     }
 }

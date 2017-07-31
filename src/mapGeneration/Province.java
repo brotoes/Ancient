@@ -6,8 +6,8 @@
 package mapGeneration;
 
 import ancient.Main;
+import appStates.PlayAppState;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -17,13 +17,14 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.VarType;
 import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import kn.uni.voronoitreemap.j2d.PolygonSimple;
 
 /**
  *
  * @author brock
  */
-public class Province {
+public class Province implements Selectable {
     private final Vector3f center;
     private final Material faceMat;
     private final Material outlineMat;
@@ -35,20 +36,39 @@ public class Province {
     private final FloatBuffer outlineBuf;
     private final FloatBuffer normalBuf;
     private final Node pivot = new Node("pivot");
+    private final SelectableNode facePivot;
+    private final Node outlinePivot;
     private final TerrainType terrainType;
+    private final PlayAppState playState;
+    private final float LINE_WIDTH = 2.0f;
+    private final ColorRGBA OUTLINE_COLOR = ColorRGBA.Black;
+    private final ColorRGBA SELECT_COLOR = ColorRGBA.White;
+    private final float OUTLINE_OFFSET = 0.1f;
+    private final Voronoi voronoi;
+    private final int polyInd;
+    
+    private ArrayList<Province> adjProvs;
     
     /**
      * Generates new province
      * 
      * @param elevation Elevation above/below sealevel. range from -1.0 to 1.0
-     * @param temperature Temperature of region, from -1.0 to 1.0
-     * @param polygon Represents shape of province
+     * @param temp Temperature of region, from -1.0 to 1.0
+     * @param vor Voronoi diagram to get polygon from
+     * @param polyInd Index of polygon in vor
      * @param zPoints
      * @param centerZ
      */
-    public Province(float elevation, float temperature, PolygonSimple polygon, float[] zPoints, float centerZ) {
+    public Province(float elevation, float temp, Voronoi vor, int polyInd, float[] zPoints, float centerZ) {
+        playState = Main.app.getPlayState();
         /* Set up province properties */
-        terrainType = TerrainType.getTerrainType(elevation, temperature);
+        terrainType = TerrainType.getTerrainType(elevation, temp);
+        this.voronoi = vor;
+        this.polyInd = polyInd;
+
+        /* Get data from voronoi */
+        PolygonSimple polygon = vor.getPolygon(polyInd);
+        vor.setProvince(polyInd, this);
         
         /* Set up geometry Buffers */
         centerZ = Math.max(0.0f, centerZ);
@@ -123,7 +143,7 @@ public class Province {
         faceMesh.setMode(Mesh.Mode.TriangleFan);
         faceMesh.setBuffer(VertexBuffer.Type.Position, 3, buf);
         faceMesh.setBuffer(VertexBuffer.Type.Normal, 3, normalBuf);
-        faceGeom = new Geometry("Face", faceMesh);
+        faceGeom = new Geometry("prov-", faceMesh);
 
         faceMat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
         //faceMat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
@@ -131,7 +151,10 @@ public class Province {
         faceMat.setParam("UseMaterialColors", VarType.Boolean, true);
         
         faceGeom.setMaterial(faceMat);
-        pivot.attachChild(faceGeom);
+        
+        facePivot = new SelectableNode("facePivot", this);
+        facePivot.attachChild(faceGeom);
+        pivot.attachChild(facePivot);
         faceGeom.updateModelBound();
         
         /* Define Outline */
@@ -142,14 +165,37 @@ public class Province {
         
         outlineMat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         outlineMat.setColor("Color", ColorRGBA.Black);
+        outlineMat.getAdditionalRenderState().setLineWidth(LINE_WIDTH);
         
         outlineGeom.setMaterial(outlineMat);
-        pivot.attachChild(outlineGeom);
+        outlinePivot = new Node("outlinePivot");
+        outlinePivot.attachChild(outlineGeom);
+        pivot.attachChild(outlinePivot);
         
         /* display everything */
-        
-        Main.app.getState().getNode().attachChild(pivot);
+        playState.getNode().attachChild(pivot);
+        outlinePivot.setLocalTranslation(new Vector3f(0.0f, 0.0f, OUTLINE_OFFSET));
         pivot.setLocalTranslation(center);
+    }
+    
+    /**
+     * Populates neighbors. Should be called after all Provinces have been instantiated
+     * 
+     */
+    public void findNeighbors() {
+        adjProvs = voronoi.getNeighbors(polyInd);
+    }
+    
+    @Override
+    public void select() {
+        outlineMat.setColor("Color", SELECT_COLOR);
+        outlinePivot.setLocalTranslation(new Vector3f(0.0f, 0.0f, OUTLINE_OFFSET*2));
+    }
+    
+    @Override
+    public void deselect() {
+        outlineMat.setColor("Color", OUTLINE_COLOR);
+        outlinePivot.setLocalTranslation(new Vector3f(0, 0, OUTLINE_OFFSET));
     }
     
     public Node getPivot() { return pivot; }

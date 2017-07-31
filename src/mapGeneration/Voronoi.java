@@ -5,6 +5,7 @@
  */
 package mapGeneration;
 
+import java.util.ArrayList;
 import java.util.Random;
 import kn.uni.voronoitreemap.datastructure.OpenList;
 import kn.uni.voronoitreemap.diagram.PowerDiagram;
@@ -17,6 +18,7 @@ import kn.uni.voronoitreemap.j2d.Site;
  */
 public class Voronoi {
     private final OpenList sites = new OpenList();
+    private final ArrayList<ProvSite> provSites = new ArrayList<>();
     
     /**
      * 
@@ -44,6 +46,7 @@ public class Voronoi {
         pd.setSites(sites);
         pd.computeDiagram();
         
+        /* Compute Lloyd relaxation */
         for (int i = 0; i < nPasses; i ++) {
             for (int j = 0; j < nSites; j ++) {
                 sites.get(j).setX(sites.get(j).getPolygon().getCentroid().x);
@@ -51,13 +54,44 @@ public class Voronoi {
             }
             pd.computeDiagram();
         }
+        
+        /* populate provSites list */
+        for (int i = 0; i < sites.size; i ++) {
+            provSites.add(new ProvSite(sites.get(i)));
+            sites.get(i).setIndex(i);
+            System.out.println(sites.get(i).getIndex());
+            
+        }
     }
     
     public int size() {
         return sites.size;
     }
     
+    /**
+     * returns polygon corresponding to index
+     * @param index
+     * @return 
+     */
     public PolygonSimple getPolygon(int index) {
         return sites.get(index).getPolygon();
+    }
+    
+    /* links province to site */
+    public void setProvince(int index, Province prov) {
+        provSites.get(index).setProvince(prov);
+    }
+    
+    /* returns list of provinces adjacent to site of given index */
+    public ArrayList<Province> getNeighbors(int index) {
+        ArrayList<Site> adjSites = sites.get(index).getNeighbours();
+        ArrayList<Province> adjs = new ArrayList<>(adjSites.size());
+        for (Site s : adjSites) {
+            int i = s.getIndex();
+            Province p = provSites.get(i).getProvince();
+            adjs.add(p);
+        }
+        
+        return adjs;
     }
 }

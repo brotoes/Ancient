@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ioControllers;
+package mapGeneration;
 
 /**
  *
  * @author brock
  */
-public class InputController {
-    public InputController() {
-        
-    }
+public interface Selectable {
+    public void select();
+    
+    public void deselect();
 }
