@@ -5,6 +5,7 @@
  */
 package appStates;
 
+import ancient.Main;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
@@ -19,6 +20,8 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import controllers.CameraController;
 import controllers.InputController;
+import controllers.GuiController;
+import de.lessvoid.nifty.Nifty;
 import mapGeneration.WorldMap;
 
 /**
@@ -33,6 +36,7 @@ public class PlayAppState extends AbstractAppState {
     private InputManager inputManager;
     private ViewPort viewPort;
     
+    private Nifty nifty;
     private final Node node = new Node("stateNode");
     private CameraController camCon;
     private InputController inputCon;
@@ -50,26 +54,29 @@ public class PlayAppState extends AbstractAppState {
         this.inputManager = this.app.getInputManager();
         this.viewPort     = this.app.getViewPort();
         
+        /* Set up camera */
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
         
-        app.getCamera().setLocation(new Vector3f(500, 400, 250));
-        app.getCamera().setFrustumFar(10000);
+        app.getCamera().setLocation(new Vector3f(50, 40, 25));
+        app.getCamera().setFrustumFar(1000);
         
+        /* Set up Lighting */
         DirectionalLight sun = new DirectionalLight();
         sun.setDirection(new Vector3f(1.0f, 0.1f, -5.0f).normalize());
         sun.setColor(ColorRGBA.White);
         
         camLight = new PointLight();
-        camLight.setRadius(500.0f);
+        camLight.setRadius(100.0f);
         camLight.setColor(ColorRGBA.White);
         
         node.addLight(sun);
         node.addLight(camLight);
         
+        /* set up the scene */
         worldMap = new WorldMap();
         camCon = new CameraController(this);
         inputCon = new InputController(this);
-        
+
         enable();
     }
     
@@ -97,6 +104,10 @@ public class PlayAppState extends AbstractAppState {
     @Override
     public void update(float tpf) {
         camCon.tick(tpf);
+        
+        for (int i = 0; i < worldMap.getNumProvs(); i ++) {
+            worldMap.getProvince(i).step();
+        }
     }
     
     /* Getters and Setters */

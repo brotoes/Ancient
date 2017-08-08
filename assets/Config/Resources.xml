@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<!--
+Resources are categorized according to their utility. if a parent resource
+is accepted for a particular purpose, so will its child resource.
+Child resources are not necessarily derived from their parents.
+-->
+<Resources>
+    <Food></Food>
+    <Wood></Wood>
+    <Money></Money>
+    <Population></Population>
+</Resources>

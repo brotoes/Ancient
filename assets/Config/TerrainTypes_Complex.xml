@@ -9,35 +9,35 @@ and open the template in the editor.
 <root>
 <Metrics>
     <Elevation>
-        <DeepWater>,-0.3</DeepWater>
-        <ShallowWater>-0.3,0.0</ShallowWater>
-        <Lowlands>0.0,0.4</Lowlands>
-        <Highlands>0.4,0.8</Highlands>
-        <Mountains>1.2,</Mountains>
+        <DeepWater>,-0.1</DeepWater>
+        <ShallowWater>-0.1,0.0</ShallowWater>
+        <Lowlands>0.0,0.3</Lowlands>
+        <Highlands>0.3,0.44</Highlands>
+        <Mountains>0.44,</Mountains>
     </Elevation>
     <Temperature>
         <Cold>,-0.5</Cold>
-        <Temperate>-0.5,0.5</Temperate>
-        <Hot>0.5,</Hot>
+        <Temperate>-0.5,0.9</Temperate>
+        <Hot>0.9,</Hot>
     </Temperature>
 </Metrics>
 <Types>
     <Ocean>
-        <Color>21,62,127</Color>
+        <Color>39,45,124</Color>
         <Metrics>
             <Elevation>DeepWater</Elevation>
             <Temperature>Cold,Temperate,Hot</Temperature>
         </Metrics>
     </Ocean>
     <Coast>
-        <Color>56,157,224</Color>
+        <Color>61,67,145</Color>
         <Metrics>
             <Elevation>ShallowWater</Elevation>
             <Temperature>Temperate,Hot</Temperature>
         </Metrics>
     </Coast>
     <Ice>
-        <Color>205,229,244</Color>
+        <Color>135,140,198</Color>
         <Metrics>
             <Elevation>ShallowWater</Elevation>
             <Temperature>Cold</Temperature>
@@ -65,28 +65,28 @@ and open the template in the editor.
         </Metrics>
     </Tundra>
     <Boreal>
-        <Color>27,96,46</Color>
+        <Color>72,118,28</Color>
         <Metrics>
             <Elevation>Lowlands</Elevation>
             <Temperature>Cold</Temperature>
         </Metrics>
     </Boreal>
     <Forest>
-        <Color>57,158,23</Color>
+        <Color>44,83,7</Color>
         <Metrics>
             <Elevation>Highlands</Elevation>
             <Temperature>Temperate</Temperature>
         </Metrics>
     </Forest>
     <Jungle>
-        <Color>4,71,23</Color>
+        <Color>24,49,0</Color>
         <Metrics>
             <Elevation>Lowlands</Elevation>
             <Temperature>Hot</Temperature>
         </Metrics>
     </Jungle>
     <Mountains>
-        <Color>184,187,193</Color>
+        <Color>110,110,120</Color>
         <Metrics>
             <Elevation>Mountains</Elevation>
             <Temperature>Cold,Temperate,Hot</Temperature>

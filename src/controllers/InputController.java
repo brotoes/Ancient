@@ -32,9 +32,9 @@ public class InputController {
     private final CameraController camCon;
     
     private float zoomSpeed = 0.1f;
-    private float scrollSpeed = 500.0f;
+    private float scrollSpeed = 50.0f;
     
-    private Selectable selected = null;
+    private final SelectionController selCon = new SelectionController();
     
     public InputController(PlayAppState state) {
         this.state = state;
@@ -81,8 +81,10 @@ public class InputController {
         state.getNode().collideWith(ray, results);
         if (results.size() > 0) {
             CollisionResult closest = results.getClosestCollision();
-            SelectableNode parent = (SelectableNode)closest.getGeometry().getParent();
-            setSelected(parent.selectable);
+            if (closest.getGeometry().getParent() instanceof SelectableNode) {
+                SelectableNode parent = (SelectableNode)closest.getGeometry().getParent();
+                selCon.select(parent.selectable);
+            }
         }
     }
     
@@ -128,13 +130,5 @@ public class InputController {
         }
     };
     
-    public void setSelected(Selectable selected) {
-        if (this.selected != null) {
-            this.selected.deselect();
-        }
-        this.selected = selected;
-        this.selected.select();
-    }
-    
-    public Selectable getSelected() { return selected; }
+    public Selectable getSelected() { return selCon.getSelected(); }
 }

@@ -19,24 +19,24 @@ public class CameraController {
     private final PlayAppState state;
     private final Camera cam;
     
-    private final float closeRatio = 0.2f;
+    private final float closeRatio = 0.5f;
     private final float farRatio = 1.0f;
-    private final float closeDist = 200.0f;
-    private final float farDist = 1000.0f;
-    private final float closeY = -200.0f;
+    private final float closeDist = 20.0f;
+    private final float farDist = 100.0f;
+    private final float closeY = -20.0f;
     private final float farY = 0.0f;
     
     private final Vector3f camLeft = new Vector3f(-1.0f, 0.0f, 0.0f);
-    private final Vector3f camUp = new Vector3f(0.0f, 1.0f, 0.0f);
-    
+   
+    private Vector3f camUp = new Vector3f(0.0f, 1.0f, 0.0f); 
     private Vector3f camSpeed = new Vector3f(0, 0, 0);
-    private Vector3f camPos = new Vector3f(500.f, 400.0f, 0.0f);
+    private Vector3f camPos = new Vector3f(50.f, 40.0f, 0.0f);
     private float zoomLevel = 0.5f;
     
     public CameraController(PlayAppState state) {
         this.state = state;
         cam = state.getApp().getCamera();
-        
+
         updateCam();
     }
     
@@ -53,7 +53,8 @@ public class CameraController {
         Vector3f yOffsetVec = new Vector3f(0.0f, yOffset, 0.0f);
         
         cam.setLocation(camPos.setZ(dist).add(yOffsetVec));
-        Main.app.getPlayState().camLight.setPosition(cam.getLocation().clone().setZ(200.0f));
+        Main.app.getPlayState().camLight.setPosition(cam.getLocation().clone().setZ(20.0f));
+        camUp = camDir.cross(camLeft).normalizeLocal();
         cam.setAxes(camLeft, camUp, camDir);
     }
     

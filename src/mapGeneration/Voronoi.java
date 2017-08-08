@@ -59,8 +59,6 @@ public class Voronoi {
         for (int i = 0; i < sites.size; i ++) {
             provSites.add(new ProvSite(sites.get(i)));
             sites.get(i).setIndex(i);
-            System.out.println(sites.get(i).getIndex());
-            
         }
     }
     

@@ -21,10 +21,10 @@ public class WorldMap {
     private final int seed = 1337;
     private final int freq = 3;
     private final float amp = 2.0f;
-    private final float zFactor = 100.0f;
+    private final float zFactor = 8.0f;
     
-    private final int width = 1000;
-    private final int height = 900;
+    private final int width = 100;
+    private final int height = 90;
     
     public WorldMap() {
         FastNoise elevationMap = new FastNoise(seed);
@@ -62,5 +62,14 @@ public class WorldMap {
         for (Province p : provs) {
             p.findNeighbors();
         }
+    }
+    
+    /* Getters and setters */
+    public Province getProvince(int index) {
+        return provs[index];
+    }
+    
+    public int getNumProvs() {
+        return provs.length;
     }
 }

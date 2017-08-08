@@ -19,12 +19,15 @@ import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import kn.uni.voronoitreemap.j2d.PolygonSimple;
+import pathfinder.Pathable;
+import pathfinder.Pathfinder;
 
 /**
  *
  * @author brock
  */
-public class Province implements Selectable {
+public class Province implements Selectable, Pathable {
+    private boolean selected = false;
     private final Vector3f center;
     private final Material faceMat;
     private final Material outlineMat;
@@ -32,7 +35,7 @@ public class Province implements Selectable {
     private final Mesh outlineMesh;
     private final Geometry faceGeom;
     private final Geometry outlineGeom;
-    private final FloatBuffer buf;
+    private final FloatBuffer vertexBuf;
     private final FloatBuffer outlineBuf;
     private final FloatBuffer normalBuf;
     private final Node pivot = new Node("pivot");
@@ -40,14 +43,16 @@ public class Province implements Selectable {
     private final Node outlinePivot;
     private final TerrainType terrainType;
     private final PlayAppState playState;
-    private final float LINE_WIDTH = 2.0f;
+    private final float LINE_WIDTH = 1.5f;
     private final ColorRGBA OUTLINE_COLOR = ColorRGBA.Black;
     private final ColorRGBA SELECT_COLOR = ColorRGBA.White;
-    private final float OUTLINE_OFFSET = 0.1f;
+    private final ColorRGBA PATH_COLOR = ColorRGBA.Red;
+    private final float OUTLINE_OFFSET = 0.01f;
     private final Voronoi voronoi;
     private final int polyInd;
-    
-    private ArrayList<Province> adjProvs;
+
+    private ArrayList<Province> adjProvs = null;
+    private Pathfinder<Province> pathfinder = null;
     
     /**
      * Generates new province
@@ -76,13 +81,13 @@ public class Province implements Selectable {
         double[] vertsX = polygon.getXPoints();
         double[] vertsY = polygon.getYPoints();
         
-        buf = BufferUtils.createFloatBuffer((polygon.getNumPoints() + 2)*3);
+        vertexBuf = BufferUtils.createFloatBuffer((polygon.getNumPoints() + 2)*3);
         normalBuf = BufferUtils.createFloatBuffer((polygon.getNumPoints() + 2)*3);
         outlineBuf = BufferUtils.createFloatBuffer((polygon.getNumPoints())*3);
         
-        buf.put(0.0f);
-        buf.put(0.0f);
-        buf.put(0.0f);
+        vertexBuf.put(0.0f);
+        vertexBuf.put(0.0f);
+        vertexBuf.put(0.0f);
         
         normalBuf.put(0.0f);
         normalBuf.put(0.0f);
@@ -98,9 +103,9 @@ public class Province implements Selectable {
             Vector3f nVec   = new Vector3f((float)(vertsX[nextInd] - center.x),
                 (float)(vertsY[nextInd] - center.y), zPoints[nextInd] - centerZ);
             
-            buf.put(vector.x);
-            buf.put(vector.y);
-            buf.put(vector.z);
+            vertexBuf.put(vector.x);
+            vertexBuf.put(vector.y);
+            vertexBuf.put(vector.z);
             
             /* Calculate normal based on this and the next vector */
             Vector3f normal = vector.cross(nVec).normalize();
@@ -119,9 +124,9 @@ public class Province implements Selectable {
         }
         avgVec.divideLocal(polygon.getNumPoints()).normalize();
         
-        buf.put((float)(vertsX[0] - center.x));
-        buf.put((float)(vertsY[0] - center.y));
-        buf.put(zPoints[0] - centerZ);
+        vertexBuf.put((float)(vertsX[0] - center.x));
+        vertexBuf.put((float)(vertsY[0] - center.y));
+        vertexBuf.put(zPoints[0] - centerZ);
         
         if (firstVec != null) {
             normalBuf.put(firstVec.x);
@@ -141,12 +146,12 @@ public class Province implements Selectable {
         /* Define faces */
         faceMesh = new Mesh();
         faceMesh.setMode(Mesh.Mode.TriangleFan);
-        faceMesh.setBuffer(VertexBuffer.Type.Position, 3, buf);
+        faceMesh.setBuffer(VertexBuffer.Type.Position, 3, vertexBuf);
         faceMesh.setBuffer(VertexBuffer.Type.Normal, 3, normalBuf);
-        faceGeom = new Geometry("prov-", faceMesh);
+        faceMesh.updateBound();
+        faceGeom = new Geometry("faceMesh", faceMesh);
 
         faceMat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
-        //faceMat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         faceMat.setColor("Diffuse", terrainType.getColor());
         faceMat.setParam("UseMaterialColors", VarType.Boolean, true);
         
@@ -155,12 +160,12 @@ public class Province implements Selectable {
         facePivot = new SelectableNode("facePivot", this);
         facePivot.attachChild(faceGeom);
         pivot.attachChild(facePivot);
-        faceGeom.updateModelBound();
         
         /* Define Outline */
         outlineMesh = new Mesh();
         outlineMesh.setMode(Mesh.Mode.LineLoop);
         outlineMesh.setBuffer(VertexBuffer.Type.Position, 3, outlineBuf);
+        outlineMesh.updateBound();
         outlineGeom = new Geometry("Outline", outlineMesh);
         
         outlineMat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
@@ -171,6 +176,7 @@ public class Province implements Selectable {
         outlinePivot = new Node("outlinePivot");
         outlinePivot.attachChild(outlineGeom);
         pivot.attachChild(outlinePivot);
+
         
         /* display everything */
         playState.getNode().attachChild(pivot);
@@ -188,6 +194,7 @@ public class Province implements Selectable {
     
     @Override
     public void select() {
+        selected = true;
         outlineMat.setColor("Color", SELECT_COLOR);
         outlinePivot.setLocalTranslation(new Vector3f(0.0f, 0.0f, OUTLINE_OFFSET*2));
     }
@@ -199,4 +206,69 @@ public class Province implements Selectable {
     }
     
     public Node getPivot() { return pivot; }
+    
+    public void step() {
+
+    }
+
+    @Override
+    public ArrayList getNeighbors() {
+        if(adjProvs == null) {
+            findNeighbors();
+        }
+        return adjProvs;
+    }
+    
+    /**
+     * returns path from prov to this
+     * @param prov
+     * @return 
+     */
+    public ArrayList<Province> getPath(Province prov) {
+        if (pathfinder == null) {
+            pathfinder = new Pathfinder<>(this);
+        }
+        return pathfinder.getPath(prov);
+    }
+    
+    /**
+     * returns geometry corresponding to passed in path
+     * 
+     * @param path
+     * @return 
+     */
+    public Geometry getPathGeom(ArrayList<Province> path) {
+        Material mat;
+        Geometry geom;
+        Mesh mesh = new Mesh();
+        FloatBuffer buf = BufferUtils.createFloatBuffer(path.size()*3);
+        
+        for (Province i : path) {
+            buf.put(i.center.x);
+            buf.put(i.center.y);
+            buf.put(i.center.z + OUTLINE_OFFSET);
+        }
+        
+        mesh.setMode(Mesh.Mode.LineStrip);
+        mesh.setBuffer(VertexBuffer.Type.Position, 3, buf);
+        mesh.updateBound();
+        
+        geom = new Geometry("PathGeom", mesh);
+        
+        mat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", PATH_COLOR);
+        mat.getAdditionalRenderState().setLineWidth(LINE_WIDTH);
+        geom.setMaterial(mat);
+        
+        return geom;
+    }
+    
+    /**
+     * returns geometry corresponding to path from start node
+     * @param start
+     * @return 
+     */
+    public Geometry getPathGeom(Province start) {
+        return getPathGeom(getPath(start));
+    }
 }
