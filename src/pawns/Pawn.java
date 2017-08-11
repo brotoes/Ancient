@@ -22,6 +22,9 @@ import mapGeneration.SelectableNode;
  * @author brock
  */
 public class Pawn implements Selectable {
+    private static int nextId = 0;
+    
+    private final int id;
     private final Province province;
     private SelectableNode pivot;
     private Geometry geom;
@@ -35,6 +38,8 @@ public class Pawn implements Selectable {
      * @param province
      */
     public Pawn(Province province) {
+        this.id = Pawn.nextId;
+        Pawn.nextId ++;
         this.province = province;
         pivot = new SelectableNode("pivot", this);
         Main.app.getPlayState().getNode().attachChild(pivot);
@@ -62,6 +67,7 @@ public class Pawn implements Selectable {
         mat.setColor("Diffuse", color);
     }
     
-    /** Getters and setters */
+    /* Getters and setters */
     public Province getProvince() { return province; }
+    public int getId() { return id; }
 }

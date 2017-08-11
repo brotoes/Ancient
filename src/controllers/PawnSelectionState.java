@@ -25,8 +25,7 @@ public class PawnSelectionState extends SelectionState{
         if (clicked instanceof Province) {
             setState(new ProvinceSelectionState((Province)clicked));
         } else if (clicked instanceof Pawn) {
-            if (getSelected().hashCode() == clicked.hashCode()
-                    && getSelected().equals(clicked)) {
+            if (getSelected().getId() == ((Pawn) clicked).getId()) {
                 setState(new EmptySelectionState());
             } else {
                 setState(new PawnSelectionState((Pawn)clicked));

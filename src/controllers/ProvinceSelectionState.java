@@ -22,8 +22,7 @@ public class ProvinceSelectionState extends SelectionState{
     @Override
     public void leftClick(Selectable clicked) {
         if (clicked instanceof Province) {
-            if (getSelected().hashCode() == clicked.hashCode()
-                    && getSelected().equals(clicked)) {
+            if (getSelected().getId() == ((Province)clicked).getId()) {
                 setState(new EmptySelectionState());
             } else {
                 setState(new ProvinceSelectionState((Province)clicked));

@@ -28,6 +28,9 @@ import pawns.Pawn;
  * @author brock
  */
 public class Province implements Selectable, Pathable {
+    private static int nextId = 0;
+    
+    private final int id;
     private final Vector3f center;
     private final Material faceMat;
     private final Material outlineMat;
@@ -65,6 +68,8 @@ public class Province implements Selectable, Pathable {
      * @param centerZ
      */
     public Province(float elevation, float temp, Voronoi vor, int polyInd, float[] zPoints, float centerZ) {
+        id = Province.nextId;
+        Province.nextId ++;
         playState = Main.app.getPlayState();
         /* Set up province properties */
         terrainType = TerrainType.getTerrainType(elevation, temp);
@@ -174,6 +179,7 @@ public class Province implements Selectable, Pathable {
         
         outlineGeom.setMaterial(outlineMat);
         outlinePivot = new Node("outlinePivot");
+        outlinePivot.setUserData("pickable", false);
         outlinePivot.attachChild(outlineGeom);
         pivot.attachChild(outlinePivot);
 
@@ -273,5 +279,10 @@ public class Province implements Selectable, Pathable {
      */
     public Geometry getPathGeom(Province start) {
         return getPathGeom(getPath(start));
+    }
+    
+    /* Getters and setters */
+    public int getId() {
+        return id;
     }
 }

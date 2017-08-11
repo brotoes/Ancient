@@ -86,12 +86,19 @@ public class InputController {
         Ray ray = new Ray(pos3d, dir);
         
         state.getNode().collideWith(ray, results);
-        if (results.size() > 0) {
-            CollisionResult closest = results.getClosestCollision();
-            if (closest.getGeometry().getParent() instanceof SelectableNode) {
-                SelectableNode parent = (SelectableNode)closest.getGeometry().getParent();
-                selCon.click(parent.selectable, left);
+        /* sort through results and find first pickable node */
+        CollisionResult closest = null;
+        for (int i = 0; i < results.size(); i ++) {
+            closest = results.getCollision(i);
+            Boolean isPickable = closest.getGeometry().getUserData("pickable");
+            if (isPickable != null && isPickable) {
+                break;
             }
+        }
+        if (closest != null && closest.getGeometry().getParent() instanceof SelectableNode) {
+            SelectableNode parent = (SelectableNode)closest.getGeometry().getParent();
+            selCon.click(parent.selectable, left);
+            System.out.println(parent.selectable);
         }
     }
     
