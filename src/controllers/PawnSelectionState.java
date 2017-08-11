@@ -6,6 +6,7 @@
 package controllers;
 
 import ancient.Main;
+import com.jme3.scene.Geometry;
 import mapGeneration.Province;
 import mapGeneration.Selectable;
 import pawns.Pawn;
@@ -14,28 +15,38 @@ import pawns.Pawn;
  * Controls selections when a province is selected
  * @author brock
  */
-public class ProvinceSelectionState extends SelectionState{
-    public ProvinceSelectionState(Province prov) {
-        super(prov);
+public class PawnSelectionState extends SelectionState{
+    public PawnSelectionState(Pawn pawn) {
+        super(pawn);
     }
     
     @Override
     public void leftClick(Selectable clicked) {
         if (clicked instanceof Province) {
+            setState(new ProvinceSelectionState((Province)clicked));
+        } else if (clicked instanceof Pawn) {
             if (getSelected().hashCode() == clicked.hashCode()
                     && getSelected().equals(clicked)) {
                 setState(new EmptySelectionState());
             } else {
-                setState(new ProvinceSelectionState((Province)clicked));
+                setState(new PawnSelectionState((Pawn)clicked));
             }
-        } else if (clicked instanceof Pawn) {
-            setState(new PawnSelectionState((Pawn)clicked));
         }
     }
     
     @Override
     public void rightClick(Selectable clicked) {
-    
+        Province prov;
+        if (clicked instanceof Province) {
+            prov = (Province)clicked;
+        } else if (clicked instanceof Pawn) {
+            prov = ((Pawn) clicked).getProvince();
+        } else {
+            return;
+        }
+        
+        Geometry pathGeom = getSelected().getProvince().getPathGeom(prov);
+        Main.app.getPlayState().getTopNode().attachChild(pathGeom);
     }
     
     @Override
@@ -51,7 +62,7 @@ public class ProvinceSelectionState extends SelectionState{
     }
     
     @Override
-    public Province getSelected() {
-        return (Province)super.getSelected();
+    public Pawn getSelected() {
+        return (Pawn)super.getSelected();
     }
 }

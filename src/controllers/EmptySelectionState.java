@@ -7,6 +7,7 @@ package controllers;
 
 import mapGeneration.Province;
 import mapGeneration.Selectable;
+import pawns.Pawn;
 
 /**
  *
@@ -19,11 +20,16 @@ public class EmptySelectionState extends SelectionState {
     }
     
     @Override
-    public void select(Selectable selected) {
-        if (selected instanceof Province) {
-            getCon().setState(new ProvinceSelectionState((Province)selected));
+    public void leftClick(Selectable clicked) {
+        if (clicked instanceof Province) {
+            getCon().setState(new ProvinceSelectionState((Province)clicked));
+        } else if (clicked instanceof Pawn) {
+            getCon().setState(new PawnSelectionState((Pawn)clicked));
         }
     }
+    
+    @Override
+    public void rightClick(Selectable clicked) {}
 
     @Override
     public void unset() {}

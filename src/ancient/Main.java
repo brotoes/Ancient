@@ -54,6 +54,6 @@ public class Main extends SimpleApplication {
     }
     
     public AbstractAppState getState() { return state; }
-    
     public PlayAppState getPlayState() { return playState; }
+    public GuiController getGuiController() { return guiController; }
 }

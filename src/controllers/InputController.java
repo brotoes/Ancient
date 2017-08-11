@@ -55,7 +55,8 @@ public class InputController {
         im.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
         im.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
         im.addMapping("Down", new KeyTrigger(KeyInput.KEY_S));
-        im.addMapping("MouseClick", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        im.addMapping("LeftClick", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        im.addMapping("RightClick", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         
         
         /* Add Listeners */
@@ -66,10 +67,16 @@ public class InputController {
         im.addListener(actionListener, "Right");
         im.addListener(actionListener, "Up");
         im.addListener(actionListener, "Down");
-        im.addListener(actionListener, "MouseClick");
+        im.addListener(actionListener, "LeftClick");
+        im.addListener(actionListener, "RightClick");
     }
     
-    protected void handleMouseClick(Vector2f pos) {
+    /**
+     * handles mouse click. Collides ray from mouse click with scene
+     * @param pos coordinates of mouse click
+     * @param left true if left click
+     */
+    protected void handleMouseClick(Vector2f pos, boolean left) {
         //let GUI capture event
         //if GUI did not get event, check for provinces or pawns clicked
         CollisionResults results = new CollisionResults();
@@ -83,7 +90,7 @@ public class InputController {
             CollisionResult closest = results.getClosestCollision();
             if (closest.getGeometry().getParent() instanceof SelectableNode) {
                 SelectableNode parent = (SelectableNode)closest.getGeometry().getParent();
-                selCon.select(parent.selectable);
+                selCon.click(parent.selectable, left);
             }
         }
     }
@@ -108,9 +115,14 @@ public class InputController {
                 case "Down":
                     camCon.setSpeed(camCon.getSpeed().add(0, -scrollSpeed*mod, 0));
                     break;
-                case "MouseClick":
+                case "LeftClick":
                     if (keyPressed) {
-                        handleMouseClick(im.getCursorPosition());
+                        handleMouseClick(im.getCursorPosition(), true);
+                    }
+                    break;
+                case "RightClick":
+                    if (keyPressed) {
+                        handleMouseClick(im.getCursorPosition(), false);
                     }
             }
         }

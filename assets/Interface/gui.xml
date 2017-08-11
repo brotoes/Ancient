@@ -13,13 +13,25 @@ and open the template in the editor.
       <panel id="icon_row" width="40%" height="32px" childLayout="horizontal"
         backgroundColor="#444">
           <control name="button" id="currency_button" label="Currency and Taxation"
-              align="center" valign="center" visibleToMouse="true">
+              align="center" valign="center" visibleToMouse="true" width="*">
             <interact onClick="click()"></interact>
           </control>
       </panel>
     </layer>
-  </screen>
-  <screen id="hud">
-
+    <layer id="control_panels"></layer>
+    <layer id="province_panel_layer" backgroundColor="#0000" childLayout="horizontal">
+      <panel width="*"></panel>
+      <panel id="province_panel" valign="center" backgroundColor="#444"
+        width="30%" height="60%" childLayout="vertical" hidden="true">
+        <text text="Province Info" font="Interface/Fonts/Default.fnt" />
+      </panel>
+    </layer>  
+    <layer id="pawn_panel_layer" childLayout="horizontal">
+      <panel width="*"></panel>
+      <panel id="pawn_panel" valign="center" backgroundColor="#444"
+        width="30%" height="60%" childLayout="vertical">
+        <text text="Pawn Info" font="Interface/Fonts/Default.fnt" />
+      </panel>
+    </layer>  
   </screen>
 </nifty>

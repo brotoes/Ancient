@@ -21,13 +21,13 @@ import java.util.ArrayList;
 import kn.uni.voronoitreemap.j2d.PolygonSimple;
 import pathfinder.Pathable;
 import pathfinder.Pathfinder;
+import pawns.Pawn;
 
 /**
  *
  * @author brock
  */
 public class Province implements Selectable, Pathable {
-    private boolean selected = false;
     private final Vector3f center;
     private final Material faceMat;
     private final Material outlineMat;
@@ -83,7 +83,7 @@ public class Province implements Selectable, Pathable {
         
         vertexBuf = BufferUtils.createFloatBuffer((polygon.getNumPoints() + 2)*3);
         normalBuf = BufferUtils.createFloatBuffer((polygon.getNumPoints() + 2)*3);
-        outlineBuf = BufferUtils.createFloatBuffer((polygon.getNumPoints())*3);
+        outlineBuf = BufferUtils.createFloatBuffer(polygon.getNumPoints()*3);
         
         vertexBuf.put(0.0f);
         vertexBuf.put(0.0f);
@@ -169,7 +169,7 @@ public class Province implements Selectable, Pathable {
         outlineGeom = new Geometry("Outline", outlineMesh);
         
         outlineMat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        outlineMat.setColor("Color", ColorRGBA.Black);
+        outlineMat.setColor("Color", OUTLINE_COLOR);
         outlineMat.getAdditionalRenderState().setLineWidth(LINE_WIDTH);
         
         outlineGeom.setMaterial(outlineMat);
@@ -194,9 +194,11 @@ public class Province implements Selectable, Pathable {
     
     @Override
     public void select() {
-        selected = true;
         outlineMat.setColor("Color", SELECT_COLOR);
         outlinePivot.setLocalTranslation(new Vector3f(0.0f, 0.0f, OUTLINE_OFFSET*2));
+        
+        //TODO REMOVE
+        Main.app.getPlayState().addPawn(new Pawn(this));
     }
     
     @Override
@@ -258,6 +260,7 @@ public class Province implements Selectable, Pathable {
         mat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", PATH_COLOR);
         mat.getAdditionalRenderState().setLineWidth(LINE_WIDTH);
+        mat.getAdditionalRenderState().setDepthTest(false);
         geom.setMaterial(mat);
         
         return geom;

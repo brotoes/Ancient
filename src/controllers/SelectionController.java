@@ -19,8 +19,12 @@ public class SelectionController {
         SelectionState.setController(this);
     }
     
-    public void select(Selectable selected) {
-        state.select(selected);
+    public void click(Selectable clicked, boolean left) {
+        if (left) {
+            state.leftClick(clicked);
+        } else {
+            state.rightClick(clicked);
+        }
     }
     
     public void setState(SelectionState newState) {

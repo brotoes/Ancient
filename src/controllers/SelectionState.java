@@ -37,17 +37,23 @@ public abstract class SelectionState {
     
     /**
      * When something is clicked/selected, this method is called
-     * @param selected 
+     * @param clicked 
      */
-    public abstract void select(Selectable selected);
+    public abstract void leftClick(Selectable clicked);
+    
+    public abstract void rightClick(Selectable clicked);
     
     /**
      * called when unsetting this state
      */
-    public abstract void unset();
+    protected void unset() {
+        getSelected().deselect();
+    }
     
     /** 
      * called when setting this state
      */
-    public abstract void set();
+    protected void set() {
+        getSelected().select();
+    }
 }

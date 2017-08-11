@@ -6,6 +6,7 @@
 package appStates;
 
 import ancient.Main;
+import pawns.Pawn;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
@@ -16,12 +17,13 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import controllers.CameraController;
 import controllers.InputController;
-import controllers.GuiController;
 import de.lessvoid.nifty.Nifty;
+import java.util.ArrayList;
 import mapGeneration.WorldMap;
 
 /**
@@ -37,12 +39,17 @@ public class PlayAppState extends AbstractAppState {
     private ViewPort viewPort;
     
     private Nifty nifty;
-    private final Node node = new Node("stateNode");
     private CameraController camCon;
     private InputController inputCon;
     private WorldMap worldMap;
+    private final ArrayList<Pawn> pawns = new ArrayList<>();
     
     public PointLight camLight;
+    
+    /** spatials added to this node render after and without depth testing */
+    private final Node topNode = new Node("topNode");
+    /** when added to this node, spatials render normally */
+    private final Node node = new Node("stateNode");
   
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
@@ -108,11 +115,29 @@ public class PlayAppState extends AbstractAppState {
         for (int i = 0; i < worldMap.getNumProvs(); i ++) {
             worldMap.getProvince(i).step();
         }
+        
+        for (Pawn i : pawns) {
+            //i.update();
+        }
+    }
+    
+    @Override
+    public void render(RenderManager rm) {
+        rm.renderScene(topNode, viewPort);
+    }
+    
+    /**
+     * Adds pawns. TODO: REMOVE
+     * @return 
+     */
+    public void addPawn(Pawn pawn) {
+        pawns.add(pawn);
     }
     
     /* Getters and Setters */
     public SimpleApplication getApp() { return app; }
     public Node getNode() { return node; }
+    public Node getTopNode() { return topNode; }
     public InputManager getInputManager() { return inputManager; }
     public CameraController getCameraController () { return camCon; }
 }
