@@ -20,11 +20,11 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
-import controllers.CameraController;
-import controllers.InputController;
+import controllers.ui.CameraController;
+import controllers.ui.InputController;
 import de.lessvoid.nifty.Nifty;
 import java.util.ArrayList;
-import mapGeneration.WorldMap;
+import map.WorldMap;
 
 /**
  *

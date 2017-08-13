@@ -5,11 +5,11 @@ import ancient.Main;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.shader.VarType;
-import mapGeneration.Province;
+import map.Province;
 import mapGeneration.Selectable;
-import mapGeneration.SelectableNode;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -26,10 +26,10 @@ public class Pawn implements Selectable {
     
     private final int id;
     private final Province province;
-    private SelectableNode pivot;
-    private Geometry geom;
-    private Box box;
-    private Material mat;
+    private final Node pivot;
+    private final Geometry geom;
+    private final Box box;
+    private final Material mat;
     private final ColorRGBA color = ColorRGBA.Red;
     private final ColorRGBA selectedColor = ColorRGBA.White;
     
@@ -41,7 +41,7 @@ public class Pawn implements Selectable {
         this.id = Pawn.nextId;
         Pawn.nextId ++;
         this.province = province;
-        pivot = new SelectableNode("pivot", this);
+        pivot = new Node("pivot");
         Main.app.getPlayState().getNode().attachChild(pivot);
         
         box = new Box(1,1,1);
@@ -50,9 +50,9 @@ public class Pawn implements Selectable {
         mat.setColor("Diffuse", color);
         mat.setParam("UseMaterialColors", VarType.Boolean, true);
         geom.setMaterial(mat);
-        
         geom.setLocalTranslation(0, 0, 0.5f);
         
+        geom.setUserData("clickTarget", new Selectable[]{this});
         pivot.attachChild(geom);
         pivot.setLocalTranslation(province.getPivot().getLocalTranslation());
     }

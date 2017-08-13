@@ -5,12 +5,15 @@
  */
 package mapGeneration;
 
+import map.Province;
+import fastnoise.FastNoise;
 import java.util.ArrayList;
 import java.util.Random;
 import kn.uni.voronoitreemap.datastructure.OpenList;
 import kn.uni.voronoitreemap.diagram.PowerDiagram;
 import kn.uni.voronoitreemap.j2d.PolygonSimple;
 import kn.uni.voronoitreemap.j2d.Site;
+import utils.MathUtils;
 
 /**
  *
@@ -19,6 +22,12 @@ import kn.uni.voronoitreemap.j2d.Site;
 public class Voronoi {
     private final OpenList sites = new OpenList();
     private final ArrayList<ProvSite> provSites = new ArrayList<>();
+    /* 
+     * Manipulate these to change the sizes of the provinces based on their 
+     * elevations
+     */
+    private final double weightConstant = 1.0;
+    private final double weightFactor = 25.0;
     
     /**
      * 
@@ -28,7 +37,8 @@ public class Voronoi {
      * @param nPasses: Number of passes relaxing the voronoi diagram
      * @param seed: seed for site selection
      */
-    public Voronoi(int width, int  height, int nSites, int nPasses, int seed) {
+    public Voronoi(int width, int  height, int nSites, int nPasses, int seed,
+            FastNoise weightMap) {
         PowerDiagram pd = new PowerDiagram();
         PolygonSimple rootPolygon = new PolygonSimple();
         Random rand = new Random(seed);
@@ -39,7 +49,12 @@ public class Voronoi {
         rootPolygon.add(0, height);
     
         for (int i = 0; i < nSites; i ++) {
-            sites.add(new Site(rand.nextFloat()*width, rand.nextFloat()*height));
+            Site site = new Site(rand.nextFloat()*width, rand.nextFloat()*height);
+            double weight = weightMap.GetNoise((float)site.getX()/width, 
+                    (float)site.getY()/height);
+            weight = MathUtils.map(weight, -1.0, 1.0, 1, 10);
+            //site.setWeight(weight);
+            sites.add(site);
         }
         
         pd.setClipPoly(rootPolygon);
@@ -49,8 +64,13 @@ public class Voronoi {
         /* Compute Lloyd relaxation */
         for (int i = 0; i < nPasses; i ++) {
             for (int j = 0; j < nSites; j ++) {
-                sites.get(j).setX(sites.get(j).getPolygon().getCentroid().x);
-                sites.get(j).setY(sites.get(j).getPolygon().getCentroid().y);
+                Site site = sites.get(j);
+                sites.get(j).setX(site.getPolygon().getCentroid().x);
+                sites.get(j).setY(site.getPolygon().getCentroid().y);
+                double weight = weightMap.GetNoise((float)site.getX()/width, 
+                    (float)site.getY()/height);
+                weight = MathUtils.map(weight, -1.0, 1.0, 1, 10);
+                //site.setWeight(weight);
             }
             pd.computeDiagram();
         }

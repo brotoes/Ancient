@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<Buildings>
+  <Farm>
+    <Description>
+      Farms always output 1 food per turn.
+    </Description>
+    <Input>
+    </Input>
+    <Output>
+      <Food>1</Food>
+    </Output>
+  </Farm>
+
+  <Barracks>
+    <Description>
+      The Barracks takes one population and outputs one Soldier.
+    </Description>
+    <Input>
+      <Population>1</Population>
+    </Input>
+    <Output>
+      <Soldier>1</Soldier>
+    </Output>
+  </Barracks>
+
+  <Shack>
+    <Description>
+      The Shack takes one food and produces one population.
+    </Description>
+    <Input>
+      <Food>1</Food>
+    </Input>
+    <Output>
+      <Population>1</Population>
+    </Output>
+  </Shack>
+</Buildings>

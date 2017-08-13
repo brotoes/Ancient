@@ -5,6 +5,7 @@
  */
 package mapGeneration;
 
+import map.Province;
 import kn.uni.voronoitreemap.j2d.Site;
 
 /**
