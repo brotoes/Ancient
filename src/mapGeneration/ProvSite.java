@@ -5,7 +5,7 @@
  */
 package mapGeneration;
 
-import map.Province;
+import ancient.map.Province;
 import kn.uni.voronoitreemap.j2d.Site;
 
 /**

@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package map;
+package ancient.map;
 
 import ancient.Main;
-import map.Province;
+import ancient.map.Province;
 import fastnoise.FastNoise;
 import fastnoise.FastNoise.NoiseType;
 import kn.uni.voronoitreemap.j2d.Point2D;

@@ -5,27 +5,25 @@
  */
 package controllers.trade;
 
-import buildings.Building;
+import ancient.buildings.Building;
 import hungarian.Matchable;
+import ancient.pawns.Pawn;
+import ancient.resources.Resource;
+import ancient.resources.ResourceContainer;
 
 /**
  *
  * @author brock
  */
 public class Seller implements Matchable {
-    private final int minPrice;
-    /* Quantity available for purchase */
-    private final int qty;
     private final Building building;
-    private final String resource;
+    private final ResourceContainer resourceContainer;
 
     private Buyer buyer = null;
 
-    public Seller(Building b, int qty, int min, String resource) {
+    public Seller(Building b, ResourceContainer resourceContainer) {
         this.building = b;
-        this.qty = qty;
-        this.minPrice = min;
-        this.resource = resource;
+        this.resourceContainer = resourceContainer;
     }
 
     public Buyer getBuyer() {
@@ -40,12 +38,13 @@ public class Seller implements Matchable {
      * Creates pawn and sends to buyer
      */
     public void sell() {
-
+        Pawn pawn = Pawn.newPawn(building.getProvince(), resourceContainer);
+        pawn.setDestination(buyer.getBuilding().getProvince());
     }
 
     @Override
     public String toString() {
-        return "Selling " + qty + " " + resource + " for " + minPrice;
+        return "Selling " + resourceContainer;
     }
 
     @Override
@@ -70,4 +69,7 @@ public class Seller implements Matchable {
 
     /* getters and setters */
     public Building getBuilding() { return building; }
+    public Resource getResource() { return resourceContainer.getResource(); }
+    public int getResourceQty() { return resourceContainer.getQty(); }
+    public ResourceContainer getResourceContainer() { return resourceContainer; }
 }

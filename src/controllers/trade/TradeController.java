@@ -5,51 +5,80 @@
  */
 package controllers.trade;
 
+import ancient.resources.Resource;
 import hungarian.Hungarian;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  *
  * @author brock
  */
 public class TradeController {
-    private final ArrayList<Buyer> buyers = new ArrayList<>();
-    private final ArrayList<Seller> sellers = new ArrayList<>();
+    private final HashMap<Resource, List<Buyer>> buyers = new HashMap<>();
+    private final HashMap<Resource, List<Seller>> sellers = new HashMap<>();
 
-    public TradeController() {
 
-    }
+    public TradeController() {}
 
     /**
      * go through list of buyers and sellers
      * and match together
      */
     public void processTrades() {
-        Hungarian h = new Hungarian(sellers, buyers);
-        h.compute();
+        for (Resource resource : (List<Resource>)sellers.keySet()) {
+            /* check if there are both buyers and sellers for that resource */
+            if (!buyers.containsKey(resource)) {
+                continue;
+            }
+            List<Seller> sellerList = sellers.get(resource);
+            List<Buyer> buyerList = buyers.get(resource);
 
-        for (Seller i : sellers) {
-            i.sell();
+            if (sellerList.isEmpty() || buyerList.isEmpty()) {
+                continue;
+            }
+
+            Hungarian h = new Hungarian(sellerList, buyerList);
+            h.compute();
+
+            for (Seller i : sellerList) {
+                i.sell();
+            }
+
+            buyerList.clear();
+            sellerList.clear();
         }
-
-        buyers.clear();
-        sellers.clear();
     }
 
     /**
      * Adds a sell offer to the list of trades to process
-     * @param offer
+     * @param seller
      */
-    public void add(Seller offer) {
-        sellers.add(offer);
+    public void add(Seller seller) {
+        if (sellers.containsKey(seller.getResource())) {
+            sellers.put(seller.getResource(), new ArrayList<>());
+        }
+        List<Seller> list = sellers.get(seller.getResource());
+
+        if (list.indexOf(seller) > -1) {
+            list.add(seller);
+        }
     }
 
     /**
      * Adds a buy request to the list of trades to process
-     * @param request
+     * @param buyer
      */
-    public void add(Buyer request) {
-       buyers.add(request);
+    public void add(Buyer buyer) {
+        if (buyers.containsKey(buyer.getResource())) {
+            buyers.put(buyer.getResource(), new ArrayList<>());
+        }
+        List<Buyer> list = buyers.get(buyer.getResource());
+
+        if (list.indexOf(buyer) > -1) {
+            list.add(buyer);
+        }
     }
 
     /**
@@ -63,15 +92,5 @@ public class TradeController {
         for (int i = 0; i < buyers.size(); i ++) {
             System.out.println(buyers.get(i));
         }
-    }
-
-    public static void main(String[] args) {
-        TradeController tCon = new TradeController();
-        tCon.add(new Buyer(null, 1, 1, "food"));
-        tCon.add(new Seller(null, 1, 1, "food"));
-
-        tCon.processTrades();
-
-        tCon.printTrades();
     }
 }

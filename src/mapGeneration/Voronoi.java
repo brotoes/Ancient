@@ -5,7 +5,7 @@
  */
 package mapGeneration;
 
-import map.Province;
+import ancient.map.Province;
 import fastnoise.FastNoise;
 import java.util.ArrayList;
 import java.util.Random;

@@ -5,6 +5,7 @@
  */
 package controllers.game;
 
+import ancient.Main;
 import java.util.ArrayList;
 
 /**
@@ -28,6 +29,9 @@ public class TurnController {
         }
         dispatching = false;
         processAddQueue();
+
+        /* process trades */
+        Main.app.getPlayState().getTradeController().processTrades();
     }
 
     /**

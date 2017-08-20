@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package map;
+package ancient.map;
 
 import ancient.Main;
 import appStates.PlayAppState;
-import buildings.Building;
-import buildings.BuildingFactory;
+import ancient.buildings.Building;
+import ancient.buildings.BuildingFactory;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -26,7 +26,7 @@ import mapGeneration.Selectable;
 import mapGeneration.Voronoi;
 import pathfinder.Pathable;
 import pathfinder.Pathfinder;
-import pawns.Pawn;
+import ancient.pawns.Pawn;
 
 /**
  *

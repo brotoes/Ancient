@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package map;
+package ancient.map;
 
 import com.jme3.math.ColorRGBA;
 import java.io.File;
@@ -16,6 +16,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import utils.ArrUtils;
+import utils.XMLUtils;
 
 /**
  *
@@ -27,14 +28,14 @@ public class TerrainType {
     private final static HashMap<String, TerrainType> TYPES = new HashMap<>();
     private final static HashMap<String, TerrainMetric> METRICS_NAME = new HashMap<>();
     private final static HashMap<String, ArrayList<TerrainMetric>> METRICS_CAT = new HashMap<>();
-    
+
     /* Instance Variables */
     private String name;
     private ColorRGBA color;
     private ArrayList<TerrainMetric> metrics = new ArrayList<>();
-    
+
     /**
-     * Traverse XML and create TerrainTypes. 
+     * Traverse XML and create TerrainTypes.
      * Map values to their TerrainTypes
      */
     public static void load() {
@@ -44,9 +45,9 @@ public class TerrainType {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);
-            
+
             doc.getDocumentElement().normalize();
-            
+
             /* Traverse list of metrics and store */
             NodeList catNodes = doc.getElementsByTagName("Metrics").item(0).getChildNodes();
             for (int i = 0; i < catNodes.getLength(); i ++) {
@@ -61,10 +62,10 @@ public class TerrainType {
                         continue;
                     }
                     TerrainMetric metric = new TerrainMetric(catNode.getNodeName(), metricNode);
-                    
+
                     /* store loaded metric */
                     METRICS_NAME.put(metric.getName(), metric);
-                    
+
                     if (METRICS_CAT.get(metric.getCategory()) == null) {
                         ArrayList<TerrainMetric> newList = new ArrayList<>();
                         newList.add(metric);
@@ -74,7 +75,7 @@ public class TerrainType {
                     }
                 }
             }
-            
+
             /* Traverse list of TerrainTypes and store */
             NodeList typeNodes = doc.getElementsByTagName("Types").item(0).getChildNodes();
             for (int i = 0; i < typeNodes.getLength(); i ++) {
@@ -89,17 +90,17 @@ public class TerrainType {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * return TerrainType for given values
-     * 
+     *
      * @param elevation
      * @param temperature
-     * @return 
+     * @return
      */
     public static TerrainType getTerrainType(float elevation, float temperature) {
         ArrayList<TerrainMetric> metrics = new ArrayList<>(2);
-        
+
         /* find elevation */
         ArrayList<TerrainMetric> elevations = METRICS_CAT.get("Elevation");
         if (elevations != null) {
@@ -115,7 +116,7 @@ public class TerrainType {
         } else {
             System.err.println("Warning: No Elevation Metrics Loaded.");
         }
-        
+
         /* find temperature */
         ArrayList<TerrainMetric> temps = METRICS_CAT.get("Temperature");
         if (temps != null) {
@@ -131,31 +132,31 @@ public class TerrainType {
         } else {
             System.err.println("Warning No Temperature Metrics Loaded.");
         }
-        
+
         return getTerrainType(metrics);
     }
-    
+
     /**
      * return TerrainType corresponding to supplied name
      * @param name
-     * @return 
+     * @return
      */
     public static TerrainType getTerrainType(String name) {
         return TYPES.get(name);
     }
-    
+
     /**
      * return TerrainType corresponding to supplied metrics
      * returns null if nothing found
      * @param neededMetrics
-     * @return 
+     * @return
      */
     public static TerrainType getTerrainType(ArrayList<TerrainMetric> neededMetrics) {
         Iterator i = TYPES.entrySet().iterator();
         while (i.hasNext()) {
             HashMap.Entry<String, TerrainType> pair = (HashMap.Entry)i.next();
             TerrainType curType = pair.getValue();
-            
+
             if (ArrUtils.isSubset(neededMetrics, curType.metrics)) {
                 return curType;
             }
@@ -166,11 +167,11 @@ public class TerrainType {
         }
         return null;
     }
-    
+
     /**
      * Build new TerrainType from XML node
-     * 
-     * @param node 
+     *
+     * @param node
      */
     private TerrainType(Node node) {
         NodeList childNodes = node.getChildNodes();
@@ -182,7 +183,7 @@ public class TerrainType {
             }
             switch (childNode.getNodeName()) {
                 case "Color":
-                    processColor(childNode);
+                    XMLUtils.getColor(childNode);
                     break;
                 case "Metrics":
                     processMetrics(childNode);
@@ -191,23 +192,6 @@ public class TerrainType {
         }
     }
 
-    /* Functions to process node types */
-    
-    /**
-     * Takes Color node and assigns color
-     */
-    private void processColor(Node node) {
-        String[] vals = node.getTextContent().split(",");
-        if (vals.length != 3) {
-            System.err.println("Warning: Invalid Color String");
-            color = ColorRGBA.White;
-        } else {
-            color = new ColorRGBA(Float.valueOf(vals[0])/255,
-                    Float.valueOf(vals[1])/255,
-                    Float.valueOf(vals[2])/255, 1.0f);
-        }
-    }
-    
     /**
      * Takes Node containing valid metrics and adds them to the instance
      */
@@ -230,7 +214,7 @@ public class TerrainType {
             }
         }
     }
-    
+
     public ColorRGBA getColor() { return color; }
     public String getName() { return name; }
 }

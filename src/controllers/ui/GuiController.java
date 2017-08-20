@@ -6,7 +6,7 @@
 package controllers.ui;
 
 import ancient.Main;
-import buildings.BuildingFactory;
+import ancient.buildings.BuildingFactory;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
@@ -18,9 +18,9 @@ import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
 import java.util.ArrayList;
 import java.util.List;
-import map.Province;
+import ancient.map.Province;
 import mapGeneration.Selectable;
-import pawns.Pawn;
+import ancient.pawns.Pawn;
 
 /**
  * Controls the GUI

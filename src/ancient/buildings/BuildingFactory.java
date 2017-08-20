@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package buildings;
+package ancient.buildings;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import map.Province;
+import ancient.map.Province;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -61,6 +61,9 @@ public class BuildingFactory {
         NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i ++) {
             Node child = children.item(i);
+            if (child.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
             switch (child.getNodeName()) {
                 case "Description":
                     desc = child.getTextContent().trim();
@@ -80,7 +83,11 @@ public class BuildingFactory {
     private void processResourceList(Node node, List<String> list) {
         NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i ++) {
-            
+            Node child = children.item(i);
+            if (child.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
+            list.add(child.getNodeName());
         }
     }
 

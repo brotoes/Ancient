@@ -5,9 +5,9 @@
  */
 package controllers.ui;
 
-import map.Province;
+import ancient.map.Province;
 import mapGeneration.Selectable;
-import pawns.Pawn;
+import ancient.pawns.Pawn;
 
 /**
  *

@@ -13,14 +13,14 @@ Child resources are not necessarily derived from their parents.
 <Resources>
     <Food>
         <BaseValue>1</BaseValue>
+        <Color>0,255,0</Color>
     </Food>
     <Wood>
         <BaseValue>2</BaseValue>
+        <Color>99,67,14</Color>
     </Wood>
-    <Money>
-        <BaseValue>1</BaseValue>
-    </Money>
     <Population>
         <BaseValue>3</BaseValue>
+        <Color>255,233,168</Color>
     </Population>
 </Resources>

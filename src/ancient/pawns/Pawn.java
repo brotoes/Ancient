@@ -1,4 +1,4 @@
-package pawns;
+package ancient.pawns;
 
 
 import ancient.Main;
@@ -10,7 +10,9 @@ import com.jme3.scene.shape.Box;
 import com.jme3.shader.VarType;
 import controllers.game.TurnListener;
 import java.util.ArrayList;
-import map.Province;
+import ancient.map.Province;
+import ancient.resources.Resource;
+import ancient.resources.ResourceContainer;
 import mapGeneration.Selectable;
 
 /*
@@ -33,16 +35,29 @@ public class Pawn implements Selectable, TurnListener {
     private final Material mat;
     private final ColorRGBA color = ColorRGBA.Red;
     private final ColorRGBA selectedColor = ColorRGBA.White;
+    private final ResourceContainer resourceContainer;
 
     private ArrayList<Province> path = null;
     private Province province;
     private Geometry pathGeom;
 
+    public static Pawn newPawn(Province prov, Resource resource, int qty) {
+        return Pawn.newPawn(prov, new ResourceContainer(resource, qty));
+    }
+
+    public static Pawn newPawn(Province prov, ResourceContainer resource) {
+        Pawn pawn = new Pawn(prov, resource);
+        Main.app.getPlayState().getTurnController().addListener(pawn);
+        prov.addPawn(pawn);
+        return pawn;
+    }
+
     /**
      * Spawns a new pawn at province
      * @param province
+     * @param resourceContainer
      */
-    public Pawn(Province province) {
+    public Pawn(Province province, ResourceContainer resourceContainer) {
         this.id = Pawn.nextId;
         Pawn.nextId ++;
         this.province = province;
@@ -60,6 +75,8 @@ public class Pawn implements Selectable, TurnListener {
         geom.setUserData("clickTarget", new Selectable[]{this});
         pivot.attachChild(geom);
         pivot.setLocalTranslation(province.getPivot().getLocalTranslation());
+
+        this.resourceContainer = resourceContainer;
     }
 
     @Override
@@ -120,8 +137,8 @@ public class Pawn implements Selectable, TurnListener {
     /* Getters and setters */
     public Province getProvince() { return province; }
     public int getId() { return id; }
-    public void setDestination(Province dest) {
-        path = dest.getPath(province);
-    }
+    public void setDestination(Province dest) { path = dest.getPath(province); }
     public Province getDestination() { return path.get(path.size() - 1); }
+    public ResourceContainer getResourceContainer() { return resourceContainer; }
+    public Resource getResource() { return resourceContainer.getResource(); }
 }

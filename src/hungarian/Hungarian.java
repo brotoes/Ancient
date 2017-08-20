@@ -5,7 +5,7 @@
  */
 package hungarian;
 
-import buildings.Building;
+import ancient.buildings.Building;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

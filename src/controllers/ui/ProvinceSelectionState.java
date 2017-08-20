@@ -6,9 +6,9 @@
 package controllers.ui;
 
 import ancient.Main;
-import map.Province;
+import ancient.map.Province;
 import mapGeneration.Selectable;
-import pawns.Pawn;
+import ancient.pawns.Pawn;
 
 /**
  * Controls selections when a province is selected

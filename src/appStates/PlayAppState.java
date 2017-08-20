@@ -5,7 +5,7 @@
  */
 package appStates;
 
-import pawns.Pawn;
+import ancient.pawns.Pawn;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
@@ -25,7 +25,8 @@ import controllers.ui.CameraController;
 import controllers.ui.InputController;
 import de.lessvoid.nifty.Nifty;
 import java.util.ArrayList;
-import map.WorldMap;
+import ancient.map.WorldMap;
+import ancient.resources.Resource;
 
 /**
  *
@@ -81,6 +82,9 @@ public class PlayAppState extends AbstractAppState {
 
         node.addLight(sun);
         node.addLight(camLight);
+
+        /* set up world data */
+        Resource.parseResources();
 
         /* set up the scene */
         turnCon = new TurnController();
@@ -146,4 +150,5 @@ public class PlayAppState extends AbstractAppState {
     public InputManager getInputManager() { return inputManager; }
     public CameraController getCameraController () { return camCon; }
     public TurnController getTurnController() { return turnCon; }
+    public TradeController getTradeController() { return tradeCon; }
 }

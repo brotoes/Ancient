@@ -5,7 +5,9 @@
  */
 package controllers.trade;
 
-import buildings.Building;
+import ancient.buildings.Building;
+import ancient.resources.Resource;
+import ancient.resources.ResourceContainer;
 import hungarian.Matchable;
 
 /**
@@ -14,19 +16,13 @@ import hungarian.Matchable;
  */
 public class Buyer implements Matchable {
     private final Building building;
-    /* Quantity desired */
-    private final int qty;
-    private final int maxPrice;
-    // TEMPORARY
-    private final String resource;
+    private final ResourceContainer resourceContainer;
 
     private Seller seller = null;
 
-    public Buyer(Building b, int qty, int max, String resource) {
+    public Buyer(Building b, ResourceContainer resourceContainer) {
         this.building = b;
-        this.qty = qty;
-        this.maxPrice = max;
-        this.resource = resource;
+        this.resourceContainer = resourceContainer;
     }
 
     public Seller getSeller() {
@@ -39,7 +35,7 @@ public class Buyer implements Matchable {
 
     @Override
     public String toString() {
-        return "Buying " + qty + " " + resource + " for " + maxPrice;
+        return "Buying " + resourceContainer;
     }
 
     @Override
@@ -63,4 +59,7 @@ public class Buyer implements Matchable {
 
     /* getters and setters */
     public Building getBuilding() { return building; }
+    public Resource getResource() { return resourceContainer.getResource(); }
+    public int getQty() { return resourceContainer.getQty(); }
+    public ResourceContainer getResourceContainer() { return resourceContainer; }
 }
