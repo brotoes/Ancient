@@ -18,6 +18,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.VarType;
 import com.jme3.util.BufferUtils;
+import controllers.game.TurnListener;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import kn.uni.voronoitreemap.j2d.PolygonSimple;
@@ -25,12 +26,13 @@ import mapGeneration.Selectable;
 import mapGeneration.Voronoi;
 import pathfinder.Pathable;
 import pathfinder.Pathfinder;
+import pawns.Pawn;
 
 /**
  *
  * @author brock
  */
-public class Province implements Selectable, Pathable {
+public class Province implements Selectable, Pathable, TurnListener {
     private static int nextId = 0;
 
     /* Graphical vars*/
@@ -63,6 +65,7 @@ public class Province implements Selectable, Pathable {
     private Pathfinder<Province> pathfinder = null;
 
     /* Gameplay Vars */
+    private final ArrayList<Pawn> pawns = new ArrayList<>();
     private final ArrayList<Building> buildings = new ArrayList<>();
 
     /**
@@ -199,14 +202,6 @@ public class Province implements Selectable, Pathable {
     }
 
     /**
-     * Adds a building to the province
-     * @param building
-     */
-    public void addBuilding(Building building) {
-        buildings.add(building);
-    }
-
-    /**
      * returns true if a buildingFactory is valid for this province
      * @param fac
      * @return
@@ -266,7 +261,9 @@ public class Province implements Selectable, Pathable {
         if (pathfinder == null) {
             pathfinder = new Pathfinder<>(this);
         }
-        return pathfinder.getPath(prov);
+        ArrayList<Province> path = pathfinder.getPath(prov);
+
+        return path;
     }
 
     /**
@@ -322,5 +319,46 @@ public class Province implements Selectable, Pathable {
 
     public int getNumBuildings() {
         return buildings.size();
+    }
+
+
+    /**
+     * Adds a building to the province
+     * @param building
+     */
+    public void addBuilding(Building building) {
+        buildings.add(building);
+    }
+
+    public Pawn getPawn(int index) {
+        return pawns.get(index);
+    }
+
+    public void removePawn(Pawn pawn) {
+        pawns.remove(pawn);
+    }
+
+    public int getNumPawns() {
+        return pawns.size();
+    }
+
+    public float getDistance(Province prov) {
+        return pivot.getLocalTranslation().distance(
+                prov.getPivot().getLocalTranslation());
+    }
+
+    /**
+     * Adds a pawn to the province
+     * @param pawn
+     */
+    public void addPawn(Pawn pawn) {
+        pawns.add(pawn);
+    }
+
+    @Override
+    public void nextTurn() {
+        for (Building b : buildings) {
+            b.produce();
+        }
     }
 }

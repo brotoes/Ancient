@@ -5,7 +5,8 @@
  */
 package utils;
 
-import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  *
@@ -18,13 +19,13 @@ public class ArrUtils {
      * @param <T>
      * @param a subset
      * @param b superset
-     * @return 
+     * @return
      */
     public static <T> boolean isSubset(T[] a, T[] b) {
         if (a.length > b.length) {
             return false;
         }
-        
+
         for (int i = 0; i < a.length; i ++) {
             boolean found = false;
             for (int j = 0; j < b.length; j ++) {
@@ -37,15 +38,15 @@ public class ArrUtils {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
-    public static <T> boolean isSubset(ArrayList<T> a, ArrayList<T> b) {
+
+    public static <T> boolean isSubset(List<T> a, List<T> b) {
         if (a.size() > b.size()) {
             return false;
         }
-        
+
         for (int i = 0; i < a.size(); i ++) {
             boolean found = false;
             for (int j = 0; j < b.size(); j ++) {
@@ -58,16 +59,34 @@ public class ArrUtils {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     public static float[] castToFloat(double[] arr) {
         float[] newArr = new float[arr.length];
         for (int i = 0; i < arr.length; i ++) {
             newArr[i] = (float)arr[i];
         }
-        
+
         return newArr;
+    }
+
+    /**
+     * inserts an element while maintaing the list's sorted status.
+     * assumes list is already sorted.
+     * @param <T>
+     * @param list
+     * @param item
+     * @param comp
+     */
+    public static <T> void insertSorted(List<T> list, T item, Comparator<T> comp) {
+        for (int i = 0; i < list.size(); i ++) {
+            if (comp.compare(list.get(i), item) > 0) {
+                list.add(i, item);
+                return;
+            }
+        }
+        list.add(item);
     }
 }

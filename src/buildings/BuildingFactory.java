@@ -7,6 +7,7 @@ package buildings;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import map.Province;
@@ -23,6 +24,9 @@ public class BuildingFactory {
     private static ArrayList<BuildingFactory> buildingFactories = null;
 
     private final String name;
+    private final List<String> ins = new ArrayList<>();
+    private final List<String> outs = new ArrayList<>();
+    private String desc = "NO DESCRIPTION";
 
     /**
      * reads XML document and creates a Factory for each type of building
@@ -54,17 +58,41 @@ public class BuildingFactory {
 
     private BuildingFactory(Node node) {
         this.name = node.getNodeName();
+        NodeList children = node.getChildNodes();
+        for (int i = 0; i < children.getLength(); i ++) {
+            Node child = children.item(i);
+            switch (child.getNodeName()) {
+                case "Description":
+                    desc = child.getTextContent().trim();
+                    break;
+                case "Input":
+                    processResourceList(child, ins);
+                    break;
+                case "Output":
+                    processResourceList(child, outs);
+                    break;
+                default:
+                    System.err.println("Warning: Unrecognized building attribute");
+            }
+        }
     }
 
-    public Building getBuilding() {
-        return new Building(name, "Description goes here");
+    private void processResourceList(Node node, List<String> list) {
+        NodeList children = node.getChildNodes();
+        for (int i = 0; i < children.getLength(); i ++) {
+            
+        }
+    }
+
+    public Building getBuilding(Province prov) {
+        return new Building(name, desc, prov, ins, outs);
     }
 
     public String getName() {
         return name;
     }
     public String getDesc() {
-        return "Description goes here";
+        return desc;
     }
 
     @Override

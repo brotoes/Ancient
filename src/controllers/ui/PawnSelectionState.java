@@ -6,7 +6,6 @@
 package controllers.ui;
 
 import ancient.Main;
-import com.jme3.scene.Geometry;
 import map.Province;
 import mapGeneration.Selectable;
 import pawns.Pawn;
@@ -19,20 +18,20 @@ public class PawnSelectionState extends SelectionState{
     public PawnSelectionState(Pawn pawn) {
         super(pawn);
     }
-    
+
     @Override
     public void leftClick(Selectable clicked) {
         if (clicked instanceof Province) {
             setState(new ProvinceSelectionState((Province)clicked));
         } else if (clicked instanceof Pawn) {
-            if (getSelected().getId() == ((Pawn) clicked).getId()) {
+            if (getSelected().getId() == ((Pawn)clicked).getId()) {
                 setState(new EmptySelectionState());
             } else {
                 setState(new PawnSelectionState((Pawn)clicked));
             }
         }
     }
-    
+
     @Override
     public void rightClick(Selectable clicked) {
         Province prov;
@@ -43,23 +42,22 @@ public class PawnSelectionState extends SelectionState{
         } else {
             return;
         }
-        
-        Geometry pathGeom = getSelected().getProvince().getPathGeom(prov);
-        Main.app.getPlayState().getTopNode().attachChild(pathGeom);
+        getSelected().setDestination(prov);
+        getSelected().showPathGeom();
     }
-    
+
     @Override
     protected void set() {
         super.set();
         Main.app.getGuiController().showInfoPanel(getSelected());
     }
-    
+
     @Override
     protected void unset() {
         super.unset();
         Main.app.getGuiController().hideInfoPanel();
     }
-    
+
     @Override
     public Pawn getSelected() {
         return (Pawn)super.getSelected();

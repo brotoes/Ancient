@@ -13,12 +13,12 @@ import mapGeneration.Selectable;
  */
 public class SelectionController {
     private SelectionState state;
-    
+
     public SelectionController() {
         state = new EmptySelectionState();
         SelectionState.setController(this);
     }
-    
+
     public void click(Selectable clicked, boolean left) {
         if (left) {
             state.leftClick(clicked);
@@ -26,13 +26,13 @@ public class SelectionController {
             state.rightClick(clicked);
         }
     }
-    
+
     public void setState(SelectionState newState) {
         state.unset();
         state = newState;
         state.set();
     }
-    
+
     public Selectable getSelected() {
         return state.getSelected();
     }

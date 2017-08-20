@@ -17,25 +17,25 @@ import java.util.Queue;
  */
 public class Pathfinder<T extends Pathable> {
     private final HashMap<T, SpanNode<T>> nodes = new HashMap<>();
-    
+
     /**
      * Instantiates Pathfinder object with spanning tree from root
-     * 
-     * @param root 
+     *
+     * @param root
      */
     public Pathfinder(T root) {
         getSpanningTree(root);
     }
-    
+
     /**
      * Generates a spanning tree and stores nodes in nodes
-     * @param elem 
+     * @param elem
      */
     private void getSpanningTree(T elem) {
         Queue<SpanNode<T>> queue = new LinkedList<>();
-        
+
         queue.add(new SpanNode<>(elem, null));
-        
+
         while (queue.size() > 0) {
             SpanNode<T> next = queue.remove();
             ArrayList<T> adjs = next.getContents().getNeighbors();
@@ -48,22 +48,21 @@ public class Pathfinder<T extends Pathable> {
             }
         }
     }
-    
+
     /**
      * returns path from node to root
      * @param start
-     * @return 
+     * @return
      */
     public ArrayList<T> getPath(T start) {
         ArrayList<T> path = new ArrayList<>();
-        path.add(start);
         SpanNode<T> nextNode = nodes.get(start);
-        
+
         while(nextNode != null) {
             path.add(nextNode.getContents());
             nextNode = nextNode.getParent();
         }
-        
+
         return path;
     }
 }

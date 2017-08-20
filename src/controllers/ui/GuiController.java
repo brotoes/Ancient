@@ -5,6 +5,7 @@
  */
 package controllers.ui;
 
+import ancient.Main;
 import buildings.BuildingFactory;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
@@ -91,7 +92,9 @@ public class GuiController extends AbstractAppState implements ScreenController 
     }
 
     public void showInfoPanel(Pawn pawn) {
-
+        selected = pawn;
+        visInfoPanel = pawnPanel;
+        visInfoPanel.show();
     }
 
     public void hideInfoPanel() {
@@ -149,17 +152,17 @@ public class GuiController extends AbstractAppState implements ScreenController 
         }
         List<BuildingFactory> selection = buildingList.getSelection();
         /* build that building */
-        if (selection.size() == 0) {
+        if (selection.isEmpty()) {
             return;
         }
         BuildingFactory fac = selection.get(0);
-        ((Province)selected).addBuilding(fac.getBuilding());
+        ((Province)selected).addBuilding(fac.getBuilding((Province)selected));
         /*update the interface*/
         populateExistingBuildings((Province)selected);
         populateAvailableBuildings((Province)selected);
     }
 
     public void turnButton() {
-        System.out.println("Next Turn");
+        Main.app.getPlayState().getTurnController().dispatchNextTurn();
     }
 }

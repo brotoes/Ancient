@@ -29,26 +29,26 @@ public class InputController {
     private final PlayAppState state;
     private final InputManager im;
     private final CameraController camCon;
-    
+
     private float zoomSpeed = 0.1f;
     private float scrollSpeed = 50.0f;
-    
+
     private final SelectionController selCon = new SelectionController();
-    
+
     public InputController(PlayAppState state) {
         this.state = state;
         im = state.getInputManager();
         camCon = state.getCameraController();
-        
+
         im.setCursorVisible(true);
         im.clearMappings();
-        
+
         //TODO: Load Config
-        
+
         /* Add Mouse Mappings */
         im.addMapping("ZoomOut", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
         im.addMapping("ZoomIn", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
-        
+
         /* Add Key Mappings */
         im.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
         im.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
@@ -56,12 +56,12 @@ public class InputController {
         im.addMapping("Down", new KeyTrigger(KeyInput.KEY_S));
         im.addMapping("LeftClick", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         im.addMapping("RightClick", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
-        
-        
+
+
         /* Add Listeners */
         im.addListener(analogListener, "ZoomIn");
         im.addListener(analogListener, "ZoomOut");
-        
+
         im.addListener(actionListener, "Left");
         im.addListener(actionListener, "Right");
         im.addListener(actionListener, "Up");
@@ -69,7 +69,7 @@ public class InputController {
         im.addListener(actionListener, "LeftClick");
         im.addListener(actionListener, "RightClick");
     }
-    
+
     /**
      * handles mouse click. Collides ray from mouse click with scene
      * @param pos coordinates of mouse click
@@ -81,9 +81,9 @@ public class InputController {
         CollisionResults results = new CollisionResults();
         Vector3f pos3d = camCon.getCamera().getWorldCoordinates(pos, 0f).clone();
         Vector3f dir = camCon.getCamera().getWorldCoordinates(pos, 1.0f).subtractLocal(pos3d).normalizeLocal();
-        
+
         Ray ray = new Ray(pos3d, dir);
-        
+
         state.getNode().collideWith(ray, results);
         /* sort through results and find first pickable node */
         CollisionResult closest = null;
@@ -91,13 +91,14 @@ public class InputController {
             closest = results.getCollision(i);
             /* nodes only support arrays of objects not objects in user data. */
             Selectable[] clickTarget = (Selectable[])closest.getGeometry().getUserData("clickTarget");
-            
+
             if (clickTarget != null && clickTarget.length > 0) {
                 selCon.click(clickTarget[0], left);
+                break;
             }
         }
     }
-    
+
     private ActionListener actionListener = new ActionListener() {
         @Override
         public void onAction(String name, boolean keyPressed, float tpf) {
@@ -130,7 +131,7 @@ public class InputController {
             }
         }
     };
-    
+
     private AnalogListener analogListener = new AnalogListener() {
         @Override
         public void onAnalog(String name, float value, float tpf) {
@@ -144,6 +145,6 @@ public class InputController {
             }
         }
     };
-    
+
     public Selectable getSelected() { return selCon.getSelected(); }
 }
