@@ -175,7 +175,7 @@ public class TerrainType {
      */
     private TerrainType(Node node) {
         NodeList childNodes = node.getChildNodes();
-        name = node.getNodeName();
+        name = node.getNodeName().trim();
         for (int i = 0; i < childNodes.getLength(); i ++) {
             Node childNode = childNodes.item(i);
             if (childNode.getNodeType() != Node.ELEMENT_NODE) {
@@ -183,7 +183,7 @@ public class TerrainType {
             }
             switch (childNode.getNodeName()) {
                 case "Color":
-                    XMLUtils.getColor(childNode);
+                    color = XMLUtils.getColor(childNode);
                     break;
                 case "Metrics":
                     processMetrics(childNode);

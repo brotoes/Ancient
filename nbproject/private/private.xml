@@ -3,11 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/controllers/SelectionState.java</file>
-            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/map/TerrainType.java</file>
-            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/controllers/GuiController.java</file>
-            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/buildings/BuildingFactory.java</file>
-            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/map/Province.java</file>
+            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/ancient/map/Province.java</file>
+            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/ancient/pawns/Pawn.java</file>
         </group>
     </open-files>
 </project-private>

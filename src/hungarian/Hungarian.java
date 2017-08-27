@@ -5,10 +5,8 @@
  */
 package hungarian;
 
-import ancient.buildings.Building;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import utils.ArrUtils;
 
 /**
@@ -37,6 +35,20 @@ public class Hungarian<T extends Matchable, S extends Matchable> {
         for (S i : right) {
             rightNodes.add(new Node<>(i, false));
         }
+
+        /* if the lists are of different sizes, even out with null nodes */
+        /*if (leftNodes.size() < rightNodes.size()) {
+            int diff = rightNodes.size() - leftNodes.size();
+            for (int i = 0; i < diff; i ++) {
+                leftNodes.add(new Node<>(null, true));
+            }
+        } else if (rightNodes.size() < leftNodes.size()) {
+            int diff = leftNodes.size() - rightNodes.size();
+            for (int i = 0; i < diff; i ++) {
+                rightNodes.add(new Node<>(null, false));
+            }
+        }*/
+
         /* connect all nodes */
         for (Node i : leftNodes) {
             for (Node j: rightNodes) {

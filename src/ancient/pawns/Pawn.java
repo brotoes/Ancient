@@ -2,6 +2,7 @@ package ancient.pawns;
 
 
 import ancient.Main;
+import ancient.buildings.Building;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import ancient.map.Province;
 import ancient.resources.Resource;
 import ancient.resources.ResourceContainer;
+import java.util.List;
 import mapGeneration.Selectable;
 
 /*
@@ -37,7 +39,8 @@ public class Pawn implements Selectable, TurnListener {
     private final ColorRGBA selectedColor = ColorRGBA.White;
     private final ResourceContainer resourceContainer;
 
-    private ArrayList<Province> path = null;
+    private List<Province> path = null;
+    private Building destinationBuilding = null;
     private Province province;
     private Geometry pathGeom;
 
@@ -58,6 +61,7 @@ public class Pawn implements Selectable, TurnListener {
      * @param resourceContainer
      */
     public Pawn(Province province, ResourceContainer resourceContainer) {
+        this.resourceContainer = resourceContainer;
         this.id = Pawn.nextId;
         Pawn.nextId ++;
         this.province = province;
@@ -67,7 +71,7 @@ public class Pawn implements Selectable, TurnListener {
         box = new Box(0.4f,0.4f,0.4f);
         geom = new Geometry("geom", box);
         mat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
-        mat.setColor("Diffuse", color);
+        mat.setColor("Diffuse", resourceContainer.getResource().getColor());
         mat.setParam("UseMaterialColors", VarType.Boolean, true);
         geom.setMaterial(mat);
         geom.setLocalTranslation(0, 0, 0.5f);
@@ -75,8 +79,6 @@ public class Pawn implements Selectable, TurnListener {
         geom.setUserData("clickTarget", new Selectable[]{this});
         pivot.attachChild(geom);
         pivot.setLocalTranslation(province.getPivot().getLocalTranslation());
-
-        this.resourceContainer = resourceContainer;
     }
 
     @Override
@@ -115,6 +117,15 @@ public class Pawn implements Selectable, TurnListener {
         if (pathGeom != null) {
             showPathGeom();
         }
+
+        /* if arrived at destination building, put resources into building */
+        if (destinationBuilding != null &&
+                destinationBuilding.getProvince() == getProvince()) {
+            destinationBuilding.addResource(resourceContainer);
+            Main.app.getPlayState().getNode().detachChild(pivot);
+            this.province.removePawn(this);
+            this.province = null;
+        }
     }
 
     public void showPathGeom() {
@@ -132,6 +143,11 @@ public class Pawn implements Selectable, TurnListener {
             Main.app.getPlayState().getTopNode().detachChild(pathGeom);
             pathGeom = null;
         }
+    }
+
+    public void setDestination(Building building) {
+        setDestination(building.getProvince());
+        destinationBuilding = building;
     }
 
     /* Getters and setters */

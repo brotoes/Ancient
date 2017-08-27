@@ -38,8 +38,10 @@ public class Seller implements Matchable {
      * Creates pawn and sends to buyer
      */
     public void sell() {
-        Pawn pawn = Pawn.newPawn(building.getProvince(), resourceContainer);
-        pawn.setDestination(buyer.getBuilding().getProvince());
+        if (buyer != null) {
+            Pawn pawn = Pawn.newPawn(building.getProvince(), resourceContainer);
+            pawn.setDestination(buyer.getBuilding().getProvince());
+        }
     }
 
     @Override

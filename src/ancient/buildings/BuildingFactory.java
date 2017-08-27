@@ -11,6 +11,8 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import ancient.map.Province;
+import ancient.resources.Resource;
+import ancient.resources.ResourceContainer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -24,8 +26,8 @@ public class BuildingFactory {
     private static ArrayList<BuildingFactory> buildingFactories = null;
 
     private final String name;
-    private final List<String> ins = new ArrayList<>();
-    private final List<String> outs = new ArrayList<>();
+    private final List<ResourceContainer> ins = new ArrayList<>();
+    private final List<ResourceContainer> outs = new ArrayList<>();
     private String desc = "NO DESCRIPTION";
 
     /**
@@ -80,15 +82,31 @@ public class BuildingFactory {
         }
     }
 
-    private void processResourceList(Node node, List<String> list) {
+    private void processResourceList(Node node, List<ResourceContainer> list) {
         NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i ++) {
             Node child = children.item(i);
             if (child.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-            list.add(child.getNodeName());
+            list.add(parseResourceNode(child));
         }
+    }
+
+    public ResourceContainer parseResourceNode(Node node) {
+        int qty;
+        Resource res;
+
+        String key = node.getNodeName();
+        res = Resource.getResource(key);
+        qty = Integer.valueOf(node.getTextContent().trim());
+
+        if (res == null || qty < 0) {
+            System.err.println("Error: Could not parse resource node: " + key);
+            return null;
+        }
+
+        return new ResourceContainer(res, qty);
     }
 
     public Building getBuilding(Province prov) {

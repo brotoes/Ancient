@@ -32,6 +32,9 @@ public class Resource {
         NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i ++) {
             Node child = children.item(i);
+            if (child.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
+            }
             switch (child.getNodeName()) {
                 case "BaseValue":
                     value = Integer.valueOf(child.getTextContent().trim());
@@ -78,7 +81,6 @@ public class Resource {
     }
 
     /* getters and setters */
-    public Resource getResource(String name) {
-        return resources.get(name);
-    }
+    public static Resource getResource(String name) { return resources.get(name); }
+    public ColorRGBA getColor() { return color; }
 }

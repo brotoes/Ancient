@@ -5,7 +5,7 @@
  */
 package pathfinder;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -13,5 +13,5 @@ import java.util.ArrayList;
  * @param <T> Type of neighbors
  */
 public interface Pathable<T> {
-    public ArrayList<T> getNeighbors();
+    public List<T> getNeighbors();
 }

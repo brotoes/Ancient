@@ -6,9 +6,15 @@
 package ancient.map;
 
 import ancient.Main;
-import ancient.map.Province;
+import com.jme3.math.ColorRGBA;
+import com.jme3.scene.Node;
 import fastnoise.FastNoise;
 import fastnoise.FastNoise.NoiseType;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Queue;
 import kn.uni.voronoitreemap.j2d.Point2D;
 import kn.uni.voronoitreemap.j2d.PolygonSimple;
 import mapGeneration.Voronoi;
@@ -20,7 +26,7 @@ import utils.ArrUtils;
  */
 public class WorldMap {
     private final int nProvs = 1000;
-    private Province[] provs = new Province[nProvs];
+    private final Province[] provs = new Province[nProvs];
     private final int seed = 1337;
     private final int freq = 3;
     private final float amp = 2.0f;
@@ -28,6 +34,8 @@ public class WorldMap {
 
     private final int width = 100;
     private final int height = 90;
+
+    private final Node borderPivot = new Node("borderPivot");
 
     public WorldMap() {
         FastNoise elevationMap = new FastNoise(seed);
@@ -66,6 +74,30 @@ public class WorldMap {
         }
         for (Province p : provs) {
             p.findNeighbors();
+        }
+    }
+
+    /**
+     * runs logic for each province to border itself in the correct color
+     */
+    public void createBorders() {
+        borderPivot.detachAllChildren();
+        /* Group provinces by ownership, adjacency group */
+        HashMap<ColorRGBA, ArrayList<ArrayList<Province>>> groups = new HashMap<>();
+        List<Province> added = new ArrayList<>();
+
+        for (Province i : provs) {
+            if (added.contains(i)) {
+                continue;
+            }
+            Queue<Province> checkQueue = new ArrayDeque<>();
+            checkQueue.add(i);
+            added.add(i);
+            while (!checkQueue.isEmpty()) {
+                for (Province j : i.getNeighbors()) {
+
+                }
+            }
         }
     }
 

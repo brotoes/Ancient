@@ -8,6 +8,7 @@ package pathfinder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -38,7 +39,7 @@ public class Pathfinder<T extends Pathable> {
 
         while (queue.size() > 0) {
             SpanNode<T> next = queue.remove();
-            ArrayList<T> adjs = next.getContents().getNeighbors();
+            List<T> adjs = next.getContents().getNeighbors();
             for (T i : adjs) {
                 if (!nodes.containsKey(i)) {
                     SpanNode<T> node = new SpanNode<>(i, next);
@@ -54,8 +55,8 @@ public class Pathfinder<T extends Pathable> {
      * @param start
      * @return
      */
-    public ArrayList<T> getPath(T start) {
-        ArrayList<T> path = new ArrayList<>();
+    public List<T> getPath(T start) {
+        List<T> path = new ArrayList<>();
         SpanNode<T> nextNode = nodes.get(start);
 
         while(nextNode != null) {

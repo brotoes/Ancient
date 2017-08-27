@@ -27,6 +27,8 @@ import mapGeneration.Voronoi;
 import pathfinder.Pathable;
 import pathfinder.Pathfinder;
 import ancient.pawns.Pawn;
+import java.util.List;
+import java.util.Random;
 
 /**
  *
@@ -50,6 +52,7 @@ public class Province implements Selectable, Pathable, TurnListener {
     private final Node pivot = new Node("pivot");
     private final Node facePivot;
     private final Node outlinePivot;
+    private final Node modelPivot;
     private final TerrainType terrainType;
     private final PlayAppState playState;
     private final float LINE_WIDTH = 1.5f;
@@ -67,6 +70,8 @@ public class Province implements Selectable, Pathable, TurnListener {
     /* Gameplay Vars */
     private final ArrayList<Pawn> pawns = new ArrayList<>();
     private final ArrayList<Building> buildings = new ArrayList<>();
+    private ProvinceLevel level = null;
+    private ColorRGBA owner = ColorRGBA.White;
 
     /**
      * Generates new province
@@ -194,11 +199,17 @@ public class Province implements Selectable, Pathable, TurnListener {
         outlinePivot.attachChild(outlineGeom);
         pivot.attachChild(outlinePivot);
 
+        modelPivot = new Node("modelPivot");
+        Random rand = new Random();
+        modelPivot.rotate(0, 0, rand.nextFloat()*6.28f);
+        pivot.attachChild(modelPivot);
 
         /* display everything */
         playState.getNode().attachChild(pivot);
         outlinePivot.setLocalTranslation(new Vector3f(0.0f, 0.0f, OUTLINE_OFFSET));
         pivot.setLocalTranslation(center);
+
+        updateLevel();
     }
 
     /**
@@ -245,7 +256,7 @@ public class Province implements Selectable, Pathable, TurnListener {
     }
 
     @Override
-    public ArrayList getNeighbors() {
+    public List<Province> getNeighbors() {
         if(adjProvs == null) {
             findNeighbors();
         }
@@ -257,11 +268,11 @@ public class Province implements Selectable, Pathable, TurnListener {
      * @param prov
      * @return
      */
-    public ArrayList<Province> getPath(Province prov) {
+    public List<Province> getPath(Province prov) {
         if (pathfinder == null) {
             pathfinder = new Pathfinder<>(this);
         }
-        ArrayList<Province> path = pathfinder.getPath(prov);
+        List<Province> path = pathfinder.getPath(prov);
 
         return path;
     }
@@ -272,7 +283,7 @@ public class Province implements Selectable, Pathable, TurnListener {
      * @param path
      * @return
      */
-    public Geometry getPathGeom(ArrayList<Province> path) {
+    public Geometry getPathGeom(List<Province> path) {
         Material mat;
         Geometry geom;
         Mesh mesh = new Mesh();
@@ -327,7 +338,22 @@ public class Province implements Selectable, Pathable, TurnListener {
      * @param building
      */
     public void addBuilding(Building building) {
+        //TEMPORARY, remove
+        owner = ColorRGBA.Red;
+
         buildings.add(building);
+        updateLevel();
+    }
+
+    /**
+     * Sets the province level according the building count
+     */
+    private void updateLevel() {
+        modelPivot.detachAllChildren();
+        level = ProvinceLevel.getLevel(getNumBuildings());
+        if (level.getModel() != null) {
+            modelPivot.attachChild(level.getModel());
+        }
     }
 
     public Pawn getPawn(int index) {

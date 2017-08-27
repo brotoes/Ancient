@@ -27,7 +27,7 @@ public class TradeController {
      * and match together
      */
     public void processTrades() {
-        for (Resource resource : (List<Resource>)sellers.keySet()) {
+        for (Resource resource : sellers.keySet()) {
             /* check if there are both buyers and sellers for that resource */
             if (!buyers.containsKey(resource)) {
                 continue;
@@ -56,12 +56,12 @@ public class TradeController {
      * @param seller
      */
     public void add(Seller seller) {
-        if (sellers.containsKey(seller.getResource())) {
+        if (!sellers.containsKey(seller.getResource())) {
             sellers.put(seller.getResource(), new ArrayList<>());
         }
         List<Seller> list = sellers.get(seller.getResource());
 
-        if (list.indexOf(seller) > -1) {
+        if (list.indexOf(seller) < 0) {
             list.add(seller);
         }
     }
@@ -71,12 +71,12 @@ public class TradeController {
      * @param buyer
      */
     public void add(Buyer buyer) {
-        if (buyers.containsKey(buyer.getResource())) {
+        if (!buyers.containsKey(buyer.getResource())) {
             buyers.put(buyer.getResource(), new ArrayList<>());
         }
         List<Buyer> list = buyers.get(buyer.getResource());
 
-        if (list.indexOf(buyer) > -1) {
+        if (list.indexOf(buyer) < 0) {
             list.add(buyer);
         }
     }

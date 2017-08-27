@@ -10,6 +10,7 @@ import controllers.trade.Buyer;
 import controllers.trade.Seller;
 import java.util.List;
 import ancient.map.Province;
+import ancient.resources.Resource;
 import ancient.resources.ResourceContainer;
 import java.util.ArrayList;
 
@@ -26,7 +27,8 @@ public class Building {
     private final List<ResourceContainer> outs;
 
     private int money = 10;
-    private final List<ResourceContainer> resources = new ArrayList<ResourceContainer>();
+    private final List<ResourceContainer> resources = new ArrayList<>();
+    private final List<ResourceContainer> forSale = new ArrayList<>();
 
     protected Building(String name, String desc, Province prov,
             List<ResourceContainer> ins, List<ResourceContainer> outs) {
@@ -50,19 +52,79 @@ public class Building {
             Main.app.getPlayState().getTradeController().add(buyer);
         }
         /* produce resources */
-        if (storedIn > 0 || ins.isEmpty()) {
-            storedOut ++;
-            if (!outs.isEmpty()) {
-                storedIn --;
-            }
+        if (canProduce()) {
+            reduceStored();
+            storeProduction();
         }
         /* put produced resources up for sale */
-        if (storedOut > 0) {
+        if (!forSale.isEmpty()) {
             for (ResourceContainer i : outs) {
                 Seller seller = new Seller(this, i);
                 Main.app.getPlayState().getTradeController().add(seller);
             }
         }
+        printResources();
+    }
+
+    /**
+     * returns true if has enough resources stores to produce
+     * @return
+     */
+    public boolean canProduce() {
+        for (ResourceContainer rc : ins) {
+            boolean found = false;
+            for (ResourceContainer storedRC : resources) {
+                if (storedRC.getResource() == rc.getResource() &&
+                        storedRC.getQty() >= rc.getQty()) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * reduces the amount of resources stored according to inputs
+     */
+    public void reduceStored() {
+        for (ResourceContainer rc : ins) {
+            ResourceContainer.removeFromList(rc, resources);
+        }
+    }
+
+    /**
+     * adds the amount of resources stored according to outputs
+     */
+    public void storeProduction() {
+        for (ResourceContainer rc : outs) {
+            ResourceContainer.addToList(rc, forSale);
+        }
+    }
+
+    /**
+     * returns true if contains resource and qty specified
+     * @param rc
+     * @return
+     */
+    public boolean hasResource(ResourceContainer rc) {
+        return hasResource(rc.getResource(), rc.getQty());
+    }
+
+    public boolean hasResource(Resource resource, int qty) {
+        for (ResourceContainer rc : resources) {
+            if (rc.getResource() == resource && rc.getQty() >= qty) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void addResource(ResourceContainer rc) {
+        ResourceContainer.addToList(rc, resources);
     }
 
     /* getters and setters */
@@ -71,5 +133,17 @@ public class Building {
     public Province getProvince() { return prov; }
     public float getDistance(Building building) {
         return getProvince().getDistance(building.getProvince());
+    }
+
+    public void printResources() {
+        System.out.println(name + "----");
+        System.out.println("Stored:");
+        for (ResourceContainer rc : resources) {
+            System.out.println(rc);
+        }
+        System.out.println("For Sale: ");
+        for (ResourceContainer rc : forSale) {
+            System.out.println(rc);
+        }
     }
 }
