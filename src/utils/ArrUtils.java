@@ -5,8 +5,14 @@
  */
 package utils;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiPredicate;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  *
@@ -88,5 +94,40 @@ public class ArrUtils {
             }
         }
         list.add(item);
+    }
+
+    /**
+     * filters a stream to not have duplicates as defined by keyExtractor
+     *
+     * @param <T>
+     * @param keyExtractor
+     * @return
+     */
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Map<Object,Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
+    /**
+     * removes duplicates from a list, where duplicates are defined by comp
+     * @param <T>
+     * @param list
+     * @param comp
+     */
+    public static <T> void removeDuplicates(List<T> list,
+            BiPredicate<T, T> comp) {
+        List<Integer> forRemoval = new ArrayList<>(list.size());
+        for (int i = 0; i < list.size(); i ++) {
+            for (int j = i + 1; j < list.size(); j ++) {
+                if (comp.test(list.get(i), list.get(j))) {
+                    forRemoval.add(j);
+                }
+            }
+        }
+
+        Integer[] rem = (Integer[])forRemoval.stream().distinct().toArray();
+        for (int i = rem.length - 1; i >= 0; i --) {
+            list.remove(rem[i].intValue());
+        }
     }
 }

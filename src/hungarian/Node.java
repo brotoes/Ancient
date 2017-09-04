@@ -6,6 +6,7 @@
 package hungarian;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -162,7 +163,7 @@ public class Node <T extends Matchable>{
 
     /* getters and setters */
     public T getObj() { return obj; }
-    public List<Edge> getEdges() { return edges; }
+    public List<Edge> getEdges() { return Collections.unmodifiableList(edges); }
     public void setMatch(Node match) {
         if (this.match == null) {
             this.match = match;

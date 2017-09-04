@@ -27,6 +27,7 @@ import de.lessvoid.nifty.Nifty;
 import java.util.ArrayList;
 import ancient.map.WorldMap;
 import ancient.resources.Resource;
+import java.util.List;
 
 /**
  *
@@ -46,7 +47,7 @@ public class PlayAppState extends AbstractAppState {
     private CameraController camCon;
     private InputController inputCon;
     private WorldMap worldMap;
-    private final ArrayList<Pawn> pawns = new ArrayList<>();
+    private final List<Pawn> pawns = new ArrayList<>();
 
     public PointLight camLight;
 
@@ -151,4 +152,5 @@ public class PlayAppState extends AbstractAppState {
     public CameraController getCameraController () { return camCon; }
     public TurnController getTurnController() { return turnCon; }
     public TradeController getTradeController() { return tradeCon; }
+    public WorldMap getWorldMap() { return worldMap; }
 }

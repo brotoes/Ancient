@@ -21,14 +21,14 @@ import com.jme3.util.BufferUtils;
 import controllers.game.TurnListener;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import kn.uni.voronoitreemap.j2d.PolygonSimple;
 import mapGeneration.Selectable;
-import mapGeneration.Voronoi;
 import pathfinder.Pathable;
 import pathfinder.Pathfinder;
 import ancient.pawns.Pawn;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import mapGeneration.geometry.Shape;
 
 /**
  *
@@ -38,17 +38,10 @@ public class Province implements Selectable, Pathable, TurnListener {
     private static int nextId = 0;
 
     /* Graphical vars*/
-    private final int id;
-    private final Vector3f center;
     private final Material faceMat;
     private final Material outlineMat;
-    private final Mesh faceMesh;
-    private final Mesh outlineMesh;
     private final Geometry faceGeom;
     private final Geometry outlineGeom;
-    private final FloatBuffer vertexBuf;
-    private final FloatBuffer outlineBuf;
-    private final FloatBuffer normalBuf;
     private final Node pivot = new Node("pivot");
     private final Node facePivot;
     private final Node outlinePivot;
@@ -60,14 +53,14 @@ public class Province implements Selectable, Pathable, TurnListener {
     private final ColorRGBA SELECT_COLOR = ColorRGBA.White;
     private final ColorRGBA PATH_COLOR = ColorRGBA.Red;
     private final float OUTLINE_OFFSET = 0.01f;
-    private final Voronoi voronoi;
-    private final int polyInd;
+    private final Shape shape;
 
     /* Pathing vars */
     private ArrayList<Province> adjProvs = null;
     private Pathfinder<Province> pathfinder = null;
 
     /* Gameplay Vars */
+    private final int id;
     private final ArrayList<Pawn> pawns = new ArrayList<>();
     private final ArrayList<Building> buildings = new ArrayList<>();
     private ProvinceLevel level = null;
@@ -78,99 +71,19 @@ public class Province implements Selectable, Pathable, TurnListener {
      *
      * @param elevation Elevation above/below sealevel. range from -1.0 to 1.0
      * @param temp Temperature of region, from -1.0 to 1.0
-     * @param vor Voronoi diagram to get polygon from
-     * @param polyInd Index of polygon in vor
-     * @param zPoints
-     * @param centerZ
+     * @param shape Shape of province
      */
-    public Province(float elevation, float temp, Voronoi vor, int polyInd, float[] zPoints, float centerZ) {
+    public Province(float elevation, float temp, Shape shape) {
         id = Province.nextId;
         Province.nextId ++;
         playState = Main.app.getPlayState();
         /* Set up province properties */
         terrainType = TerrainType.getTerrainType(elevation, temp);
-        this.voronoi = vor;
-        this.polyInd = polyInd;
-
-        /* Get data from voronoi */
-        PolygonSimple polygon = vor.getPolygon(polyInd);
-        vor.setProvince(polyInd, this);
-
-        /* Set up geometry Buffers */
-        centerZ = Math.max(0.0f, centerZ);
-        center = new Vector3f((float)polygon.getCentroid().x, (float)polygon.getCentroid().y, centerZ);
-        double[] vertsX = polygon.getXPoints();
-        double[] vertsY = polygon.getYPoints();
-
-        vertexBuf = BufferUtils.createFloatBuffer((polygon.getNumPoints() + 2)*3);
-        normalBuf = BufferUtils.createFloatBuffer((polygon.getNumPoints() + 2)*3);
-        outlineBuf = BufferUtils.createFloatBuffer(polygon.getNumPoints()*3);
-
-        vertexBuf.put(0.0f);
-        vertexBuf.put(0.0f);
-        vertexBuf.put(0.0f);
-
-        normalBuf.put(0.0f);
-        normalBuf.put(0.0f);
-        normalBuf.put(0.0f);
-
-        Vector3f avgVec = new Vector3f(0,0,0);
-        Vector3f firstVec = null;
-
-        for (int i = 0; i < polygon.getNumPoints(); i ++) {
-            int nextInd = (i + 1) % polygon.getNumPoints();
-            Vector3f vector = new Vector3f((float)(vertsX[i] - center.x),
-                (float)(vertsY[i] - center.y), zPoints[i] - centerZ);
-            Vector3f nVec   = new Vector3f((float)(vertsX[nextInd] - center.x),
-                (float)(vertsY[nextInd] - center.y), zPoints[nextInd] - centerZ);
-
-            vertexBuf.put(vector.x);
-            vertexBuf.put(vector.y);
-            vertexBuf.put(vector.z);
-
-            /* Calculate normal based on this and the next vector */
-            Vector3f normal = vector.cross(nVec).normalize();
-            if (firstVec == null) {
-                firstVec = normal;
-            }
-            avgVec.addLocal(normal);
-
-            normalBuf.put(normal.x);
-            normalBuf.put(normal.y);
-            normalBuf.put(normal.z);
-
-            outlineBuf.put(vector.x);
-            outlineBuf.put(vector.y);
-            outlineBuf.put(vector.z);
-        }
-        avgVec.divideLocal(polygon.getNumPoints()).normalize();
-
-        vertexBuf.put((float)(vertsX[0] - center.x));
-        vertexBuf.put((float)(vertsY[0] - center.y));
-        vertexBuf.put(zPoints[0] - centerZ);
-
-        if (firstVec != null) {
-            normalBuf.put(firstVec.x);
-            normalBuf.put(firstVec.y);
-            normalBuf.put(firstVec.z);
-
-            normalBuf.put(0, firstVec.x);
-            normalBuf.put(1, firstVec.y);
-            normalBuf.put(2, firstVec.z);
-        }
-
-        normalBuf.put(0, avgVec.x);
-        normalBuf.put(1, avgVec.y);
-        normalBuf.put(2, avgVec.z);
-
+        this.shape = shape;
 
         /* Define faces */
-        faceMesh = new Mesh();
-        faceMesh.setMode(Mesh.Mode.TriangleFan);
-        faceMesh.setBuffer(VertexBuffer.Type.Position, 3, vertexBuf);
-        faceMesh.setBuffer(VertexBuffer.Type.Normal, 3, normalBuf);
-        faceMesh.updateBound();
-        faceGeom = new Geometry("faceMesh", faceMesh);
+
+        faceGeom = new Geometry("faceMesh", shape.getFaceMesh());
 
         faceMat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
         faceMat.setColor("Diffuse", terrainType.getColor());
@@ -184,11 +97,8 @@ public class Province implements Selectable, Pathable, TurnListener {
         pivot.attachChild(facePivot);
 
         /* Define Outline */
-        outlineMesh = new Mesh();
-        outlineMesh.setMode(Mesh.Mode.LineLoop);
-        outlineMesh.setBuffer(VertexBuffer.Type.Position, 3, outlineBuf);
-        outlineMesh.updateBound();
-        outlineGeom = new Geometry("Outline", outlineMesh);
+
+        outlineGeom = new Geometry("Outline", shape.getOutlineMesh());
 
         outlineMat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         outlineMat.setColor("Color", OUTLINE_COLOR);
@@ -207,7 +117,7 @@ public class Province implements Selectable, Pathable, TurnListener {
         /* display everything */
         playState.getNode().attachChild(pivot);
         outlinePivot.setLocalTranslation(new Vector3f(0.0f, 0.0f, OUTLINE_OFFSET));
-        pivot.setLocalTranslation(center);
+        pivot.setLocalTranslation(shape.getCenter().getVector());
 
         updateLevel();
     }
@@ -234,7 +144,9 @@ public class Province implements Selectable, Pathable, TurnListener {
      *
      */
     public void findNeighbors() {
-        adjProvs = voronoi.getNeighbors(polyInd);
+        //adjProvs = voronoi.getNeighbors(polyInd);
+        //TODO
+        adjProvs = null;
     }
 
     @Override
@@ -260,7 +172,7 @@ public class Province implements Selectable, Pathable, TurnListener {
         if(adjProvs == null) {
             findNeighbors();
         }
-        return adjProvs;
+        return Collections.unmodifiableList(adjProvs);
     }
 
     /**
@@ -274,7 +186,7 @@ public class Province implements Selectable, Pathable, TurnListener {
         }
         List<Province> path = pathfinder.getPath(prov);
 
-        return path;
+        return Collections.unmodifiableList(path);
     }
 
     /**
@@ -290,9 +202,9 @@ public class Province implements Selectable, Pathable, TurnListener {
         FloatBuffer buf = BufferUtils.createFloatBuffer(path.size()*3);
 
         for (Province i : path) {
-            buf.put(i.center.x);
-            buf.put(i.center.y);
-            buf.put(i.center.z + OUTLINE_OFFSET);
+            buf.put(i.shape.getCenter().getX());
+            buf.put(i.shape.getCenter().getY());
+            buf.put(i.shape.getCenter().getZ() + OUTLINE_OFFSET);
         }
 
         mesh.setMode(Mesh.Mode.LineStrip);
@@ -319,27 +231,13 @@ public class Province implements Selectable, Pathable, TurnListener {
         return getPathGeom(getPath(start));
     }
 
-    /* Getters and setters */
-    public int getId() {
-        return id;
-    }
-
-    public Building getBuilding(int index) {
-        return buildings.get(index);
-    }
-
-    public int getNumBuildings() {
-        return buildings.size();
-    }
-
-
     /**
      * Adds a building to the province
      * @param building
      */
     public void addBuilding(Building building) {
         //TEMPORARY, remove
-        owner = ColorRGBA.Red;
+        setOwner(ColorRGBA.Red);
 
         buildings.add(building);
         updateLevel();
@@ -356,29 +254,26 @@ public class Province implements Selectable, Pathable, TurnListener {
         }
     }
 
-    public Pawn getPawn(int index) {
-        return pawns.get(index);
+    public void setOwner(ColorRGBA owner) {
+        this.owner = owner;
+        //Main.app.getPlayState().getWorldMap().updateBorders();
     }
 
-    public void removePawn(Pawn pawn) {
-        pawns.remove(pawn);
-    }
-
-    public int getNumPawns() {
-        return pawns.size();
-    }
-
-    public float getDistance(Province prov) {
-        return pivot.getLocalTranslation().distance(
-                prov.getPivot().getLocalTranslation());
-    }
+    public ColorRGBA getOwner() { return owner; }
 
     /**
-     * Adds a pawn to the province
-     * @param pawn
+     * checks if any adjacent provinces don't share an owner
+     * @return
      */
-    public void addPawn(Pawn pawn) {
-        pawns.add(pawn);
+    public boolean isBorderProvince() {
+        boolean border = false;
+        for (Province i : getNeighbors()) {
+            if (i.getOwner() != getOwner()) {
+                return true;
+            }
+        }
+
+        return border;
     }
 
     @Override
@@ -387,4 +282,19 @@ public class Province implements Selectable, Pathable, TurnListener {
             b.produce();
         }
     }
+
+    /* Getters and setters */
+    public float getDistance(Province prov) {
+        return pivot.getLocalTranslation().distance(
+                prov.getPivot().getLocalTranslation());
+    }
+
+    public int getId() { return id; }
+    public Building getBuilding(int index) { return buildings.get(index); }
+    public int getNumBuildings() { return buildings.size(); }
+    public int getNumPawns() { return pawns.size(); }
+    public Pawn getPawn(int index) { return pawns.get(index); }
+    public void removePawn(Pawn pawn) { pawns.remove(pawn); }
+    public void addPawn(Pawn pawn) { pawns.add(pawn); }
+    public Shape getShape() { return shape; }
 }
