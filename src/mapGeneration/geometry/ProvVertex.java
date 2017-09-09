@@ -56,7 +56,7 @@ public class ProvVertex extends RefVertex {
      * Adds a province to the list of connected provinces.
      * @param prov
      */
-    private void addProvince(Province prov) {
+    public void addProvince(Province prov) {
         if (!provs.contains(prov)) {
             provs.add(prov);
         }
@@ -79,5 +79,65 @@ public class ProvVertex extends RefVertex {
         }
 
         return false;
+    }
+    /**
+     * returns a list of provinces shared between this vertex and vert
+     * @param vert
+     * @return
+     */
+    public List<Province> getSharedProvinces(ProvVertex vert) {
+        List<Province> shared = new ArrayList<>();
+
+        for (Province p : provs) {
+            if (vert.getProvinces().contains(p)) {
+                shared.add(p);
+            }
+        }
+
+        return shared;
+    }
+
+
+    /* static */
+    /**
+     * sorts a list of lists of vertices that are connected sequentially.
+     *
+     * @param verts
+     * @return
+     */
+    public static List<List<ProvVertex>> sortConnectedVertLoop(List<ProvVertex> verts) {
+        List<List<ProvVertex>> result = new ArrayList<>();
+        List<ProvVertex> availVerts = new ArrayList(verts);
+
+        /* keep creating new sets of lists until no verts are left */
+        while (availVerts.size() > 0) {
+            /* intialize next set of verts */
+            List<ProvVertex> nextList = new ArrayList<>(availVerts.size());
+            result.add(nextList);
+
+            ProvVertex next = availVerts.get(0);
+            availVerts.remove(0);
+            ProvVertex prev;
+            /* keep adding connected verts to this list until this set is done */
+            while (next != null) {
+                nextList.add(next);
+                availVerts.remove(next);
+
+                List<RefVertex> adjs = next.getNeighbors();
+                prev = next;
+                next = null;
+                /* find vertex that is connected by a border edge */
+                for (RefVertex i : adjs) {
+                    if (i instanceof ProvVertex && !nextList.contains((ProvVertex)i)
+                            && availVerts.contains((ProvVertex)i)
+                            && !Province.sameOwner(prev.getSharedProvinces((ProvVertex)i))) {
+                        next = (ProvVertex)i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 }
