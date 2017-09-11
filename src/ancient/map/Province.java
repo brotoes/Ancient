@@ -6,7 +6,7 @@
 package ancient.map;
 
 import ancient.Main;
-import appStates.PlayAppState;
+import appStates.PlayState;
 import ancient.buildings.Building;
 import ancient.buildings.BuildingFactory;
 import com.jme3.material.Material;
@@ -28,6 +28,7 @@ import ancient.pawns.Pawn;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import mapGeneration.geometry.ProvVertex;
 import mapGeneration.geometry.Shape;
 
 /**
@@ -47,8 +48,8 @@ public class Province implements Selectable, Pathable, TurnListener {
     private final Node outlinePivot;
     private final Node modelPivot;
     private final TerrainType terrainType;
-    private final PlayAppState playState;
-    private final float LINE_WIDTH = 1.5f;
+    private final PlayState playState;
+    private final float LINE_WIDTH = 1.0f;
     private final ColorRGBA OUTLINE_COLOR = ColorRGBA.Black;
     private final ColorRGBA SELECT_COLOR = ColorRGBA.White;
     private final ColorRGBA PATH_COLOR = ColorRGBA.Red;
@@ -81,8 +82,11 @@ public class Province implements Selectable, Pathable, TurnListener {
         terrainType = TerrainType.getTerrainType(elevation, temp);
         this.shape = shape;
 
-        /* Define faces */
+        for (ProvVertex vert : shape.getVertices()) {
+            vert.addProvince(this);
+        }
 
+        /* Define faces */
         faceGeom = new Geometry("faceMesh", shape.getFaceMesh());
 
         faceMat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
@@ -117,7 +121,7 @@ public class Province implements Selectable, Pathable, TurnListener {
         /* display everything */
         playState.getNode().attachChild(pivot);
         outlinePivot.setLocalTranslation(new Vector3f(0.0f, 0.0f, OUTLINE_OFFSET));
-        pivot.setLocalTranslation(shape.getCenter().getVector());
+        modelPivot.setLocalTranslation(shape.getCenter().getVector());
 
         updateLevel();
     }
@@ -144,9 +148,11 @@ public class Province implements Selectable, Pathable, TurnListener {
      *
      */
     public void findNeighbors() {
-        //adjProvs = voronoi.getNeighbors(polyInd);
-        //TODO
-        adjProvs = null;
+        List<Shape> adjShapes = shape.getAdjShapes();
+        adjProvs = new ArrayList<>(adjShapes.size());
+        for (Shape i : adjShapes) {
+            adjProvs.add(i.getProvince());
+        }
     }
 
     @Override
@@ -163,9 +169,7 @@ public class Province implements Selectable, Pathable, TurnListener {
 
     public Node getPivot() { return pivot; }
 
-    public void step() {
-
-    }
+    public void step() {}
 
     @Override
     public List<Province> getNeighbors() {
@@ -256,7 +260,7 @@ public class Province implements Selectable, Pathable, TurnListener {
 
     public void setOwner(ColorRGBA owner) {
         this.owner = owner;
-        //Main.app.getPlayState().getWorldMap().updateBorders();
+        Main.app.getPlayState().getWorldMap().updateBorders();
     }
 
     public ColorRGBA getOwner() { return owner; }
@@ -297,4 +301,22 @@ public class Province implements Selectable, Pathable, TurnListener {
     public void removePawn(Pawn pawn) { pawns.remove(pawn); }
     public void addPawn(Pawn pawn) { pawns.add(pawn); }
     public Shape getShape() { return shape; }
+    @Override
+    public String toString() { return "Province " + id; }
+
+    /* static */
+    /**
+     * returns true if all provinces in a list share an owner
+     * @param provs
+     * @return
+     */
+    public static boolean sameOwner(List<Province> provs) {
+        for (int i = 1; i < provs.size(); i ++) {
+            if (provs.get(i).getOwner() != provs.get(i - 1).getOwner()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

@@ -25,9 +25,13 @@ public class Shape {
     private final ProvVertex center;
     private final List<ProvVertex> verts;
     private Province prov;
+    private Voronoi voronoi;
+    private int vorInd;
 
     public Shape(Voronoi vor, int ind, float[] zPoints, float centerZ) {
         /* get data from voronoi */
+        this.voronoi = vor;
+        this.vorInd = ind;
         PolygonSimple polygon = vor.getPolygon(ind);
         verts = new ArrayList<>(polygon.getNumPoints());
 
@@ -61,19 +65,19 @@ public class Shape {
     public FloatBuffer getVertexBuffer() {
         FloatBuffer buf = BufferUtils.createFloatBuffer((verts.size() + 2)*3);
 
-        buf.put(0.0f);
-        buf.put(0.0f);
-        buf.put(0.0f);
+        buf.put(center.getX());
+        buf.put(center.getY());
+        buf.put(center.getZ());
 
         for (int i = 0; i < verts.size(); i ++) {
-            buf.put(verts.get(i).getX() - center.getX());
-            buf.put(verts.get(i).getY() - center.getY());
-            buf.put(verts.get(i).getZ() - center.getZ());
+            buf.put(verts.get(i).getX());
+            buf.put(verts.get(i).getY());
+            buf.put(verts.get(i).getZ());
         }
 
-        buf.put(verts.get(0).getX() - center.getX());
-        buf.put(verts.get(0).getY() - center.getY());
-        buf.put(verts.get(0).getZ() - center.getZ());
+        buf.put(verts.get(0).getX());
+        buf.put(verts.get(0).getY());
+        buf.put(verts.get(0).getZ());
 
         return buf;
     }
@@ -82,9 +86,9 @@ public class Shape {
         FloatBuffer buf = BufferUtils.createFloatBuffer(verts.size()*3);
 
         for (int i = 0; i < verts.size(); i ++) {
-            buf.put(verts.get(i).getX() - center.getX());
-            buf.put(verts.get(i).getY() - center.getY());
-            buf.put(verts.get(i).getZ() - center.getZ());
+            buf.put(verts.get(i).getX());
+            buf.put(verts.get(i).getY());
+            buf.put(verts.get(i).getZ());
         }
 
         return buf;
@@ -102,14 +106,8 @@ public class Shape {
 
         for (int i = 0; i < verts.size(); i ++) {
             int n = (i + 1) % verts.size();
-            Vector3f vec = new Vector3f(
-                    verts.get(i).getX() - center.getX(),
-                    verts.get(i).getY() - center.getY(),
-                    verts.get(i).getZ() - center.getZ());
-            Vector3f nVec = new Vector3f(
-                    verts.get(n).getX() - center.getX(),
-                    verts.get(n).getY() - center.getY(),
-                    verts.get(n).getZ() - center.getZ());
+            Vector3f vec = new Vector3f(verts.get(i).getVector().subtract(center.getVector()));
+            Vector3f nVec = new Vector3f(verts.get(n).getVector().subtract(center.getVector()));
             Vector3f normal = vec.cross(nVec).normalize();
             if (i == 0) {
                 firstVec = normal;
@@ -155,17 +153,30 @@ public class Shape {
     }
 
     public List<Shape> getAdjShapes() {
-        //TODO
-        List<Shape> shapes = new ArrayList<>(verts.size());
-
-        for (ProvVertex vert : verts) {
-
-        }
-
-        return shapes;
+        return voronoi.getNeighbors(vorInd);
     }
 
     public Province getProvince() { return prov; }
     public void setProvince(Province prov) { this.prov = prov; }
     public ProvVertex getCenter() { return center; }
+
+    /**
+     * returns a list of vertices that border a group of shapes
+     * @param shapes
+     * @return
+     */
+    public static List<ProvVertex> getBorderVerts(List<Shape> shapes) {
+        List<ProvVertex> verts = new ArrayList<>(shapes.size()*10);
+
+        /* assemble all border vertices in list */
+        for (Shape shape : shapes) {
+            for (ProvVertex vert : shape.getVertices()) {
+                if (!verts.contains(vert) && vert.isBorder()) {
+                    verts.add(vert);
+                }
+            }
+        }
+
+        return verts;
+    }
 }

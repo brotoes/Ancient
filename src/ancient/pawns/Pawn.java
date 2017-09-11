@@ -10,7 +10,6 @@ import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.shader.VarType;
 import controllers.game.TurnListener;
-import java.util.ArrayList;
 import ancient.map.Province;
 import ancient.resources.Resource;
 import ancient.resources.ResourceContainer;

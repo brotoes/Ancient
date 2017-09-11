@@ -90,4 +90,9 @@ public class RefVertex implements Pathable {
     public float getX() { return vector.getX(); }
     public float getY() { return vector.getY(); }
     public float getZ() { return vector.getZ(); }
+
+    @Override
+    public String toString() {
+        return vector.toString();
+    }
 }

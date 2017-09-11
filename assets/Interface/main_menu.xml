@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
+  <useStyles filename="nifty-default-styles.xml" />
+  <useStyles filename="Interface/Styles/AdditionalStyles.xml" />
+  <useControls filename="nifty-default-controls.xml" />
+  <screen id="main_menu" controller="controllers.gui.MainMenuController">
+    <layer id="main_layer" childLayout="horizontal">
+      <panel width="30%"></panel>
+      <panel width="*" childLayout="vertical" align="center" valign="center">
+        <text id="game_title" text="Ancient" width="*" style="text-style" />
+        <text id="join_status_text" text="" width="*" style="text-style" />
+        <control id="join_field" name="textfield" width="*"></control>
+        <control name="button" id="join_button" label="Join Game" width="*">
+          <interact onClick="joinButton()" />
+        </control>
+        <control name="button" id="host_button" label="Host Game" width="*">
+          <interact onClick="hostButton()" />
+        </control>
+        <control id="msg_field" name="textfield" width="*"></control>
+        <control name="button" id="send_button" label="Send" width="*">
+          <interact onClick="sendButton()" />
+        </control>
+      </panel>
+      <panel width="30%"></panel>
+    </layer>
+  </screen>
+</nifty>

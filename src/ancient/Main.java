@@ -1,11 +1,13 @@
 package ancient;
 
-import appStates.PlayAppState;
+import appStates.MenuState;
+import appStates.PlayState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.niftygui.NiftyJmeDisplay;
-import controllers.ui.GuiController;
 import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.screen.Screen;
+import de.lessvoid.nifty.screen.ScreenController;
 import static java.util.logging.Level.*;
 import java.util.logging.Logger;
 
@@ -18,12 +20,16 @@ public class Main extends SimpleApplication {
 
     public static Main app;
 
-    public NiftyJmeDisplay niftyDisplay;
-    public Nifty nifty;
+    private NiftyJmeDisplay niftyDisplay;
+    private Nifty nifty;
 
     private AbstractAppState state = null;
-    private PlayAppState playState;
-    private GuiController guiController;
+    private PlayState playState;
+    private MenuState menuState;
+
+    private final String HUD_XML = "Interface/hud.xml";
+    private final String LOBBY_XML = "Interface/lobby.xml";
+    private final String MAIN_XML = "Interface/main_menu.xml";
 
     public static void main(String[] args) {
         app = new Main();
@@ -33,19 +39,24 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         Logger.getLogger("de.lessvoid").setLevel(WARNING);
-        playState = new PlayAppState();
-        setState(playState);
+        menuState = new MenuState();
+        setState(menuState);
 
         niftyDisplay = NiftyJmeDisplay.newNiftyJmeDisplay(
                 assetManager, inputManager, audioRenderer, guiViewPort);
         nifty = niftyDisplay.getNifty();
-        guiController = new GuiController();
-        nifty.fromXml("Interface/gui.xml", "start", guiController);
+        nifty.fromXml(MAIN_XML, "main_menu");
+        nifty.addXml(LOBBY_XML);
+        nifty.addXml(HUD_XML);
         guiViewPort.addProcessor(niftyDisplay);
-        stateManager.attach(guiController);
 
         Main.app.setDisplayStatView(false);
         Main.app.setDisplayFps(false);
+    }
+
+    public void initPlayState() {
+        playState = new PlayState();
+        setState(playState);
     }
 
     public void setState(AbstractAppState state) {
@@ -57,6 +68,15 @@ public class Main extends SimpleApplication {
     }
 
     public AbstractAppState getState() { return state; }
-    public PlayAppState getPlayState() { return playState; }
-    public GuiController getGuiController() { return guiController; }
+    public PlayState getPlayState() { return playState; }
+    public MenuState getMenuState() { return menuState; }
+    public Nifty getNifty() { return nifty; }
+    public ScreenController getScreenController() {
+        Screen screen = nifty.getCurrentScreen();
+        if (screen != null) {
+            return screen.getScreenController();
+        } else {
+            return null;
+        }
+    }
 }

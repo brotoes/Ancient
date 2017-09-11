@@ -6,18 +6,26 @@
 package ancient.map;
 
 import ancient.Main;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
+import com.jme3.scene.VertexBuffer;
+import com.jme3.util.BufferUtils;
 import fastnoise.FastNoise;
 import fastnoise.FastNoise.NoiseType;
+import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.stream.Stream;
 import kn.uni.voronoitreemap.j2d.Point2D;
 import kn.uni.voronoitreemap.j2d.PolygonSimple;
 import mapGeneration.Voronoi;
+import mapGeneration.geometry.ProvVertex;
+import mapGeneration.geometry.RefVertex;
 import mapGeneration.geometry.Shape;
 import utils.ArrUtils;
 
@@ -48,6 +56,9 @@ public class WorldMap {
 
         Voronoi voronoi = new Voronoi(width, height, nProvs, 3, seed, elevationMap);
 
+        Main.app.getPlayState().getNode().attachChild(borderPivot);
+        borderPivot.setLocalTranslation(new Vector3f(0, 0, 0.1f));
+
         /* Generate Each Province from voronoi */
         for (int i = 0; i < voronoi.size(); i ++) {
             PolygonSimple polygon = voronoi.getPolygon(i);
@@ -71,6 +82,7 @@ public class WorldMap {
 
             /* Create province */
             Shape shape = new Shape(voronoi, i, zPoints, Math.max(0.0f,elevation*zFactor));
+            voronoi.setShape(i, shape);
             provs[i] = new Province(elevation, temperature, shape);
             shape.setProvince(provs[i]);
             Main.app.getPlayState().getTurnController().addListener(provs[i]);
@@ -97,7 +109,7 @@ public class WorldMap {
             Queue<Province> checkQueue = new ArrayDeque<>();
             checkQueue.add(i);
             added.add(i);
-            group.add(i);
+            //group.add(i);
             groups.add(group);
 
             /* search all adjacent provinces until add adjacents added to group */
@@ -117,23 +129,49 @@ public class WorldMap {
          * the outside border provinces
          */
         for (List<Province> group : groups) {
-            Stream<Province> borderGroup = group.stream().filter((p) ->
-                p.isBorderProvince());
-            drawBorder(borderGroup);
+            drawBorder(group);
         }
     }
 
     /**
-     * Takes a list of provinces that are arranged in a ring or straight line
-     * and draws a border around them.
+     * Takes a group of adjacent provinces and draws the border
      * @param provs
      * @param pivot
      */
-    private void drawBorder(Stream<Province> provs) {
-        List<Vector3f> outVerts = new ArrayList<>();
-        List<Vector3f> inVerts = new ArrayList<>();
-        List<Vector3f> norms = new ArrayList<>();
+    private void drawBorder(List<Province> provs) {
+        List<Shape> shapes = new ArrayList<>();
+        for (Province prov : provs) {
+            shapes.add(prov.getShape());
+        }
+        List<ProvVertex> unsortedVerts = Shape.getBorderVerts(shapes);
+        List<List<ProvVertex>> vertLists = ProvVertex.sortConnectedVertLoop(unsortedVerts);
 
+        for (List<ProvVertex> verts : vertLists) {
+            FloatBuffer buf = BufferUtils.createFloatBuffer(verts.size()*3);
+            for (ProvVertex vert : verts) {
+                buf.put(vert.getX());
+                buf.put(vert.getY());
+                buf.put(vert.getZ());
+            }
+            Mesh mesh = new Mesh();
+            mesh.setMode(Mesh.Mode.LineLoop);
+            mesh.setBuffer(VertexBuffer.Type.Position, 3, buf);
+            mesh.updateBound();
+
+            Geometry geom = new Geometry("Border", mesh);
+
+            Material mat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+            mat.setColor("Color", provs.get(0).getOwner());
+            mat.getAdditionalRenderState().setLineWidth(4.0f);
+
+            geom.setMaterial(mat);
+
+            if (provs.get(0).getOwner() != ColorRGBA.Red) {
+                return;
+            }
+
+            borderPivot.attachChild(geom);
+        }
     }
 
     /* Getters and setters */
