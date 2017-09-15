@@ -5,10 +5,11 @@
  */
 package network;
 
-import de.lessvoid.nifty.elements.render.TextRenderer;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Scanner;
 
 /**
  * connects to a server
@@ -19,22 +20,24 @@ public class Client {
 
     private InetAddress address;
     private Socket sock = null;
-    private ClientConnectionThread connection;
+    private final Connection connection;
+    private final MessageManager messageManager;
 
-    public Client(String hostname, TextRenderer output) {
+    protected Client(MessageManager msgMgr, String hostname) throws ConnectException {
+        this.messageManager = msgMgr;
         try {
             address = InetAddress.getByName(hostname.trim());
             sock = new Socket(address, PORT);
         } catch (IOException e) {
             e.printStackTrace();
+            connection = null;
             return;
         }
 
-
-        connection = new ClientConnectionThread(sock, output);
+        connection = new Connection(sock, messageManager);
     }
 
-    public void start() {
+    protected void start() {
         connection.start();
     }
 
@@ -42,7 +45,24 @@ public class Client {
      * sends message to the server
      * @param line
      */
-    public void send(String line) {
-        connection.send("line");
+    protected void send(String line) {
+        connection.send(line);
+    }
+
+    public static void main(String args[]) {
+        MessageManager msgMgr = new MessageManager();
+        msgMgr.register(EchoMessage.class);
+        try {
+            msgMgr.connect("127.0.0.1");
+        } catch (ConnectException e) {
+            System.out.println("No Server Listening");
+        }
+
+        Scanner s = new Scanner(System.in);
+        System.out.print("Send: ");
+        String line = s.nextLine();
+        EchoMessage msg = new EchoMessage(line);
+        msgMgr.send(msg);
+        while (!msgMgr.receive()) {}
     }
 }

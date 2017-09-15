@@ -62,19 +62,19 @@ public class MainMenuController implements ScreenController {
             System.err.println("Type Error: Element type incorrect");
         }
 
-        client = new Client(text, status);
-        client.start();
+        //client = new Client(text);
+        //client.start();
     }
 
     /**
      * Called when "Host" is pressed. Creates game lobby
      */
     public void hostButton() {
-        Server srv = new Server();
-        srv.listen();
+        //Server srv = new Server();
+        //srv.listen();
     }
 
     public void sendButton() {
-        client.send("Message");
+        //client.send("Message");
     }
 }
