@@ -1,10 +1,13 @@
 package ancient;
 
+import ancient.players.PlayerManager;
+import appStates.LobbyState;
 import appStates.MenuState;
 import appStates.PlayState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.niftygui.NiftyJmeDisplay;
+import controllers.network.NetworkController;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
@@ -24,8 +27,12 @@ public class Main extends SimpleApplication {
     private Nifty nifty;
 
     private AbstractAppState state = null;
-    private PlayState playState;
-    private MenuState menuState;
+    private PlayState playState = null;
+    private MenuState menuState = null;
+    private LobbyState lobbyState = null;
+
+    private NetworkController netCon;
+    private PlayerManager pMgr;
 
     private final String HUD_XML = "Interface/hud.xml";
     private final String LOBBY_XML = "Interface/lobby.xml";
@@ -52,11 +59,30 @@ public class Main extends SimpleApplication {
 
         Main.app.setDisplayStatView(false);
         Main.app.setDisplayFps(false);
+
+        netCon = new NetworkController();
+
+        pMgr = new PlayerManager();
     }
 
-    public void initPlayState() {
-        playState = new PlayState();
+    @Override
+    public void destroy() {
+        super.destroy();
+        netCon.close();
+    }
+
+    public void gotoGame() {
+        if (playState == null) {
+            playState = new PlayState();
+        }
         setState(playState);
+    }
+
+    public void gotoLobby() {
+        if (lobbyState == null) {
+            lobbyState = new LobbyState();
+        }
+        setState(lobbyState);
     }
 
     public void setState(AbstractAppState state) {
@@ -70,6 +96,7 @@ public class Main extends SimpleApplication {
     public AbstractAppState getState() { return state; }
     public PlayState getPlayState() { return playState; }
     public MenuState getMenuState() { return menuState; }
+    public LobbyState getLobbyState() { return lobbyState; }
     public Nifty getNifty() { return nifty; }
     public ScreenController getScreenController() {
         Screen screen = nifty.getCurrentScreen();
@@ -79,4 +106,6 @@ public class Main extends SimpleApplication {
             return null;
         }
     }
+    public NetworkController getNetworkController() { return netCon; }
+    public PlayerManager getPlayerManager() { return pMgr; }
 }

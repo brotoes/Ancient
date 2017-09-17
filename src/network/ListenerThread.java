@@ -8,17 +8,23 @@ package network;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.List;
 
 /**
  * Listens for new connections
  * @author brock
  */
-class ListenerThread extends Thread {
-    private final int PORT = 8413;
+class ListenerThread<T> extends Thread {
     private final ServerSocket serverSocket;
+    private final List<Connection> connections;
+    private final MessageManager messageManager;
 
-    protected ListenerThread(ServerSocket serverSocket) {
+    protected ListenerThread(ServerSocket serverSocket,
+            List<Connection> connections, MessageManager msgMgr) {
         this.serverSocket = serverSocket;
+        this.connections = connections;
+        this.messageManager = msgMgr;
     }
 
     /**
@@ -29,10 +35,13 @@ class ListenerThread extends Thread {
         while (true) {
             try {
                 Socket socket = serverSocket.accept();
-                System.out.println("Connected!");
-                new ServerConnectionThread(socket).start();
+                Connection conn = new Connection(socket, messageManager);
+                conn.start();
+                connections.add(conn);
+            } catch (SocketException e) {
+                break;
             } catch (IOException e) {
-                e.printStackTrace();
+                break;
             }
         }
     }

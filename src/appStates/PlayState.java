@@ -8,17 +8,12 @@ package appStates;
 import ancient.Main;
 import ancient.pawns.Pawn;
 import com.jme3.app.Application;
-import com.jme3.app.SimpleApplication;
-import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
-import com.jme3.asset.AssetManager;
-import com.jme3.input.InputManager;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import controllers.trade.TradeController;
 import controllers.game.TurnController;
@@ -35,18 +30,10 @@ import java.util.List;
  *
  * @author brock
  */
-public class PlayState extends AbstractAppState {
-    private SimpleApplication app;
-    private Node rootNode;
-    private AssetManager assetManager;
-    private AppStateManager stateManager;
-    private InputManager inputManager;
-    private ViewPort viewPort;
-
+public class PlayState extends AppState {
     private TradeController tradeCon;
     private TurnController turnCon;
     private CameraController camCon;
-    private PlayInputController inputCon;
     private WorldMap worldMap;
     private final List<Pawn> pawns = new ArrayList<>();
 
@@ -60,12 +47,6 @@ public class PlayState extends AbstractAppState {
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
-        this.app = (SimpleApplication)app;
-        this.rootNode     = this.app.getRootNode();
-        this.assetManager = this.app.getAssetManager();
-        this.stateManager = this.app.getStateManager();
-        this.inputManager = this.app.getInputManager();
-        this.viewPort     = this.app.getViewPort();
 
         /* Set GUI */
         Main.app.getNifty().gotoScreen("hud");
@@ -109,21 +90,14 @@ public class PlayState extends AbstractAppState {
     }
 
     @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        if (enabled) {
-            enable();
-        } else {
-            //Pause the state
-        }
-    }
-
-    private void enable() {
+    protected void enable() {
+        super.enable();
         rootNode.attachChild(node);
     }
 
     @Override
     public void update(float tpf) {
+        super.update(tpf);
         camCon.tick(tpf);
 
         for (int i = 0; i < worldMap.getNumProvs(); i ++) {
@@ -149,10 +123,8 @@ public class PlayState extends AbstractAppState {
     }
 
     /* Getters and Setters */
-    public SimpleApplication getApp() { return app; }
     public Node getNode() { return node; }
     public Node getTopNode() { return topNode; }
-    public InputManager getInputManager() { return inputManager; }
     public CameraController getCameraController () { return camCon; }
     public TurnController getTurnController() { return turnCon; }
     public TradeController getTradeController() { return tradeCon; }

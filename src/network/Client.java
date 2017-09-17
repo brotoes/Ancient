@@ -5,19 +5,19 @@
  */
 package network;
 
+import network.messages.EchoMessage;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
+import network.messages.Message;
 
 /**
  * connects to a server
  * @author brock
  */
 public class Client {
-    private final int PORT = 8413;
-
     private InetAddress address;
     private Socket sock = null;
     private final Connection connection;
@@ -27,7 +27,9 @@ public class Client {
         this.messageManager = msgMgr;
         try {
             address = InetAddress.getByName(hostname.trim());
-            sock = new Socket(address, PORT);
+            sock = new Socket(address, msgMgr.getPort());
+        } catch (ConnectException e) {
+            throw e;
         } catch (IOException e) {
             e.printStackTrace();
             connection = null;
@@ -38,24 +40,27 @@ public class Client {
     }
 
     protected void start() {
-        connection.start();
+        if (connection != null) {
+            connection.start();
+        }
     }
 
     /**
      * sends message to the server
-     * @param line
+     * @param msg
      */
-    protected void send(String line) {
-        connection.send(line);
+    public void send(Message msg) {
+        connection.send(msg.toString());
     }
 
     public static void main(String args[]) {
-        MessageManager msgMgr = new MessageManager();
+        MessageManager msgMgr = new MessageManager(1234);
         msgMgr.register(EchoMessage.class);
         try {
             msgMgr.connect("127.0.0.1");
         } catch (ConnectException e) {
             System.out.println("No Server Listening");
+            return;
         }
 
         Scanner s = new Scanner(System.in);

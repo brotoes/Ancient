@@ -5,14 +5,15 @@
  */
 package controllers.gui;
 
+import ancient.Main;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.controls.TextField;
 import de.lessvoid.nifty.elements.Element;
 import de.lessvoid.nifty.elements.render.TextRenderer;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
-import network.Client;
-import network.Server;
+import exceptions.CreateException;
+import exceptions.JoinException;
 
 /**
  * Controls the Main Menu
@@ -21,8 +22,6 @@ import network.Server;
 public class MainMenuController implements ScreenController {
     private Nifty nifty;
     private Screen screen;
-
-    private Client client;
 
     @Override
     public void bind(Nifty nifty, Screen screen) {
@@ -40,41 +39,70 @@ public class MainMenuController implements ScreenController {
      * called when "Join" is pressed. Joins hosted game
      */
     public void joinButton() {
-        //Main.app.initPlayState();
         Element joinElement = screen.findElementById("join_field");
-        Element statusText = screen.findElementById("join_status_text");
         TextField join;
-        TextRenderer status;
-        String text = "";
+        String text = null;
 
-        if (joinElement != null && statusText != null) {
+        if (joinElement != null) {
             join = joinElement.getNiftyControl(TextField.class);
-            status = statusText.getRenderer(TextRenderer.class);
         } else {
             System.err.println("Error: Element Missing");
             return;
         }
 
-        if (status != null && join != null) {
-            text = join.getRealText();
-            status.setText(text);
+        if (join != null) {
+            text = join.getRealText().trim();
         } else {
             System.err.println("Type Error: Element type incorrect");
         }
 
-        //client = new Client(text);
-        //client.start();
+        if (text != null) {
+            try {
+                Main.app.getNetworkController().connect(text);
+                displayText("Joined Game!");
+                gotoLobby();
+            } catch (JoinException e) {
+                displayText(e.getMessage());
+            }
+        }
     }
 
     /**
      * Called when "Host" is pressed. Creates game lobby
      */
     public void hostButton() {
-        //Server srv = new Server();
-        //srv.listen();
+        try {
+            Main.app.getNetworkController().host();
+            displayText("Hosted Game!");
+            gotoLobby();
+        } catch (JoinException | CreateException e) {
+            displayText(e.getMessage());
+        }
     }
 
-    public void sendButton() {
-        //client.send("Message");
+    /**
+     * displays text in status_text element
+     * @param line
+     */
+    public void displayText(String line) {
+        Element statusText = screen.findElementById("status_text");
+        TextRenderer status;
+
+        if (statusText != null) {
+            status = statusText.getRenderer(TextRenderer.class);
+        } else {
+            return;
+        }
+
+        if (status != null) {
+            status.setText(line);
+        }
+    }
+
+    /**
+     * changes the screen to lobby
+     */
+    private void gotoLobby() {
+        Main.app.gotoLobby();
     }
 }

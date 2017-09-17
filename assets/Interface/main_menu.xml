@@ -14,17 +14,18 @@ and open the template in the editor.
       <panel width="30%"></panel>
       <panel width="*" childLayout="vertical" align="center" valign="center">
         <text id="game_title" text="Ancient" width="*" style="text-style" />
-        <text id="join_status_text" text="" width="*" style="text-style" />
-        <control id="join_field" name="textfield" width="*"></control>
+        <text id="status_text" text="" width="*" style="text-style" />
+        <panel childLayout="horizontal">
+          <text text="Address: " style="text-style" />
+          <control id="join_field" name="textfield" width="*"></control>
+          <text text="Player Name: " style="text-style" />
+          <control id="msg_field" name="textfield" width="*"></control>
+        </panel>
         <control name="button" id="join_button" label="Join Game" width="*">
           <interact onClick="joinButton()" />
         </control>
         <control name="button" id="host_button" label="Host Game" width="*">
           <interact onClick="hostButton()" />
-        </control>
-        <control id="msg_field" name="textfield" width="*"></control>
-        <control name="button" id="send_button" label="Send" width="*">
-          <interact onClick="sendButton()" />
         </control>
       </panel>
       <panel width="30%"></panel>
