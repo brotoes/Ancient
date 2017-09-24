@@ -16,11 +16,21 @@ and open the template in the editor.
       </panel>
       <panel childLayout="horizontal">
         <panel id="chat_panel" childLayout="vertical" width="50%" style="panel-dark">
-          <panel height="*" width="*"></panel>
-          <control id="chat_input" name="textfield"width="*" />
+          <panel id="chat_output" height="*" width="*" childLayout="vertical">
+            <panel height="*"/>
+            <!-- populated dynamically by ChatController -->
+          </panel>
+          <panel width="100%" childLayout="horizontal">
+            <control id="chat_input" name="textfield" width="*" />
+            <control id="chat_button" name="button" label="Send" >
+              <interact onClick="sendChat(chat_input)"/>
+            </control>
+          </panel>
         </panel>
         <panel id="lobby_control_panel" childLayout="vertical" width="*" height="*" style="panel">
-          <control name="button" id="ready_button" label="Ready"></control>
+          <control name="button" id="ready_button" label="Ready">
+            <interact onClick="startGame()"/>
+          </control>
         </panel>
       </panel>
     </layer>

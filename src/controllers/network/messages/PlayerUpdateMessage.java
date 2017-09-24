@@ -9,7 +9,6 @@ import ancient.Main;
 import ancient.players.Player;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
 import network.Client;
 import network.Connection;
 import network.messages.Message;
@@ -57,8 +56,21 @@ public class PlayerUpdateMessage extends Message {
     }
 
     @Override
+    public void receive(Server server) {
+        Main.app.getPlayerManager().getPlayer(player.getId()).update(player);
+        Main.app.getState().updatePlayer(player);
+        server.send(this);
+    }
+
+    @Override
+    public void send(Client client) {
+        client.send(this);
+    }
+
+    @Override
     public void receive(Client client) {
         Main.app.getPlayerManager().addPlayer(player);
+        Main.app.getState().updatePlayer(player);
     }
 
     @Override

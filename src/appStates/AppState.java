@@ -6,13 +6,13 @@
 package appStates;
 
 import ancient.Main;
+import ancient.players.Player;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.input.InputManager;
-import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import controllers.interaction.PlayInputController;
@@ -22,7 +22,7 @@ import de.lessvoid.nifty.Nifty;
  * Controls game behaviour while in menus
  * @author brock
  */
-public class AppState extends AbstractAppState {
+public abstract class AppState extends AbstractAppState {
     protected SimpleApplication app;
     protected Node rootNode;
     protected AssetManager assetManager;
@@ -66,6 +66,12 @@ public class AppState extends AbstractAppState {
     }
 
     protected void enable() {}
+
+    /**
+     * handle player info being changed
+     * @param player
+     */
+    public abstract void updatePlayer(Player player);
 
     @Override
     public void update(float tpf) {

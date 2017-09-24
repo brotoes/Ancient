@@ -6,8 +6,10 @@
 package appStates;
 
 import ancient.Main;
+import ancient.players.Player;
 import com.jme3.app.Application;
 import com.jme3.app.state.AppStateManager;
+import controllers.gui.LobbyController;
 
 /**
  * Controls game behaviour while in Lobby
@@ -21,5 +23,11 @@ public class LobbyState extends AppState {
         Main.app.getNifty().gotoScreen("lobby");
 
         enable();
+    }
+
+    @Override
+    public void updatePlayer(Player player) {
+        LobbyController con = (LobbyController)Main.app.getNifty().getCurrentScreen().getScreenController();
+        con.setPanelColor(player);
     }
 }

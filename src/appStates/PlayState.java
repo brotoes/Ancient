@@ -21,6 +21,7 @@ import controllers.interaction.CameraController;
 import controllers.interaction.PlayInputController;
 import java.util.ArrayList;
 import ancient.map.WorldMap;
+import ancient.players.Player;
 import ancient.resources.Resource;
 import controllers.gui.HudController;
 import de.lessvoid.nifty.screen.ScreenController;
@@ -120,6 +121,11 @@ public class PlayState extends AppState {
      */
     public void addPawn(Pawn pawn) {
         pawns.add(pawn);
+    }
+
+    @Override
+    public void updatePlayer(Player player) {
+        //TODO: player change update
     }
 
     /* Getters and Setters */

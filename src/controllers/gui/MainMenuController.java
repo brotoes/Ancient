@@ -46,7 +46,7 @@ public class MainMenuController implements ScreenController {
             try {
                 Main.app.getNetworkController().connect(address, name);
                 displayText("Joined Game!");
-                gotoLobby();
+                Main.app.gotoLobby();
             } catch (JoinException e) {
                 displayText(e.getMessage());
             }
@@ -61,7 +61,7 @@ public class MainMenuController implements ScreenController {
         try {
             Main.app.getNetworkController().host(name);
             displayText("Hosted Game!");
-            gotoLobby();
+            Main.app.gotoLobby();
         } catch (JoinException | CreateException e) {
             displayText(e.getMessage());
         }
@@ -105,12 +105,5 @@ public class MainMenuController implements ScreenController {
         if (status != null) {
             status.setText(line);
         }
-    }
-
-    /**
-     * changes the screen to lobby
-     */
-    private void gotoLobby() {
-        Main.app.gotoLobby();
     }
 }

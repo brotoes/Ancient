@@ -7,6 +7,7 @@ package controllers.network;
 
 import ancient.Main;
 import ancient.players.Player;
+import controllers.network.messages.ChatMessage;
 import controllers.network.messages.JoinMessage;
 import controllers.network.messages.PlayerUpdateMessage;
 import exceptions.CreateException;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import network.messages.EchoMessage;
 import network.MessageManager;
+import network.messages.Message;
 
 /**
  *
@@ -71,6 +73,7 @@ public class NetworkController {
     private void register(MessageManager m) {
         m.register(JoinMessage.class);
         m.register(PlayerUpdateMessage.class);
+        m.register(ChatMessage.class);
     }
 
     public void update() {
@@ -102,4 +105,15 @@ public class NetworkController {
         EchoMessage msg = new EchoMessage(line);
         clientMgr.send(msg);
     }
+
+    public void send(Message msg) {
+        if (clientMgr != null) {
+            clientMgr.send(msg);
+        }
+        if (hostMgr != null) {
+            hostMgr.send(msg);
+        }
+    }
+
+    public boolean isHost() { return hostMgr != null; }
 }

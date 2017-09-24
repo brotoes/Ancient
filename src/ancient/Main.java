@@ -1,6 +1,7 @@
 package ancient;
 
 import ancient.players.PlayerManager;
+import appStates.AppState;
 import appStates.LobbyState;
 import appStates.MenuState;
 import appStates.PlayState;
@@ -26,7 +27,7 @@ public class Main extends SimpleApplication {
     private NiftyJmeDisplay niftyDisplay;
     private Nifty nifty;
 
-    private AbstractAppState state = null;
+    private AppState state = null;
     private PlayState playState = null;
     private MenuState menuState = null;
     private LobbyState lobbyState = null;
@@ -86,7 +87,7 @@ public class Main extends SimpleApplication {
         setState(lobbyState);
     }
 
-    public void setState(AbstractAppState state) {
+    public void setState(AppState state) {
         if (this.state != null) {
             stateManager.detach(this.state);
         }
@@ -94,7 +95,7 @@ public class Main extends SimpleApplication {
         stateManager.attach(state);
     }
 
-    public AbstractAppState getState() { return state; }
+    public AppState getState() { return state; }
     public PlayState getPlayState() { return playState; }
     public MenuState getMenuState() { return menuState; }
     public LobbyState getLobbyState() { return lobbyState; }

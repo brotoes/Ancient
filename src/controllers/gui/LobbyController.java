@@ -8,41 +8,35 @@ package controllers.gui;
 import ancient.Main;
 import ancient.players.Player;
 import ancient.players.PlayerChangeListener;
-import com.jme3.math.ColorRGBA;
+import controllers.network.messages.PlayerUpdateMessage;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.builder.ImageBuilder;
 import de.lessvoid.nifty.builder.PanelBuilder;
 import de.lessvoid.nifty.builder.TextBuilder;
 import de.lessvoid.nifty.screen.Screen;
-import de.lessvoid.nifty.screen.ScreenController;
 import de.lessvoid.nifty.elements.Element;
 import de.lessvoid.nifty.elements.render.PanelRenderer;
 import de.lessvoid.nifty.tools.Color;
 import java.util.List;
+import network.messages.Message;
 import utils.StrUtils;
 
 /**
  * Controls the Main Menu
  * @author brock
  */
-public class LobbyController implements ScreenController, PlayerChangeListener {
-    private Nifty nifty;
-    private Screen screen;
-
+public class LobbyController extends ParentScreenController implements PlayerChangeListener {
     @Override
     public void bind(Nifty nifty, Screen screen) {
-        this.nifty = nifty;
-        this.screen = screen;
+        super.bind(nifty, screen);
         Main.app.getPlayerManager().register(this);
     }
 
     @Override
     public void onStartScreen() {
+        super.onStartScreen();
         updatePlayers();
     }
-
-    @Override
-    public void onEndScreen() {}
 
     @Override
     public void playerAdded(Player player) {
@@ -115,7 +109,7 @@ public class LobbyController implements ScreenController, PlayerChangeListener {
     }
 
     private PanelBuilder getColorPicker(Player player) {
-        String id = "colorpicker_" + player.getId();
+        String id = getColorPanelId(player);
         if (player.isLocal()) {
             /* if local player, return picker */
             return new PanelBuilder(id) {{
@@ -139,10 +133,31 @@ public class LobbyController implements ScreenController, PlayerChangeListener {
      * @param id
      */
     public void colorCycle(String id) {
-        ColorRGBA color = Main.app.getPlayerManager().colorCycle(Integer.valueOf(id));
-        String panelId = "colorpicker_" + id;
-        Element panel = screen.findElementById(panelId);
-        Color col = new Color(StrUtils.hexString(color));
-        panel.getRenderer(PanelRenderer.class).setBackgroundColor(col);
+        /* change player color and panel color to correspond */
+        Player player = Main.app.getPlayerManager().getPlayer(Integer.valueOf(id));
+        Main.app.getPlayerManager().colorCycle(player);
+        //TODO: this shouldn't be here. the code to handle player updates already
+        //exists in playerManager.updated
+        setPanelColor(player);
+
+        /* update everyone on the new color */
+        Message msg = new PlayerUpdateMessage(player);
+        Main.app.getNetworkController().send(msg);
+    }
+
+    public void setPanelColor(Player player) {
+        Element panel = screen.findElementById(getColorPanelId(player));
+        Color color = new Color(StrUtils.hexString(player.getColor()));
+        panel.getRenderer(PanelRenderer.class).setBackgroundColor(color);
+    }
+
+    public String getColorPanelId(Player player) {
+        return "colorpicker_" + player.getId();
+    }
+
+    public void startGame() {
+        if (Main.app.getNetworkController().isHost()) {
+            Main.app.gotoGame();
+        }
     }
 }

@@ -9,6 +9,7 @@ import com.jme3.math.ColorRGBA;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Manages list of players
@@ -48,8 +49,9 @@ public class PlayerManager {
         return player;
     }
     public void addPlayer(Player player) {
-        if (players.contains(player)) {
-            System.err.println("Player added twice");
+        Player existing = getPlayer(player.getId());
+        if (existing != null) {
+            existing.update(player);
             return;
         }
         player.setLocal(players.isEmpty());
@@ -136,7 +138,13 @@ public class PlayerManager {
     /* getters and setters */
     public int nextId() { return players.size(); }
     public List<Player> getPlayers() { return Collections.unmodifiableList(players); }
-    public Player getPlayer(int id) { return players.get(id); }
+    public Player getPlayer(int id) {
+        try {
+            return players.stream().filter(p -> p.getId() == id).findAny().get();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
     public ColorRGBA getColor(int i) { return colors.get(i); }
     public List<ColorRGBA> getColors() { return Collections.unmodifiableList(colors); }
 }
