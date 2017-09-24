@@ -3,10 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/controllers/network/messages/PlayerListMessage.java</file>
-            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/controllers/network/messages/JoinMessage.java</file>
+            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/controllers/gui/MainMenuController.java</file>
             <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/controllers/gui/LobbyController.java</file>
-            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/controllers/network/NetworkController.java</file>
+            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/assets/Interface/lobby.xml</file>
+            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/assets/Interface/main_menu.xml</file>
+            <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/assets/Interface/Styles/AdditionalStyles.xml</file>
             <file>file:/E:/Users/brock/Documents/jMonkey/Ancient/src/ancient/players/PlayerManager.java</file>
         </group>
     </open-files>

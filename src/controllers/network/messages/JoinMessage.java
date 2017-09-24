@@ -7,6 +7,7 @@ package controllers.network.messages;
 
 import ancient.Main;
 import ancient.players.Player;
+import java.util.List;
 import network.Client;
 import network.Connection;
 import network.messages.Message;
@@ -40,9 +41,19 @@ public class JoinMessage extends Message {
 
     @Override
     public void receive(Server server) {
-        Main.app.getPlayerManager().addPlayer(new Player(name));
-        Message msg = new PlayerListMessage();
+        Player player = Main.app.getPlayerManager().addPlayer(name);
+        List<Player> players = Main.app.getPlayerManager().getPlayers();
+
+        //broadcast playerupdatemessage for new player
+        Message msg = new PlayerUpdateMessage(player);
         server.send(msg);
+
+        for (int i = players.size() - 2; i >= 0; i --) {
+            //send playerupdatemessage for each other player to new connection
+            msg = new PlayerUpdateMessage(players.get(i));
+            msg.setConnection(getConnection());
+            server.send(msg);
+        }
     }
 
     @Override

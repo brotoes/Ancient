@@ -12,6 +12,7 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.input.InputManager;
+import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import controllers.interaction.PlayInputController;
@@ -41,6 +42,7 @@ public class AppState extends AbstractAppState {
         this.stateManager = this.app.getStateManager();
         this.inputManager = this.app.getInputManager();
         this.viewPort     = this.app.getViewPort();
+        this.nifty        = Main.app.getNifty();
 
         Main.app.getInputManager().setCursorVisible(true);
         Main.app.getInputManager().clearMappings();

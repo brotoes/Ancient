@@ -5,6 +5,7 @@
  */
 package utils;
 
+import com.jme3.math.ColorRGBA;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,5 +33,24 @@ public class StrUtils {
         oos.writeObject(obj);
         oos.close();
         return Base64.getEncoder().encodeToString(baos.toByteArray());
+    }
+
+    public static String hexString(ColorRGBA color) {
+        String result = "#";
+
+        for (int i = 0; i < color.getColorArray().length; i ++) {
+            float floatVal = color.getColorArray()[i];
+            int intVal = (int)(floatVal*255f);
+            String strVal = Integer.toHexString(intVal);
+            if (strVal.length() < 2) {
+                strVal = "0" + strVal;
+            } else if (strVal.length() > 2) {
+                strVal = "ff";
+            }
+
+            result += strVal;
+        }
+
+        return result;
     }
 }

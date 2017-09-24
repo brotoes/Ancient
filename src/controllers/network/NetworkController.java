@@ -5,8 +5,10 @@
  */
 package controllers.network;
 
+import ancient.Main;
+import ancient.players.Player;
 import controllers.network.messages.JoinMessage;
-import controllers.network.messages.PlayerListMessage;
+import controllers.network.messages.PlayerUpdateMessage;
 import exceptions.CreateException;
 import exceptions.JoinException;
 import java.io.IOException;
@@ -26,10 +28,11 @@ public class NetworkController {
 
     /**
      * hosts a game and joins own game
+     * @param name
      * @throws exceptions.CreateException
      * @throws exceptions.JoinException
      */
-    public void host() throws CreateException, JoinException {
+    public void host(String name) throws CreateException, JoinException {
         hostMgr = new MessageManager(PORT);
         register(hostMgr);
         try {
@@ -38,23 +41,16 @@ public class NetworkController {
             throw new CreateException(e);
         }
 
-        clientMgr = new MessageManager(PORT);
-        register(clientMgr);
-        try {
-            clientMgr.connect("127.0.0.1");
-        } catch (ConnectException e) {
-            throw new JoinException(e);
-        }
-
-        join();
+        Main.app.getPlayerManager().addPlayer(new Player(name));
     }
 
     /**
      * connects to a hosted game
      * @param address
+     * @param name
      * @throws exceptions.JoinException
      */
-    public void connect(String address) throws JoinException {
+    public void connect(String address, String name) throws JoinException {
         hostMgr = null;
 
         clientMgr = new MessageManager(PORT);
@@ -64,14 +60,7 @@ public class NetworkController {
         } catch (ConnectException e) {
             throw new JoinException(e);
         }
-        join();
-    }
-
-    /**
-     * Joins connected game
-     */
-    private void join() {
-        JoinMessage joinMsg = new JoinMessage("Phteven");
+        JoinMessage joinMsg = new JoinMessage(name);
         clientMgr.send(joinMsg);
     }
 
@@ -81,7 +70,7 @@ public class NetworkController {
      */
     private void register(MessageManager m) {
         m.register(JoinMessage.class);
-        m.register(PlayerListMessage.class);
+        m.register(PlayerUpdateMessage.class);
     }
 
     public void update() {

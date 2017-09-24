@@ -8,4 +8,18 @@ and open the template in the editor.
   <style id="text-style">
     <attributes font="Interface/Fonts/Default.fnt"/>
   </style>
+  <style id="dark-text">
+    <attributes font="Interface/Fonts/Default.fnt" color="#291400ff" />
+  </style>
+  <style id="menu-bg">
+    <attributes backgroundColor="#291400ff" />
+  </style>
+  <style id="panel">
+    <attributes backgroundImage="Interface/Images/panelbg.png"
+      imageMode="resize:15,2,15,15,15,2,15,2,15,2,15,15" padding="8px" />
+  </style>
+  <style id="panel-dark">
+    <attributes backgroundImage="Interface/Images/panelbg-dark.png"
+      imageMode="resize:15,2,15,15,15,2,15,2,15,2,15,15" padding="8px" />
+  </style>
 </nifty-styles>

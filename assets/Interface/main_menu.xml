@@ -6,21 +6,28 @@ and open the template in the editor.
 -->
 
 <nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
-  <useStyles filename="nifty-default-styles.xml" />
+<useStyles filename="nifty-default-styles.xml" />
   <useStyles filename="Interface/Styles/AdditionalStyles.xml" />
   <useControls filename="nifty-default-controls.xml" />
   <screen id="main_menu" controller="controllers.gui.MainMenuController">
-    <layer id="main_layer" childLayout="horizontal">
+    <layer id="main_layer" childLayout="horizontal" style="menu-bg">
       <panel width="30%"></panel>
-      <panel width="*" childLayout="vertical" align="center" valign="center">
-        <text id="game_title" text="Ancient" width="*" style="text-style" />
+      <panel width="*" childLayout="vertical" align="center" halign="center" valign="center">
+        <image filename="Interface/Images/title.png" width="512px" height="128px"/>
+        <panel height="30px" />
         <text id="status_text" text="" width="*" style="text-style" />
         <panel childLayout="horizontal">
           <text text="Address: " style="text-style" />
-          <control id="join_field" name="textfield" width="*"></control>
-          <text text="Player Name: " style="text-style" />
-          <control id="msg_field" name="textfield" width="*"></control>
+          <panel width="*" height="1px"/>
+          <control id="address_field" text="localhost" name="textfield" width="70%">
+          </control>
         </panel>
+        <panel childLayout="horizontal">
+          <text text="Player Name: " style="text-style" />
+          <panel width="*" height="1px" />
+          <control id="name_field" name="textfield" width="70%"></control>
+        </panel>
+        <panel height="20px" />
         <control name="button" id="join_button" label="Join Game" width="*">
           <interact onClick="joinButton()" />
         </control>

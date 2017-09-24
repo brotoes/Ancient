@@ -7,11 +7,7 @@ package controllers.network.messages;
 
 import ancient.Main;
 import ancient.players.Player;
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
 import network.Client;
@@ -25,35 +21,28 @@ import utils.StrUtils;
  * Sent from the server to clients to update the list of players
  * @author brock
  */
-public class PlayerListMessage extends Message {
-    public final static String ID = "PLAYERLIST";
+public class PlayerUpdateMessage extends Message {
+    public final static String ID = "PLAYERUPDATE";
 
-    private final List<Player> players;
+    private final Player player;
 
     /**
      * assembles the existing list of players from PlayerManager
+     * @param player
      */
-    public PlayerListMessage() {
-        players = Main.app.getPlayerManager().getPlayers();
+    public PlayerUpdateMessage(Player player) {
+        this.player = player;
     }
 
-    /**
-     * constructs with preset list of players
-     * @param players
-     */
-    public PlayerListMessage(List<Player> players) {
-        this.players = players;
-    }
-
-    public static PlayerListMessage parse(Connection conn, String msg) throws MalformedMessageException {
+    public static PlayerUpdateMessage parse(Connection conn, String msg) throws MalformedMessageException {
         String[] split = msg.split(" ", 2);
         if (!split[0].equals(ID)) {
             throw new MalformedMessageException();
         }
 
         try {
-            List<Player> players = (List<Player>) StrUtils.fromString(split[1]);
-            PlayerListMessage parsed = new PlayerListMessage(players);
+            Player player = (Player) StrUtils.fromString(split[1]);
+            PlayerUpdateMessage parsed = new PlayerUpdateMessage(player);
             parsed.setConnection(conn);
 
             return parsed;
@@ -69,7 +58,7 @@ public class PlayerListMessage extends Message {
 
     @Override
     public void receive(Client client) {
-        players.stream().forEach(p -> Main.app.getPlayerManager().addPlayer(p));
+        Main.app.getPlayerManager().addPlayer(player);
     }
 
     @Override
@@ -77,7 +66,7 @@ public class PlayerListMessage extends Message {
         String str = getId();
 
         try {
-            str += " " + StrUtils.toString((Serializable)players);
+            str += " " + StrUtils.toString((Serializable)player);
 
             return str;
         } catch (IOException e) {

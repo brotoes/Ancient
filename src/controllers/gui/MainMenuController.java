@@ -39,26 +39,12 @@ public class MainMenuController implements ScreenController {
      * called when "Join" is pressed. Joins hosted game
      */
     public void joinButton() {
-        Element joinElement = screen.findElementById("join_field");
-        TextField join;
-        String text = null;
+        String address = getElementText("address_field");
+        String name = getElementText("name_field");
 
-        if (joinElement != null) {
-            join = joinElement.getNiftyControl(TextField.class);
-        } else {
-            System.err.println("Error: Element Missing");
-            return;
-        }
-
-        if (join != null) {
-            text = join.getRealText().trim();
-        } else {
-            System.err.println("Type Error: Element type incorrect");
-        }
-
-        if (text != null) {
+        if (address != null && name != null) {
             try {
-                Main.app.getNetworkController().connect(text);
+                Main.app.getNetworkController().connect(address, name);
                 displayText("Joined Game!");
                 gotoLobby();
             } catch (JoinException e) {
@@ -71,13 +57,35 @@ public class MainMenuController implements ScreenController {
      * Called when "Host" is pressed. Creates game lobby
      */
     public void hostButton() {
+        String name = getElementText("name_field");
         try {
-            Main.app.getNetworkController().host();
+            Main.app.getNetworkController().host(name);
             displayText("Hosted Game!");
             gotoLobby();
         } catch (JoinException | CreateException e) {
             displayText(e.getMessage());
         }
+    }
+
+    /**
+     * finds and returns text in element of id 'id'
+     * @param id
+     * @return
+     */
+    public String getElementText(String id) {
+        Element elem = screen.findElementById(id);
+        TextField field;
+        String text;
+
+        try {
+            field = elem.getNiftyControl(TextField.class);
+            text = field.getRealText().trim();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return text;
     }
 
     /**

@@ -5,6 +5,7 @@
  */
 package utils;
 
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 
 /**
@@ -57,5 +58,14 @@ public class MathUtils {
 
     public static float map(float x, float c, float d) {
         return map(x, 0.0f, 1.0f, c, d);
+    }
+
+    /**
+     * returns color as a #RRGGBBAA string
+     * @param color
+     * @return
+     */
+    public String getColorHex(ColorRGBA color) {
+        return null;
     }
 }

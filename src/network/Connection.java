@@ -30,8 +30,6 @@ public class Connection extends Thread {
     private final BlockingQueue<String> sendQueue = new LinkedBlockingQueue<>();
     private final MessageManager messageManager;
 
-    private boolean stopped = false;
-
     /**
      * creates connection to be run with start()
      * @param sock this socket will be used for sending and receivng messages
@@ -73,35 +71,24 @@ public class Connection extends Thread {
                         break;
                     }
                 }
-                /* close thread on an interrupt */
-                if (Thread.interrupted()) {
-                    break;
-                }
             } catch (IOException | MalformedMessageException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {}
-            if (stopped) {
-                break;
-            }
         }
-        close(true);
+        close();
     }
 
     protected void send(String line) {
         try {
             sendQueue.put(line);
-        } catch (InterruptedException e) {
-            close(true);
-        }
+        } catch (InterruptedException e) {}
     }
 
-    private void close(boolean thread) {
+    private void close() {
         try {
             sock.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        System.out.println("closed connection");
     }
 }

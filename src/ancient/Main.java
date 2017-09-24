@@ -59,6 +59,7 @@ public class Main extends SimpleApplication {
 
         Main.app.setDisplayStatView(false);
         Main.app.setDisplayFps(false);
+        Main.app.setPauseOnLostFocus(false);
 
         netCon = new NetworkController();
 
