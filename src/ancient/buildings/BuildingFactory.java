@@ -11,11 +11,16 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import ancient.map.Province;
+import ancient.map.TerrainType;
 import ancient.resources.Resource;
 import ancient.resources.ResourceContainer;
+import java.io.IOException;
+import java.util.Collections;
+import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * Spawns a given building type
@@ -28,6 +33,7 @@ public class BuildingFactory {
     private final String name;
     private final List<ResourceContainer> ins = new ArrayList<>();
     private final List<ResourceContainer> outs = new ArrayList<>();
+    private final List<TerrainType> terrain = new ArrayList<>();
     private String desc = "NO DESCRIPTION";
 
     /**
@@ -53,7 +59,7 @@ public class BuildingFactory {
                 }
                 buildingFactories.add(new BuildingFactory(buildingNode));
             }
-        } catch (Exception e) {
+        } catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
         }
     }
@@ -76,23 +82,46 @@ public class BuildingFactory {
                 case "Output":
                     processResourceList(child, outs);
                     break;
+                case "Terrain":
+                    processTerrainList(child, terrain);
                 default:
                     System.err.println("Warning: Unrecognized building attribute");
             }
         }
     }
 
+    /**
+     * takes XML elements and populates list of resources
+     * @param node
+     * @param list
+     */
     private void processResourceList(Node node, List<ResourceContainer> list) {
         NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i ++) {
             Node child = children.item(i);
-            if (child.getNodeType() != Node.ELEMENT_NODE) {
-                continue;
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                list.add(parseResourceNode(child));
             }
-            list.add(parseResourceNode(child));
         }
     }
 
+    /**
+     * Takes XML element and populates list of terrain types
+     * @param node
+     * @param list
+     */
+    private void processTerrainList(Node node, List<TerrainType> list) {
+        String[] names = node.getTextContent().trim().split(",");
+        for (String i : names) {
+            terrain.add(TerrainType.getTerrainType(i.trim()));
+        }
+    }
+
+    /**
+     * Takes XML element and returns appropriate resourceContainer
+     * @param node
+     * @return
+     */
     public ResourceContainer parseResourceNode(Node node) {
         int qty;
         Resource res;
@@ -129,7 +158,7 @@ public class BuildingFactory {
      * parses buildingfactories if none have been parsed yet, then returns them.
      * @return list of building factories
      */
-    public static ArrayList<BuildingFactory> getBuildingFactories() {
+    public static List<BuildingFactory> getBuildingFactories() {
         if (BuildingFactory.buildingFactories == null) {
             BuildingFactory.parseBuildings();
         }
@@ -142,9 +171,9 @@ public class BuildingFactory {
      * @param prov
      * @return
      */
-    public static ArrayList<BuildingFactory> getValidBuildingFactories(Province prov) {
-        ArrayList<BuildingFactory> allFacs = getBuildingFactories();
-        ArrayList<BuildingFactory> validFacs = new ArrayList<>();
+    public static List<BuildingFactory> getValidBuildingFactories(Province prov) {
+        List<BuildingFactory> allFacs = getBuildingFactories();
+        List<BuildingFactory> validFacs = new ArrayList<>();
 
         for (int i = 0; i < allFacs.size(); i ++) {
             if (prov.isValid(allFacs.get(i))) {
@@ -154,4 +183,6 @@ public class BuildingFactory {
 
         return validFacs;
     }
+
+    public List<TerrainType> getTerrain() { return Collections.unmodifiableList(terrain); }
 }

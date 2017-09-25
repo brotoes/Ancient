@@ -26,6 +26,9 @@ import utils.StrUtils;
  * @author brock
  */
 public class LobbyController extends ParentScreenController implements PlayerChangeListener {
+    private final String NOTRDYIMG = "Interface/Images/not-ready.png";
+    private final String RDYIMG = "Interface/Images/ready.png";
+
     @Override
     public void bind(Nifty nifty, Screen screen) {
         super.bind(nifty, screen);
@@ -89,7 +92,7 @@ public class LobbyController extends ParentScreenController implements PlayerCha
                 width("*");
             }});
             image(new ImageBuilder() {{
-                filename("Interface/Images/not-ready.png");
+                filename(NOTRDYIMG);
             }});
         }};
         /* find index to insert the new player */

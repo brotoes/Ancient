@@ -19,7 +19,10 @@ public class Player implements Serializable {
     private int colorInd = 0;
     /* stores if this player is the local player */
     private boolean local;
-    private final PlayerManager pm;
+    private boolean ready;
+
+    private transient final PlayerManager pm;
+
 
     //TODO: Test for these constructors only being called from game host
     public Player(int id, String name) {
@@ -66,6 +69,8 @@ public class Player implements Serializable {
     }
     public boolean isLocal() { return local; }
     public void setLocal(boolean local) { this.local = local; }
+    public boolean isReady() { return ready; }
+    public void setReady(boolean ready) { this.ready = ready; }
 
     @Override
     public String toString() {

@@ -132,6 +132,11 @@ public class Province implements Selectable, Pathable, TurnListener {
      * @return
      */
     public boolean isValid(BuildingFactory fac) {
+        /* test if terrain is valid */
+        if (!fac.getTerrain().contains(this.terrainType)) {
+            return false;
+        }
+
         /* test if already exists */
         for (int i = 0; i < getNumBuildings(); i ++) {
             Building b = getBuilding(i);

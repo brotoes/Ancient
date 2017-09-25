@@ -25,7 +25,6 @@ import kn.uni.voronoitreemap.j2d.Point2D;
 import kn.uni.voronoitreemap.j2d.PolygonSimple;
 import mapGeneration.Voronoi;
 import mapGeneration.geometry.ProvVertex;
-import mapGeneration.geometry.RefVertex;
 import mapGeneration.geometry.Shape;
 import utils.ArrUtils;
 

@@ -98,7 +98,7 @@ public class HudController implements ScreenController {
 
     public void populateAvailableBuildings(Province prov) {
         ListBox list = provPanel.findNiftyControl("avail_build_list", ListBox.class);
-        ArrayList<BuildingFactory> availFacs = BuildingFactory.getValidBuildingFactories(prov);
+        List<BuildingFactory> availFacs = BuildingFactory.getValidBuildingFactories(prov);
         if (list != null) {
             list.clear();
             for (int i = 0; i < availFacs.size(); i ++) {
