@@ -10,6 +10,7 @@ import ancient.players.Player;
 import controllers.network.messages.ChatMessage;
 import controllers.network.messages.JoinMessage;
 import controllers.network.messages.PlayerUpdateMessage;
+import controllers.network.messages.StartGameMessage;
 import exceptions.CreateException;
 import exceptions.JoinException;
 import java.io.IOException;
@@ -74,6 +75,7 @@ public class NetworkController {
         m.register(JoinMessage.class);
         m.register(PlayerUpdateMessage.class);
         m.register(ChatMessage.class);
+        m.register(StartGameMessage.class);
     }
 
     public void update() {

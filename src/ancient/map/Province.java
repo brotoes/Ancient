@@ -6,7 +6,6 @@
 package ancient.map;
 
 import ancient.Main;
-import appStates.PlayState;
 import ancient.buildings.Building;
 import ancient.buildings.BuildingFactory;
 import com.jme3.material.Material;
@@ -25,47 +24,47 @@ import mapGeneration.Selectable;
 import pathfinder.Pathable;
 import pathfinder.Pathfinder;
 import ancient.pawns.Pawn;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import mapGeneration.geometry.ProvVertex;
 import mapGeneration.geometry.Shape;
 
 /**
  *
  * @author brock
  */
-public class Province implements Selectable, Pathable, TurnListener {
+public class Province implements Selectable, Pathable, TurnListener, Serializable {
     private static int nextId = 0;
 
+    /* static constants */
+    private static final float LINE_WIDTH = 1.0f;
+    private static final ColorRGBA OUTLINE_COLOR = ColorRGBA.Black;
+    private static final ColorRGBA SELECT_COLOR = ColorRGBA.White;
+    private static final ColorRGBA PATH_COLOR = ColorRGBA.Red;
+    private static final float OUTLINE_OFFSET = 0.01f;
+
     /* Graphical vars*/
-    private final Material faceMat;
-    private final Material outlineMat;
-    private final Geometry faceGeom;
-    private final Geometry outlineGeom;
-    private final Node pivot = new Node("pivot");
-    private final Node facePivot;
-    private final Node outlinePivot;
-    private final Node modelPivot;
-    private final TerrainType terrainType;
-    private final PlayState playState;
-    private final float LINE_WIDTH = 1.0f;
-    private final ColorRGBA OUTLINE_COLOR = ColorRGBA.Black;
-    private final ColorRGBA SELECT_COLOR = ColorRGBA.White;
-    private final ColorRGBA PATH_COLOR = ColorRGBA.Red;
-    private final float OUTLINE_OFFSET = 0.01f;
+    private transient Material faceMat;
+    private transient Material outlineMat;
+    private transient Geometry faceGeom;
+    private transient Geometry outlineGeom;
+    private transient Node pivot;
+    private transient Node facePivot;
+    private transient Node outlinePivot;
+    private transient Node modelPivot;
     private final Shape shape;
 
     /* Pathing vars */
-    private ArrayList<Province> adjProvs = null;
-    private Pathfinder<Province> pathfinder = null;
+    private transient Pathfinder<Province> pathfinder;
 
     /* Gameplay Vars */
     private final int id;
-    private final ArrayList<Pawn> pawns = new ArrayList<>();
-    private final ArrayList<Building> buildings = new ArrayList<>();
-    private ProvinceLevel level = null;
-    private ColorRGBA owner = ColorRGBA.White;
+    private final TerrainType terrainType;
+    private final List<Pawn> pawns = new ArrayList<>();
+    private final List<Building> buildings = new ArrayList<>();
+    private transient ProvinceLevel level = null;
+    private transient ColorRGBA owner = ColorRGBA.White;
 
     /**
      * Generates new province
@@ -75,17 +74,17 @@ public class Province implements Selectable, Pathable, TurnListener {
      * @param shape Shape of province
      */
     public Province(float elevation, float temp, Shape shape) {
-        id = Province.nextId;
-        Province.nextId ++;
-        playState = Main.app.getPlayState();
+        id = Province.nextId();
         /* Set up province properties */
         terrainType = TerrainType.getTerrainType(elevation, temp);
         this.shape = shape;
+    }
 
-        for (ProvVertex vert : shape.getVertices()) {
-            vert.addProvince(this);
-        }
-
+    /**
+     * constructor things to be done after the constructor. such as initializing
+     * transient variables.
+     */
+    public void init() {
         /* Define faces */
         faceGeom = new Geometry("faceMesh", shape.getFaceMesh());
 
@@ -98,10 +97,10 @@ public class Province implements Selectable, Pathable, TurnListener {
 
         facePivot = new Node("facePivot");
         facePivot.attachChild(faceGeom);
+        pivot = new Node("pivot");
         pivot.attachChild(facePivot);
 
         /* Define Outline */
-
         outlineGeom = new Geometry("Outline", shape.getOutlineMesh());
 
         outlineMat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
@@ -119,11 +118,12 @@ public class Province implements Selectable, Pathable, TurnListener {
         pivot.attachChild(modelPivot);
 
         /* display everything */
-        playState.getNode().attachChild(pivot);
+        Main.app.getPlayState().getNode().attachChild(pivot);
         outlinePivot.setLocalTranslation(new Vector3f(0.0f, 0.0f, OUTLINE_OFFSET));
         modelPivot.setLocalTranslation(shape.getCenter().getVector());
 
         updateLevel();
+        Main.app.getPlayState().getTurnController().addListener(this);
     }
 
     /**
@@ -148,18 +148,6 @@ public class Province implements Selectable, Pathable, TurnListener {
         return true;
     }
 
-    /**
-     * Populates neighbors. Should be called after all Provinces have been instantiated
-     *
-     */
-    public void findNeighbors() {
-        List<Shape> adjShapes = shape.getAdjShapes();
-        adjProvs = new ArrayList<>(adjShapes.size());
-        for (Shape i : adjShapes) {
-            adjProvs.add(i.getProvince());
-        }
-    }
-
     @Override
     public void select() {
         outlineMat.setColor("Color", SELECT_COLOR);
@@ -175,14 +163,6 @@ public class Province implements Selectable, Pathable, TurnListener {
     public Node getPivot() { return pivot; }
 
     public void step() {}
-
-    @Override
-    public List<Province> getNeighbors() {
-        if(adjProvs == null) {
-            findNeighbors();
-        }
-        return Collections.unmodifiableList(adjProvs);
-    }
 
     /**
      * returns path from prov to this
@@ -308,6 +288,15 @@ public class Province implements Selectable, Pathable, TurnListener {
     public Shape getShape() { return shape; }
     @Override
     public String toString() { return "Province " + id; }
+    @Override
+    public List<Province> getNeighbors() {
+        List<Province> neighbors = new ArrayList<>();
+        List<Shape> adjs = shape.getAdjShapes();
+        adjs.stream().forEach(a -> {
+            neighbors.add(a.getProvince());
+        });
+        return neighbors;
+    }
 
     /* static */
     /**
@@ -323,5 +312,15 @@ public class Province implements Selectable, Pathable, TurnListener {
         }
 
         return true;
+    }
+
+    /**
+     * returns the next id for a province and increments
+     * @return
+     */
+    public static int nextId() {
+        int id = nextId;
+        nextId ++;
+        return id;
     }
 }

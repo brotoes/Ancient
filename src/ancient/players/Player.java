@@ -21,22 +21,20 @@ public class Player implements Serializable {
     private boolean local;
     private boolean ready;
 
-    private transient final PlayerManager pm;
+    private transient PlayerManager pm;
 
 
     //TODO: Test for these constructors only being called from game host
     public Player(int id, String name) {
-        this.id = id;
-        this.name = name;
-        this.local = false;
-        this.pm = Main.app.getPlayerManager();
+        this(id, name, false);
     }
 
     public Player(int id, String name, boolean local) {
         this.id = id;
         this.name = name;
-        this.local = local;
         this.pm = Main.app.getPlayerManager();
+
+        this.local = local;
     }
 
     public Player(String name) {

@@ -1,12 +1,12 @@
 package ancient;
 
+import ancient.map.WorldMap;
 import ancient.players.PlayerManager;
 import appStates.AppState;
 import appStates.LobbyState;
 import appStates.MenuState;
 import appStates.PlayState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.app.state.AbstractAppState;
 import com.jme3.niftygui.NiftyJmeDisplay;
 import controllers.network.NetworkController;
 import de.lessvoid.nifty.Nifty;
@@ -73,9 +73,16 @@ public class Main extends SimpleApplication {
         netCon.close();
     }
 
+    /**
+     * switches app states and starts playing the game
+     */
     public void gotoGame() {
+        gotoGame(null);
+    }
+
+    public void gotoGame(WorldMap wm) {
         if (playState == null) {
-            playState = new PlayState();
+            playState = new PlayState(wm);
         }
         setState(playState);
     }

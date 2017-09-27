@@ -16,6 +16,8 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
 import fastnoise.FastNoise;
 import fastnoise.FastNoise.NoiseType;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.io.Serializable;
 import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -32,41 +34,39 @@ import utils.ArrUtils;
  *
  * @author brock
  */
-public class WorldMap {
-    private final int nProvs = 1000;
-    private final Province[] provs = new Province[nProvs];
-    private final int seed = 1337;
-    private final int freq = 3;
-    private final float amp = 2.0f;
-    private final float zFactor = 8.0f;
+public class WorldMap implements Serializable {
+    /* Map Generation Constants */
+    private final static float ZFAC = 8.0f;
+    private final static int FREQ = 3;
+    //private final float amp = 2.0f;
+    private final static int WIDTH = 100;
+    private final static int HEIGHT = 90;
 
-    private final int width = 100;
-    private final int height = 90;
+    private final List<Province> provs;
 
-    private final Node borderPivot = new Node("borderPivot");
+    private transient Node borderPivot;
 
-    public WorldMap() {
+    public WorldMap(int nProvs, int seed) {
+        this.provs = new ObjectArrayList<>(nProvs);
         FastNoise elevationMap = new FastNoise(seed);
-        elevationMap.SetFrequency(freq);
+        elevationMap.SetFrequency(FREQ);
 
         TerrainType.load();
-        elevationMap.SetFrequency(freq);
+        elevationMap.SetFrequency(FREQ);
         elevationMap.SetNoiseType(NoiseType.SimplexFractal);
 
-        Voronoi voronoi = new Voronoi(width, height, nProvs, 3, seed, elevationMap);
-
-        Main.app.getPlayState().getNode().attachChild(borderPivot);
-        borderPivot.setLocalTranslation(new Vector3f(0, 0, 0.1f));
+        Voronoi voronoi = new Voronoi(WIDTH, HEIGHT, nProvs, 3, seed, elevationMap);
+        List<Shape> shapes = new ArrayList<>(nProvs);
 
         /* Generate Each Province from voronoi */
         for (int i = 0; i < voronoi.size(); i ++) {
             PolygonSimple polygon = voronoi.getPolygon(i);
             Point2D cent = polygon.getCentroid();
-            float elevation = elevationMap.GetNoise((float)cent.x/width, (float)cent.y/height);
+            float elevation = elevationMap.GetNoise((float)cent.x/WIDTH, (float)cent.y/HEIGHT);
 
             //elevation *= amp;
             /* Map temperature like a globe */
-            float temperature = ((float)polygon.getCentroid().y/(float)height);
+            float temperature = ((float)polygon.getCentroid().y/(float)HEIGHT);
             temperature = -8*(float)Math.pow(temperature - 0.5f, 2.0f)+1;
 
             float[] zPoints = new float[polygon.getNumPoints()];
@@ -76,19 +76,32 @@ public class WorldMap {
             /* find z values */
             for (int j = 0; j < zPoints.length; j ++) {
                 zPoints[j] = Math.max(0.0f,
-                        elevationMap.GetNoise(xPoints[j]/width, yPoints[j]/height))*zFactor;
+                        elevationMap.GetNoise(xPoints[j]/WIDTH, yPoints[j]/HEIGHT))*ZFAC;
             }
 
             /* Create province */
-            Shape shape = new Shape(voronoi, i, zPoints, Math.max(0.0f,elevation*zFactor));
+            Shape shape = new Shape(voronoi, i, zPoints, Math.max(0.0f,elevation*ZFAC));
+            shapes.add(shape);
             voronoi.setShape(i, shape);
-            provs[i] = new Province(elevation, temperature, shape);
-            shape.setProvince(provs[i]);
-            Main.app.getPlayState().getTurnController().addListener(provs[i]);
+            Province prov = new Province(elevation, temperature, shape);
+            shape.getVertices().stream().forEach(v -> v.addProvince(prov));
+            provs.add(prov);
+            shape.setProvince(prov);
         }
-        for (Province p : provs) {
-            p.findNeighbors();
+        for (int i = 0; i < shapes.size(); i ++) {
+            shapes.get(i).initNeighbors(voronoi, i);
         }
+    }
+
+    /**
+     * attaches everything to the outside world. separated from constructor
+     * for serializing
+     */
+    public void init() {
+        borderPivot = new Node("borderPivot");
+        Main.app.getPlayState().getNode().attachChild(borderPivot);
+        borderPivot.setLocalTranslation(new Vector3f(0, 0, 0.1f));
+        provs.stream().forEach(p -> p.init());
     }
 
     /**
@@ -175,10 +188,10 @@ public class WorldMap {
 
     /* Getters and setters */
     public Province getProvince(int index) {
-        return provs[index];
+        return provs.get(index);
     }
 
     public int getNumProvs() {
-        return provs.length;
+        return provs.size();
     }
 }

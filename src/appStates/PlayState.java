@@ -24,8 +24,10 @@ import ancient.map.WorldMap;
 import ancient.players.Player;
 import ancient.resources.Resource;
 import controllers.gui.HudController;
+import controllers.network.messages.StartGameMessage;
 import de.lessvoid.nifty.screen.ScreenController;
 import java.util.List;
+import network.messages.Message;
 
 /**
  *
@@ -44,6 +46,10 @@ public class PlayState extends AppState {
     private final Node topNode = new Node("topNode");
     /** when added to this node, spatials render normally */
     private final Node node = new Node("stateNode");
+
+    public PlayState(WorldMap wm) {
+        this.worldMap = wm;
+    }
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
@@ -76,10 +82,20 @@ public class PlayState extends AppState {
         /* set up the scene */
         turnCon = new TurnController();
         tradeCon = new TradeController();
-        worldMap = new WorldMap();
+        boolean sendMap = worldMap == null;
+        if (worldMap == null) {
+            worldMap = new WorldMap(1000, 1337);
+        }
         camCon = new CameraController(this);
         inputCon = new PlayInputController(this);
 
+        /* if worldmap was generated instead of received, send it out. */
+        if (sendMap) {
+            Message msg = new StartGameMessage(worldMap);
+            Main.app.getNetworkController().send(msg);
+        }
+
+        worldMap.init();
         enable();
     }
 

@@ -6,6 +6,7 @@
 package mapGeneration.geometry;
 
 import com.jme3.math.Vector3f;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +18,7 @@ import utils.MathUtils;
  * point the a linked location
  * @author brock
  */
-public class RefVertex implements Pathable {
+public class RefVertex implements Pathable, Serializable {
     private static final List<RefVertex> verts = new ArrayList<>();
 
     private final Vector3f vector;

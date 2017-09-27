@@ -10,6 +10,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
+import java.io.Serializable;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,17 +22,14 @@ import mapGeneration.Voronoi;
  *
  * @author brock
  */
-public class Shape {
+public class Shape implements Serializable {
     private final ProvVertex center;
     private final List<ProvVertex> verts;
     private Province prov;
-    private Voronoi voronoi;
-    private int vorInd;
+    private List<Shape> neighbors;
 
     public Shape(Voronoi vor, int ind, float[] zPoints, float centerZ) {
         /* get data from voronoi */
-        this.voronoi = vor;
-        this.vorInd = ind;
         PolygonSimple polygon = vor.getPolygon(ind);
         verts = new ArrayList<>(polygon.getNumPoints());
 
@@ -59,6 +57,15 @@ public class Shape {
         }
         verts.get(0).connect(verts.get(verts.size() - 1));
         verts.get(0).connect(center);
+    }
+
+    /**
+     * after all shapes have been initialized, populate neighbors
+     * @param vor
+     * @param ind
+     */
+    public void initNeighbors(Voronoi vor, int ind) {
+        neighbors = vor.getNeighbors(ind);
     }
 
     /* getters and setters */
@@ -153,7 +160,7 @@ public class Shape {
     }
 
     public List<Shape> getAdjShapes() {
-        return voronoi.getNeighbors(vorInd);
+        return Collections.unmodifiableList(neighbors);
     }
 
     public Province getProvince() { return prov; }
