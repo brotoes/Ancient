@@ -19,6 +19,13 @@ import java.util.Base64;
  * @author brock
  */
 public class StrUtils {
+    /**
+     * Unserialize using the kryo serializer with deep nesting suppoert
+     * @param str
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public static Object fromString(String str) throws IOException, ClassNotFoundException {
         byte [] data = Base64.getDecoder().decode(str);
         ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
@@ -27,6 +34,12 @@ public class StrUtils {
         return o;
     }
 
+    /**
+     * Serialize using the Kryo Serializer with deep nesting support
+     * @param obj
+     * @return
+     * @throws IOException
+     */
     public static String toString(Serializable obj) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -35,6 +48,40 @@ public class StrUtils {
         return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
 
+    /**
+     * Unserializes an object using Java serializer
+     * @param str
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public static Object fromStringVanilla(String str) throws IOException, ClassNotFoundException {
+        byte [] data = Base64.getDecoder().decode(str);
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+        Object o  = ois.readObject();
+        ois.close();
+        return o;
+    }
+
+    /**
+     * Serializes an object using Java serializer
+     * @param obj
+     * @return
+     * @throws IOException
+     */
+    public static String toStringVanilla(Serializable obj) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(obj);
+        oos.close();
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
+    }
+
+    /**
+     * Converts a ColorRGBA to string of format #ffffffff
+     * @param color
+     * @return
+     */
     public static String hexString(ColorRGBA color) {
         String result = "#";
 
