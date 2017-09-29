@@ -22,15 +22,10 @@ import utils.StrUtils;
 public class StartGameMessage extends Message {
     public final static String ID = "STARTGAME";
 
-    private String wmStr;
-    private WorldMap wm;
+    private final WorldMap wm;
 
     public StartGameMessage(WorldMap wm) {
-        try {
-            this.wmStr = StrUtils.toString(wm);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.wm = wm;
     }
 
     public static StartGameMessage parse(Connection conn, String msg) throws MalformedMessageException {
@@ -40,7 +35,8 @@ public class StartGameMessage extends Message {
         }
 
         try {
-            WorldMap wm = (WorldMap)StrUtils.fromString(split[1]);
+            WorldMap wm = (WorldMap)StrUtils.fromString(split[1], WorldMap.class);
+
             StartGameMessage parsed = new StartGameMessage(wm);
             parsed.setConnection(conn);
 
@@ -57,11 +53,17 @@ public class StartGameMessage extends Message {
 
     @Override
     public void receive(Client client) {
+        System.out.println(wm);
         Main.app.gotoGame(wm);
     }
 
     @Override
     public String toString() {
-        return getId() + " " + wmStr;
+        try {
+            return getId() + " " + StrUtils.toString(wm);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

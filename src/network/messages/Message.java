@@ -21,19 +21,19 @@ public abstract class Message {
     private Connection connection = null;
 
     public void send(Server server) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getId() + " Not to be sent from server.");
     }
 
     public void receive(Server server) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getId() + " Not to be received on server.");
     }
 
     public void send(Client client) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getId() + " Not to be sent from client.");
     }
 
     public void receive(Client client) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(getId() + " Not to be received on server.");
     }
 
     /* getters and setters */

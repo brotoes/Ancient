@@ -48,6 +48,7 @@ public class PlayState extends AppState {
     private final Node node = new Node("stateNode");
 
     public PlayState(WorldMap wm) {
+        /* if null is passed, generated a WorldMap */
         this.worldMap = wm;
     }
 
@@ -82,15 +83,16 @@ public class PlayState extends AppState {
         /* set up the scene */
         turnCon = new TurnController();
         tradeCon = new TradeController();
-        boolean sendMap = worldMap == null;
+        boolean generated = false;
         if (worldMap == null) {
             worldMap = new WorldMap(1000, 1337);
+            generated = true;
         }
         camCon = new CameraController(this);
         inputCon = new PlayInputController(this);
 
         /* if worldmap was generated instead of received, send it out. */
-        if (sendMap) {
+        if (generated) {
             Message msg = new StartGameMessage(worldMap);
             Main.app.getNetworkController().send(msg);
         }

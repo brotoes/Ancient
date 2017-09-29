@@ -10,7 +10,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
-import java.io.Serializable;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,9 +21,9 @@ import mapGeneration.Voronoi;
  *
  * @author brock
  */
-public class Shape implements Serializable {
-    private final ProvVertex center;
-    private final List<ProvVertex> verts;
+public class Shape {
+    private ProvVertex center;
+    private List<ProvVertex> verts;
     private Province prov;
     private List<Shape> neighbors;
 
@@ -58,6 +57,11 @@ public class Shape implements Serializable {
         verts.get(0).connect(verts.get(verts.size() - 1));
         verts.get(0).connect(center);
     }
+
+    /**
+     * no-arg constructor for use by Kryo Serializer
+     */
+    public Shape() {}
 
     /**
      * after all shapes have been initialized, populate neighbors

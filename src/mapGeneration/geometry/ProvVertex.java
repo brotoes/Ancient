@@ -19,7 +19,7 @@ import java.util.List;
 public class ProvVertex extends RefVertex {
     private static final List<ProvVertex> verts = new ArrayList<>();
 
-    private final List<Province> provs;
+    private List<Province> provs;
 
     /**
      * creates a vertex from a vector and returns. if equal vertex already
@@ -51,6 +51,11 @@ public class ProvVertex extends RefVertex {
         super(vec);
         provs = new ArrayList<>();
     }
+
+    /**
+     * No Arg Constructor for use by Kryo Serializer
+     */
+    public ProvVertex() {}
 
     /**
      * Adds a province to the list of connected provinces.

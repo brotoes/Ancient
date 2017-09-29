@@ -42,7 +42,7 @@ public class WorldMap implements Serializable {
     private final static int WIDTH = 100;
     private final static int HEIGHT = 90;
 
-    private final List<Province> provs;
+    private List<Province> provs;
 
     private transient Node borderPivot;
 
@@ -92,6 +92,11 @@ public class WorldMap implements Serializable {
             shapes.get(i).initNeighbors(voronoi, i);
         }
     }
+
+    /**
+     * Empty constructor for Kryo serializer
+     */
+    public WorldMap() {}
 
     /**
      * attaches everything to the outside world. separated from constructor

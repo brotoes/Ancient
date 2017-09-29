@@ -6,7 +6,6 @@
 package mapGeneration.geometry;
 
 import com.jme3.math.Vector3f;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,12 +17,12 @@ import utils.MathUtils;
  * point the a linked location
  * @author brock
  */
-public class RefVertex implements Pathable, Serializable {
+public class RefVertex implements Pathable {
     private static final List<RefVertex> verts = new ArrayList<>();
 
-    private final Vector3f vector;
+    private Vector3f vector;
     /* stores connected RefVertices */
-    private final List<RefVertex> neighbors;
+    private List<RefVertex> neighbors;
 
     /**
      * creates a vertex from a vector and returns. if equal vertex already
@@ -48,6 +47,10 @@ public class RefVertex implements Pathable, Serializable {
         neighbors = new ArrayList<>();
     }
 
+    /**
+     * no-arg constructor for use by Kryo Serializer
+     */
+    public RefVertex() {}
 
     /**
      * adds a vertex to list of adjacent vertices if not already added

@@ -5,6 +5,9 @@
  */
 package utils;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.jme3.math.ColorRGBA;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,6 +17,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Base64;
 
+
 /**
  *
  * @author brock
@@ -22,16 +26,16 @@ public class StrUtils {
     /**
      * Unserialize using the kryo serializer with deep nesting suppoert
      * @param str
+     * @param cls
      * @return
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static Object fromString(String str) throws IOException, ClassNotFoundException {
-        byte [] data = Base64.getDecoder().decode(str);
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-        Object o  = ois.readObject();
-        ois.close();
-        return o;
+    public static Object fromString(String str, Class cls) throws IOException, ClassNotFoundException {
+        Kryo kryo = new Kryo();
+        byte[] data = Base64.getDecoder().decode(str);
+        Input input = new Input(new ByteArrayInputStream(data));
+        return kryo.readObject(input, cls);
     }
 
     /**
@@ -40,11 +44,18 @@ public class StrUtils {
      * @return
      * @throws IOException
      */
-    public static String toString(Serializable obj) throws IOException {
+    public static String toString(Object obj) throws IOException {
+        Kryo kryo = new Kryo();
+
+        System.out.println("To String: " + obj);
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(obj);
-        oos.close();
+        Output output = new Output(baos);
+        kryo.writeObject(output, obj);
+        output.flush();
+
+        System.out.println("gives string: " + baos.toString());
+
         return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
 

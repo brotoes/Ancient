@@ -8,7 +8,6 @@ package controllers.network.messages;
 import ancient.Main;
 import ancient.players.Player;
 import java.io.IOException;
-import java.io.Serializable;
 import network.Client;
 import network.Connection;
 import network.messages.Message;
@@ -40,7 +39,7 @@ public class PlayerUpdateMessage extends Message {
         }
 
         try {
-            Player player = (Player) StrUtils.fromString(split[1]);
+            Player player = (Player) StrUtils.fromString(split[1], Player.class);
             PlayerUpdateMessage parsed = new PlayerUpdateMessage(player);
             parsed.setConnection(conn);
 
@@ -78,7 +77,7 @@ public class PlayerUpdateMessage extends Message {
         String str = getId();
 
         try {
-            str += " " + StrUtils.toString((Serializable)player);
+            str += " " + StrUtils.toString(player);
 
             return str;
         } catch (IOException e) {

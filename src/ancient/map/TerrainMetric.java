@@ -5,18 +5,17 @@
  */
 package ancient.map;
 
-import java.io.Serializable;
 import org.w3c.dom.Node;
 
 /**
  *
  * @author brock
  */
-public class TerrainMetric implements Serializable {
-    private final String category;
-    private final String name;
-    private final Float min;
-    private final Float max;
+public class TerrainMetric {
+    private String category;
+    private String name;
+    private Float min;
+    private Float max;
 
     /**
      * Takes category and XML node of format <Name>min,max<Name>
@@ -48,6 +47,11 @@ public class TerrainMetric implements Serializable {
             max = null;
         }
     }
+
+    /**
+     * no-arg constructor for Kryo Serializer
+     */
+    public TerrainMetric() {}
 
     public String getCategory() { return category; }
     public String getName() { return name; }

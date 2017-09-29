@@ -24,9 +24,9 @@ public class ProvinceLevel {
     private static List<ProvinceLevel> levels = null;
     private final static String FNAME = "assets/Config/ProvinceLevels.xml";
 
-    private final int minBuildings;
-    private final String name;
-    private final Spatial model;
+    private int minBuildings;
+    private String name;
+    private Spatial model;
 
     public ProvinceLevel(Node node) {
         int min = 0;
@@ -57,6 +57,11 @@ public class ProvinceLevel {
 
         minBuildings = min;
     }
+
+    /**
+     * no-arg constructor for use in Kryo Serializer
+     */
+    public ProvinceLevel() {}
 
     /**
      * Loads province levels from xml file

@@ -6,15 +6,14 @@
 package ancient.players;
 
 import com.jme3.math.ColorRGBA;
-import java.io.Serializable;
 import ancient.Main;
 
 /**
  *
  * @author brock
  */
-public class Player implements Serializable {
-    private final int id;
+public class Player {
+    private int id;
     private String name;
     private int colorInd = 0;
     /* stores if this player is the local player */
@@ -40,6 +39,11 @@ public class Player implements Serializable {
     public Player(String name) {
         this(0, name, true);
     }
+
+    /**
+     * zero-arg constructor for use by Kryo serializer
+     */
+    public Player() {}
 
     /**
      * takes data from player

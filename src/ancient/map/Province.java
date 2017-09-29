@@ -24,7 +24,6 @@ import mapGeneration.Selectable;
 import pathfinder.Pathable;
 import pathfinder.Pathfinder;
 import ancient.pawns.Pawn;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -34,7 +33,7 @@ import mapGeneration.geometry.Shape;
  *
  * @author brock
  */
-public class Province implements Selectable, Pathable, TurnListener, Serializable {
+public class Province implements Selectable, Pathable, TurnListener {
     private static int nextId = 0;
 
     /* static constants */
@@ -53,14 +52,14 @@ public class Province implements Selectable, Pathable, TurnListener, Serializabl
     private transient Node facePivot;
     private transient Node outlinePivot;
     private transient Node modelPivot;
-    private final Shape shape;
+    private Shape shape;
 
     /* Pathing vars */
     private transient Pathfinder<Province> pathfinder;
 
     /* Gameplay Vars */
-    private final int id;
-    private final TerrainType terrainType;
+    private int id;
+    private TerrainType terrainType;
     private final List<Pawn> pawns = new ArrayList<>();
     private final List<Building> buildings = new ArrayList<>();
     private transient ProvinceLevel level = null;
@@ -79,6 +78,11 @@ public class Province implements Selectable, Pathable, TurnListener, Serializabl
         terrainType = TerrainType.getTerrainType(elevation, temp);
         this.shape = shape;
     }
+
+    /**
+     * No-arg constructor for use by Kryo Serializer
+     */
+    public Province() {}
 
     /**
      * constructor things to be done after the constructor. such as initializing

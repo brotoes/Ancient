@@ -7,7 +7,6 @@ package ancient.map;
 
 import com.jme3.math.ColorRGBA;
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,7 +22,7 @@ import utils.XMLUtils;
  *
  * @author brock
  */
-public class TerrainType implements Serializable {
+public class TerrainType {
     /* Static Variables */
     private final static String FNAME = "assets/Config/TerrainTypes.xml";
     private final static HashMap<String, TerrainType> TYPES = new HashMap<>();
@@ -192,6 +191,11 @@ public class TerrainType implements Serializable {
             }
         }
     }
+
+    /**
+     * no-arg constructor for use by Kryo serializer
+     */
+    public TerrainType() {}
 
     /**
      * Takes Node containing valid metrics and adds them to the instance
