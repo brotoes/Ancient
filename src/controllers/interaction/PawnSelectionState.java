@@ -9,7 +9,6 @@ import ancient.Main;
 import ancient.map.Province;
 import mapGeneration.Selectable;
 import ancient.pawns.Pawn;
-import de.lessvoid.nifty.screen.ScreenController;
 
 /**
  * Controls selections when a province is selected

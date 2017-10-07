@@ -5,13 +5,11 @@
  */
 package ancient.map;
 
+import ancient.Main;
 import com.jme3.math.ColorRGBA;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -24,7 +22,7 @@ import utils.XMLUtils;
  */
 public class TerrainType {
     /* Static Variables */
-    private final static String FNAME = "assets/Config/TerrainTypes.xml";
+    private final static String FNAME = "Config/TerrainTypes.xml";
     private final static HashMap<String, TerrainType> TYPES = new HashMap<>();
     private final static HashMap<String, TerrainMetric> METRICS_NAME = new HashMap<>();
     private final static HashMap<String, ArrayList<TerrainMetric>> METRICS_CAT = new HashMap<>();
@@ -32,6 +30,7 @@ public class TerrainType {
     /* Instance Variables */
     private String name;
     private ColorRGBA color;
+    private boolean claimable = true;
     private ArrayList<TerrainMetric> metrics = new ArrayList<>();
 
     /**
@@ -40,11 +39,7 @@ public class TerrainType {
      */
     public static void load() {
         try {
-            /* open doc */
-            File xmlFile = new File(FNAME);
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
+            Document doc = (Document)Main.app.getAssetManager().loadAsset(FNAME);
 
             doc.getDocumentElement().normalize();
 
@@ -65,7 +60,6 @@ public class TerrainType {
 
                     /* store loaded metric */
                     METRICS_NAME.put(metric.getName(), metric);
-
                     if (METRICS_CAT.get(metric.getCategory()) == null) {
                         ArrayList<TerrainMetric> newList = new ArrayList<>();
                         newList.add(metric);
@@ -130,7 +124,7 @@ public class TerrainType {
                 }
             }
         } else {
-            System.err.println("Warning No Temperature Metrics Loaded.");
+            System.err.println("Warning: No Temperature Metrics Loaded.");
         }
 
         return getTerrainType(metrics);
@@ -188,6 +182,9 @@ public class TerrainType {
                 case "Metrics":
                     processMetrics(childNode);
                     break;
+                case "Unclaimable":
+                    claimable = false;
+                    break;
             }
         }
     }
@@ -222,4 +219,5 @@ public class TerrainType {
 
     public ColorRGBA getColor() { return color; }
     public String getName() { return name; }
+    public boolean isClaimable() { return claimable; }
 }

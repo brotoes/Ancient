@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
+  <screen id="hud" controller="controllers.gui.HudController">
+    <layer id="background" backgroundColor="#0000" childLayout="vertical">
+      <panel id="icon_row" width="40%" height="32px" childLayout="horizontal"
+        backgroundColor="#444">
+          <control name="button" id="currency_button" label="Currency and Taxation"
+              align="center" valign="center" visibleToMouse="true" width="*">
+            <interact onClick="currencyButton()"/>
+          </control>
+      </panel>
+      <panel childLayout="vertical" height="*">
+        <panel height="*"></panel>
+        <panel childLayout="horizontal" height="5%">
+          <panel width="*"></panel>
+          <control name="button" id="turn_button" label="Next Turn">
+            <interact onClick="turnButton()" />
+          </control>
+        </panel>
+      </panel>
+    </layer>
+    <layer id="control_panels"></layer>
+
+    <!-- Control panel for selected province when controlled by player-->
+    <layer id="province_panel_layer" backgroundColor="#0000" childLayout="horizontal">
+      <panel width="*"></panel>
+      <panel id="province_panel" valign="top" backgroundColor="#444" padding="10px"
+        width="30%" height="80%" childLayout="vertical" hidden="true"
+        visibleToMouse="true">
+        <text id="province_title" text="Province Info" style="text-style" />
+        <panel childLayout="horizontal">
+          <text id="province_player" text="Player Name Here" style="text-style" />
+          <panel width="*" height="0px" />
+          <control id="claim_button" name="button" label="Claim">
+            <interact onClick="claimButton()"/>
+          </control>
+        </panel>
+        <panel childLayout="horizontal">
+          <text id="province_terrain_type" text="Land" style="text-style" />
+          <text text="-" width="*" style="text-style" />
+          <text id="province_level" text="Remote" style="text-style" />
+        </panel>
+        <text text="Existing Buildings:" style="text-style"/>
+        <panel id="exist_build_panel" backgroundColor="#0004">
+          <!-- populate with buildings already built -->
+        </panel>
+        <text text="Available Buildings:" style="text-style" />
+        <panel id="avail_build_panel" backgroundColor="#0004">
+          <!-- Populate with buildings available to be built -->
+        </panel>
+        <!--<control id="building_tabs" name="tabGroup">
+          <control id="exist_build_tab" name="tab" caption="Existing" childLayout="vertical">
+            <control name="listBox" id="exist_build_list" horizontal="off"
+                     vertical="optional" selectionMode="Single"/>
+            <panel id="exist_build_info" childLayout="horizontal" backgroundColor="#777">
+            </panel>
+          </control>
+          <control id="avail_build_tab" name="tab" caption="Available" childLayout="vertical">
+            <control name="listBox" id="avail_build_list" horizontal="off" vertical="optional"
+                     selectionMode="Single" />
+            <panel id="avail_build_info" childLayout="horiztontal" backgroundColor="#777">
+            </panel>
+            <control name="button" id="build_button" label="Build" align="right" >
+              <interact onClick="buildButton()"/>
+            </control>
+          </control>
+        </control>-->
+      </panel>
+    </layer>
+
+    <!-- Control panel for selected province when owned by another player-->
+    <layer id="other_province_panel_layer" backgroundColor="#0000" childLayout="horizontal">
+      <panel width="*"></panel>
+      <panel id="other_province_panel" valign="top" backgroundColor="#444" padding="10px"
+        width="30%" childLayout="vertical" hidden="true" visibleToMouse="true">
+        <text id="other_province_title" text="Province Info" style="text-style" />
+        <panel childLayout="horizontal">
+          <text id="other_province_player" text="Player Name Here" style="text-style" />
+          <panel width="*" height="0px" />
+          <control id="other_claim_button" name="button" label="Claim">
+            <interact onClick="claimButton()"/>
+          </control>
+        </panel>
+        <panel childLayout="horizontal">
+          <text id="other_province_terrain_type" text="Land" style="text-style" />
+          <text text="-" width="*" style="text-style" />
+          <text id="other_province_level" text="Remote" style="text-style" />
+        </panel>
+      </panel>
+    </layer>
+
+    <!-- Control panel for selected pawns -->
+    <layer id="pawn_panel_layer" childLayout="horizontal">
+      <panel width="*"></panel>
+      <panel id="pawn_panel" valign="center" backgroundColor="#444"  padding="10px"
+        width="30%" height="60%" childLayout="vertical">
+        <text id="pawn_title" text="Pawn Info" style="text-style" />
+      </panel>
+    </layer>
+  </screen>
+</nifty>

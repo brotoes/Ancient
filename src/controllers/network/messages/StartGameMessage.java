@@ -53,7 +53,6 @@ public class StartGameMessage extends Message {
 
     @Override
     public void receive(Client client) {
-        System.out.println(wm);
         Main.app.gotoGame(wm);
     }
 

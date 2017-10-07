@@ -5,11 +5,9 @@
  */
 package ancient.resources;
 
+import ancient.Main;
 import com.jme3.math.ColorRGBA;
-import java.io.File;
 import java.util.HashMap;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -21,7 +19,7 @@ import utils.XMLUtils;
  */
 public class Resource {
     private final static HashMap<String, Resource> resources = new HashMap<>();
-    private final static String FNAME = "assets/Config/Resources.xml";
+    private final static String RESOURCES_XML = "Config/Resources.xml";
 
     private final String name;
     private int value;
@@ -52,26 +50,19 @@ public class Resource {
      * reads XML doc and populates resources list
      */
     public static void parseResources() {
-        try {
-            File xmlFile = new File(FNAME);
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
+        Document doc = (Document)Main.app.getAssetManager().loadAsset(RESOURCES_XML);
 
-            doc.getDocumentElement().normalize();
-            NodeList nodes = doc.getElementsByTagName("Resources");
-            nodes = nodes.item(0).getChildNodes();
+        doc.getDocumentElement().normalize();
+        NodeList nodes = doc.getElementsByTagName("Resources");
+        nodes = nodes.item(0).getChildNodes();
 
-            /* create resource for each node */
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Node child = nodes.item(i);
-                if (child.getNodeType() != Node.ELEMENT_NODE) {
-                    continue;
-                }
-                resources.put(child.getNodeName().trim(), new Resource(child));
+        /* create resource for each node */
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node child = nodes.item(i);
+            if (child.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            resources.put(child.getNodeName().trim(), new Resource(child));
         }
     }
 

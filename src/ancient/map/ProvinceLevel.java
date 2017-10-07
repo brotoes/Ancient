@@ -7,11 +7,8 @@ package ancient.map;
 
 import ancient.Main;
 import com.jme3.scene.Spatial;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -22,7 +19,7 @@ import org.w3c.dom.NodeList;
  */
 public class ProvinceLevel {
     private static List<ProvinceLevel> levels = null;
-    private final static String FNAME = "assets/Config/ProvinceLevels.xml";
+    private final static String PLEVEL_XML = "Config/ProvinceLevels.xml";
 
     private int minBuildings;
     private String name;
@@ -69,10 +66,7 @@ public class ProvinceLevel {
     public static void loadLevels() {
         levels = new ArrayList<>();
         try {
-            File xmlFile = new File(FNAME);
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
+            Document doc = (Document)Main.app.getAssetManager().loadAsset(PLEVEL_XML);
 
             doc.getDocumentElement().normalize();
 

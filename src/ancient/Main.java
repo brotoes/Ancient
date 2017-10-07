@@ -6,6 +6,7 @@ import appStates.AppState;
 import appStates.LobbyState;
 import appStates.MenuState;
 import appStates.PlayState;
+import assets.XmlLoader;
 import com.jme3.app.SimpleApplication;
 import com.jme3.niftygui.NiftyJmeDisplay;
 import controllers.network.NetworkController;
@@ -58,9 +59,11 @@ public class Main extends SimpleApplication {
         nifty.addXml(HUD_XML);
         guiViewPort.addProcessor(niftyDisplay);
 
-        Main.app.setDisplayStatView(false);
-        Main.app.setDisplayFps(false);
-        Main.app.setPauseOnLostFocus(false);
+        setDisplayStatView(false);
+        setDisplayFps(false);
+        setPauseOnLostFocus(false);
+
+        assetManager.registerLoader(XmlLoader.class, "xml");
 
         netCon = new NetworkController();
 

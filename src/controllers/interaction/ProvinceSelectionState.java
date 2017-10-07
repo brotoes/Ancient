@@ -14,7 +14,7 @@ import ancient.pawns.Pawn;
  * Controls selections when a province is selected
  * @author brock
  */
-public class ProvinceSelectionState extends SelectionState{
+public class ProvinceSelectionState extends SelectionState {
     public ProvinceSelectionState(Province prov) {
         super(prov);
     }

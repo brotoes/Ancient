@@ -13,6 +13,10 @@ import controllers.game.TurnListener;
 import ancient.map.Province;
 import ancient.resources.Resource;
 import ancient.resources.ResourceContainer;
+import controllers.gui.Infoable;
+import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.elements.Element;
+import de.lessvoid.nifty.screen.Screen;
 import java.util.List;
 import mapGeneration.Selectable;
 
@@ -26,7 +30,7 @@ import mapGeneration.Selectable;
  *
  * @author brock
  */
-public class Pawn implements Selectable, TurnListener {
+public class Pawn implements Selectable, Infoable, TurnListener {
     private static int nextId = 0;
 
     private final int id;
@@ -147,6 +151,21 @@ public class Pawn implements Selectable, TurnListener {
     public void setDestination(Building building) {
         setDestination(building.getProvince());
         destinationBuilding = building;
+    }
+
+    @Override
+    public Element showInfoPanel(Nifty nifty, Screen screen, Element elem) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void infoClick(String... args) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeInfoPanel() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /* Getters and setters */

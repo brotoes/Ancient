@@ -145,6 +145,9 @@ public class PlayerManager {
             return null;
         }
     }
+    public Player getLocalPlayer() {
+        return players.stream().filter(p -> p.isLocal()).findAny().get();
+    }
     public ColorRGBA getColor(int i) { return colors.get(i); }
     public List<ColorRGBA> getColors() { return Collections.unmodifiableList(colors); }
 }

@@ -18,8 +18,9 @@ public class Player {
     private int colorInd = 0;
     /* stores if this player is the local player */
     private boolean local;
-    private boolean ready;
+    private boolean ready = false;
 
+    /* convenience var */
     private transient PlayerManager pm;
 
 
@@ -52,6 +53,7 @@ public class Player {
     public void update(Player player) {
         this.name = player.name;
         this.colorInd = player.colorInd;
+        this.ready = player.ready;
         Main.app.getPlayerManager().updated(this);
     }
 
@@ -73,6 +75,10 @@ public class Player {
     public void setLocal(boolean local) { this.local = local; }
     public boolean isReady() { return ready; }
     public void setReady(boolean ready) { this.ready = ready; }
+    public boolean toggleReady() {
+        ready = !ready;
+        return ready;
+    }
 
     @Override
     public String toString() {

@@ -6,13 +6,17 @@ and open the template in the editor.
 -->
 
 <ProvinceLevels>
-  <Remote></Remote>
+  <Remote>
+    <Image>Interface/images/remotebg.png</Image>
+  </Remote>
   <Rural>
     <MinBuildings>1</MinBuildings>
     <Model>Models/buildings/rural.blend</Model>
+    <Image>Interface/images/ruralbg.png</Image>
   </Rural>
   <Urban>
     <MinBuildings>3</MinBuildings>
     <Model>Models/buildings/urban.blend</Model>
+    <Image>Interface/images/urbanbg.png</Image>
   </Urban>
 </ProvinceLevels>

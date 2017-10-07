@@ -24,6 +24,13 @@ import mapGeneration.Selectable;
 import pathfinder.Pathable;
 import pathfinder.Pathfinder;
 import ancient.pawns.Pawn;
+import ancient.players.Player;
+import controllers.gui.Infoable;
+import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.builder.PanelBuilder;
+import de.lessvoid.nifty.builder.TextBuilder;
+import de.lessvoid.nifty.elements.Element;
+import de.lessvoid.nifty.screen.Screen;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -33,7 +40,7 @@ import mapGeneration.geometry.Shape;
  *
  * @author brock
  */
-public class Province implements Selectable, Pathable, TurnListener {
+public class Province implements Selectable, Infoable, Pathable, TurnListener {
     private static int nextId = 0;
 
     /* static constants */
@@ -62,8 +69,9 @@ public class Province implements Selectable, Pathable, TurnListener {
     private TerrainType terrainType;
     private final List<Pawn> pawns = new ArrayList<>();
     private final List<Building> buildings = new ArrayList<>();
-    private transient ProvinceLevel level = null;
-    private transient ColorRGBA owner = ColorRGBA.White;
+    private transient ProvinceLevel level;
+    private transient Player owner;
+    private transient Element infoPanel;
 
     /**
      * Generates new province
@@ -229,9 +237,6 @@ public class Province implements Selectable, Pathable, TurnListener {
      * @param building
      */
     public void addBuilding(Building building) {
-        //TEMPORARY, remove
-        setOwner(ColorRGBA.Red);
-
         buildings.add(building);
         updateLevel();
     }
@@ -247,12 +252,12 @@ public class Province implements Selectable, Pathable, TurnListener {
         }
     }
 
-    public void setOwner(ColorRGBA owner) {
+    public void setOwner(Player owner) {
         this.owner = owner;
         Main.app.getPlayState().getWorldMap().updateBorders();
     }
 
-    public ColorRGBA getOwner() { return owner; }
+    public Player getOwner() { return owner; }
 
     /**
      * checks if any adjacent provinces don't share an owner
@@ -276,6 +281,128 @@ public class Province implements Selectable, Pathable, TurnListener {
         }
     }
 
+    @Override
+    public Element showInfoPanel(Nifty nifty, Screen screen, Element elem) {
+        /* If already built, return existing panel */
+        if (infoPanel != null) {
+            return infoPanel;
+        }
+
+        PanelBuilder pb;
+        /* Panel for unclaimable Province */
+        if (!terrainType.isClaimable()) {
+            pb = getUnclaimableInfoPanelBuilder();
+        /* Panel for owned Province */
+        } else if (getOwner() != null && getOwner().isLocal()) {
+            pb = getOwnedInfoPanelBuilder();
+        /* Panel for unowned Province */
+        } else {
+            pb = getOtherInfoPanelBuilder();
+        }
+
+        infoPanel = pb.build(nifty, screen, elem);
+
+        return infoPanel;
+    }
+
+    @Override
+    public void infoClick(String... args) {
+
+    }
+
+    @Override
+    public void removeInfoPanel() {
+        if (infoPanel != null) {
+            infoPanel.markForRemoval();
+            infoPanel = null;
+        }
+    }
+
+    /**
+     * returns a panelBuilder for the infoPanel assuming this province is
+     * owned by the player
+     * @return
+     */
+    public PanelBuilder getOwnedInfoPanelBuilder() {
+        Province that = this;
+        return new PanelBuilder() {{
+            childLayoutVertical();
+            visibleToMouse();
+            width("100%");
+            backgroundColor("#444");
+            /* Show province name */
+            text(new TextBuilder() {{
+                text(that.getName());
+                style("text-style");
+            }});
+            /* Show province level and terrain type */
+            panel(new PanelBuilder() {{
+                childLayoutHorizontal();
+                text(new TextBuilder() {{
+                    text(that.getTerrainType().getName());
+                    style("text-style");
+                }});
+                text(new TextBuilder() {{
+                    text("-");
+                    style("text-style");
+                    width("*");
+                }});
+                text(new TextBuilder() {{
+                    text(that.getLevel().getName());
+                    style("text-style");
+                }});
+            }});
+            /* Show Claimants */
+            panel(new PanelBuilder() {{
+                childLayoutHorizontal();
+                text(new TextBuilder() {{
+                    text("List of Claimants Here");
+                    style("text-style");
+                }});
+            }});
+            /* Show Built Buildings */
+            /* Show Available Buildings */
+        }};
+    }
+
+    /**
+     * returns a panelbuilder for when this province cannot be claimed
+     * @return
+     */
+    public PanelBuilder getUnclaimableInfoPanelBuilder() {
+        Province that = this;
+        return new PanelBuilder() {{
+            childLayoutVertical();
+            visibleToMouse();
+            width("100%");
+            backgroundColor("#444");
+            /* Show province name */
+            text(new TextBuilder() {{
+                text(that.getName());
+                style("text-style");
+            }});
+        }};
+    }
+
+    /**
+     * returns a panelbuilder for when this province is not owned by this player
+     * @return
+     */
+    public PanelBuilder getOtherInfoPanelBuilder() {
+        Province that = this;
+        return new PanelBuilder() {{
+            childLayoutVertical();
+            visibleToMouse();
+            width("100%");
+            backgroundColor("#444");
+            /* Show province name */
+            text(new TextBuilder() {{
+                text(that.getName());
+                style("text-style");
+            }});
+        }};
+    }
+
     /* Getters and setters */
     public float getDistance(Province prov) {
         return pivot.getLocalTranslation().distance(
@@ -283,12 +410,15 @@ public class Province implements Selectable, Pathable, TurnListener {
     }
 
     public int getId() { return id; }
+    public String getName() { return "Province " + getId(); }
     public Building getBuilding(int index) { return buildings.get(index); }
     public int getNumBuildings() { return buildings.size(); }
     public int getNumPawns() { return pawns.size(); }
     public Pawn getPawn(int index) { return pawns.get(index); }
     public void removePawn(Pawn pawn) { pawns.remove(pawn); }
     public void addPawn(Pawn pawn) { pawns.add(pawn); }
+    public TerrainType getTerrainType() { return terrainType; }
+    public ProvinceLevel getLevel() { return level; }
     public Shape getShape() { return shape; }
     @Override
     public String toString() { return "Province " + id; }

@@ -5,6 +5,7 @@
  */
 package ancient.buildings;
 
+import ancient.Main;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ import org.xml.sax.SAXException;
  * @author brock
  */
 public class BuildingFactory {
-    private final static String FNAME = "assets/Config/Buildings.xml";
+    private final static String BUILDINGS_XML = "Config/Buildings.xml";
     private static ArrayList<BuildingFactory> buildingFactories = null;
 
     private final String name;
@@ -41,26 +42,17 @@ public class BuildingFactory {
      */
     private static void parseBuildings() {
         buildingFactories = new ArrayList<>();
-        try {
-            File xmlFile = new File(FNAME);
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
-
-            doc.getDocumentElement().normalize();
-            NodeList buildingNodes = doc.getElementsByTagName("Buildings");
-            buildingNodes = buildingNodes.item(0).getChildNodes();
-
-            /* create factory for each building node */
-            for (int i = 0; i < buildingNodes.getLength(); i ++) {
-                Node buildingNode = buildingNodes.item(i);
-                if (buildingNode.getNodeType() != Node.ELEMENT_NODE) {
-                    continue;
-                }
-                buildingFactories.add(new BuildingFactory(buildingNode));
+        Document doc = (Document)Main.app.getAssetManager().loadAsset(BUILDINGS_XML);
+        doc.getDocumentElement().normalize();
+        NodeList buildingNodes = doc.getElementsByTagName("Buildings");
+        buildingNodes = buildingNodes.item(0).getChildNodes();
+        /* create factory for each building node */
+        for (int i = 0; i < buildingNodes.getLength(); i ++) {
+            Node buildingNode = buildingNodes.item(i);
+            if (buildingNode.getNodeType() != Node.ELEMENT_NODE) {
+                continue;
             }
-        } catch (IOException | ParserConfigurationException | SAXException e) {
-            e.printStackTrace();
+            buildingFactories.add(new BuildingFactory(buildingNode));
         }
     }
 

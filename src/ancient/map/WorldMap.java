@@ -156,6 +156,10 @@ public class WorldMap implements Serializable {
      * @param pivot
      */
     private void drawBorder(List<Province> provs) {
+        /* Only draw borders when the owner is not null/has a color*/
+        if (provs.get(0).getOwner() == null) {
+            return;
+        }
         List<Shape> shapes = new ArrayList<>();
         for (Province prov : provs) {
             shapes.add(prov.getShape());
@@ -178,14 +182,10 @@ public class WorldMap implements Serializable {
             Geometry geom = new Geometry("Border", mesh);
 
             Material mat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-            mat.setColor("Color", provs.get(0).getOwner());
+            mat.setColor("Color", provs.get(0).getOwner().getColor());
             mat.getAdditionalRenderState().setLineWidth(4.0f);
 
             geom.setMaterial(mat);
-
-            if (provs.get(0).getOwner() != ColorRGBA.Red) {
-                return;
-            }
 
             borderPivot.attachChild(geom);
         }

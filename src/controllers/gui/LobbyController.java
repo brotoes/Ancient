@@ -43,7 +43,6 @@ public class LobbyController extends ParentScreenController implements PlayerCha
 
     @Override
     public void playerAdded(Player player) {
-        System.out.println(player.getName());
         Element elem = screen.findElementById("player_list");
         addPlayerPanel(player, elem);
     }
@@ -74,9 +73,7 @@ public class LobbyController extends ParentScreenController implements PlayerCha
 
     private void addPlayerPanel(Player player, Element elem) {
         /* build interface element */
-        String idStart = "playerpanel_";
-        String id = idStart + player.getId();
-        PanelBuilder pb = new PanelBuilder(id) {{
+        PanelBuilder pb = new PanelBuilder(getPlayerPanelId(player)) {{
             height("46px");
             width("100%");
             childLayoutHorizontal();
@@ -91,9 +88,16 @@ public class LobbyController extends ParentScreenController implements PlayerCha
             panel(new PanelBuilder() {{
                 width("*");
             }});
-            image(new ImageBuilder() {{
-                filename(NOTRDYIMG);
-            }});
+            /* player with id==0 is the host and need not specify readiness */
+            if (player.getId() > 0) {
+                image(new ImageBuilder(getReadyImgId(player)) {{
+                    if (player.isReady()) {
+                        filename(RDYIMG);
+                    } else {
+                        filename(NOTRDYIMG);
+                    }
+                }});
+            }
         }};
         /* find index to insert the new player */
         int i;
@@ -102,7 +106,7 @@ public class LobbyController extends ParentScreenController implements PlayerCha
                 break;
             }
             //get numerical value of id string
-            int idInt = Integer.valueOf(elem.getChildren().get(i).getId().substring(idStart.length()));
+            int idInt = getIdInt(elem.getChildren().get(i).getId());
             if (player.getId() < idInt) {
                 break;
             }
@@ -151,16 +155,39 @@ public class LobbyController extends ParentScreenController implements PlayerCha
     public void setPanelColor(Player player) {
         Element panel = screen.findElementById(getColorPanelId(player));
         Color color = new Color(StrUtils.hexString(player.getColor()));
-        panel.getRenderer(PanelRenderer.class).setBackgroundColor(color);
-    }
-
-    public String getColorPanelId(Player player) {
-        return "colorpicker_" + player.getId();
+        try {
+            panel.getRenderer(PanelRenderer.class).setBackgroundColor(color);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
     public void startGame() {
-        if (Main.app.getNetworkController().isHost()) {
+        if (Main.app.getNetworkController().isHost() &&
+                Main.app.getPlayerManager().getPlayers().stream().
+                allMatch(p -> p.isReady() || p.isLocal())) {
             Main.app.gotoGame();
+        } else {
+            Player p = Main.app.getPlayerManager().getLocalPlayer();
+            p.toggleReady();
+            playerChanged(p);
+            Message msg = new PlayerUpdateMessage(p);
+            Main.app.getNetworkController().send(msg);
         }
+    }
+
+    /* getters and setters */
+    /* get IDs for panels */
+    public String getPlayerPanelId(Player p) {
+        return "playerpanel_" + p.getId();
+    }
+    public String getColorPanelId(Player player) {
+        return "colorpicker_" + player.getId();
+    }
+    public String getReadyImgId(Player p) {
+        return "readyimg_" + p.getId();
+    }
+    public int getIdInt(String id) {
+        return Integer.valueOf(id.replaceAll("[^0-9]", ""));
     }
 }
