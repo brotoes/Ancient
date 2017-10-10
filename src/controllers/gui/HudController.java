@@ -64,9 +64,10 @@ public class HudController implements ScreenController {
      * Passes click event for an info panel through to the info panel
      * @param args
      */
-    public void infoClick(String... args) {
+    public void infoClick(String args) {
+        String[] argarr = args.split("\\|");
         if (infoPanel != null) {
-            infoPanel.infoClick(args);
+            infoPanel.infoClick(argarr);
         }
     }
 

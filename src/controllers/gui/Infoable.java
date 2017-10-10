@@ -33,4 +33,9 @@ public interface Infoable {
      * removes the info panel
      */
     public void removeInfoPanel();
+
+    /**
+     * if already showing, reshows the info panel
+     */
+    public void refreshInfoPanel();
 }

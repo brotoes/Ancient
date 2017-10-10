@@ -19,9 +19,6 @@ public class TradeController {
     private final HashMap<Resource, List<Buyer>> buyers = new HashMap<>();
     private final HashMap<Resource, List<Seller>> sellers = new HashMap<>();
 
-
-    public TradeController() {}
-
     /**
      * go through list of buyers and sellers
      * and match together
@@ -78,19 +75,6 @@ public class TradeController {
 
         if (list.indexOf(buyer) < 0) {
             list.add(buyer);
-        }
-    }
-
-    /**
-     * for testing
-     */
-
-    public void printTrades() {
-        for (int i = 0; i < sellers.size(); i ++) {
-            System.out.println(sellers.get(i));
-        }
-        for (int i = 0; i < buyers.size(); i ++) {
-            System.out.println(buyers.get(i));
         }
     }
 }

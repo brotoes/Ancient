@@ -40,7 +40,7 @@ public class Seller implements Matchable {
     public void sell() {
         if (buyer != null) {
             Pawn pawn = Pawn.newPawn(building.getProvince(), resourceContainer);
-            pawn.setDestination(buyer.getBuilding().getProvince());
+            pawn.setDestination(buyer.getBuilding());
         }
     }
 

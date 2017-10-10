@@ -34,9 +34,9 @@ and open the template in the editor.
     </Terrain>
   </Barracks>
 
-  <Shack>
+  <Village>
     <Description>
-      The Shack takes one food and produces one population.
+      Villages consume one food and produce one population.
     </Description>
     <Input>
       <Food>1</Food>
@@ -47,5 +47,5 @@ and open the template in the editor.
     <Terrain>
       Land
     </Terrain>
-  </Shack>
+  </Village>
 </Buildings>

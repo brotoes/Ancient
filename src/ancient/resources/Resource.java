@@ -74,4 +74,5 @@ public class Resource {
     /* getters and setters */
     public static Resource getResource(String name) { return resources.get(name); }
     public ColorRGBA getColor() { return color; }
+    public String getName() { return name; }
 }

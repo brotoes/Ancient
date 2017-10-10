@@ -6,31 +6,28 @@
 package ancient.buildings;
 
 import ancient.Main;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import ancient.map.Province;
 import ancient.map.TerrainType;
 import ancient.resources.Resource;
 import ancient.resources.ResourceContainer;
-import java.io.IOException;
 import java.util.Collections;
-import javax.xml.parsers.ParserConfigurationException;
+import java.util.NoSuchElementException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  * Spawns a given building type
  * @author brock
  */
 public class BuildingFactory {
+    private static int nextId = 1;
     private final static String BUILDINGS_XML = "Config/Buildings.xml";
     private static ArrayList<BuildingFactory> buildingFactories = null;
 
+    private final int id;
     private final String name;
     private final List<ResourceContainer> ins = new ArrayList<>();
     private final List<ResourceContainer> outs = new ArrayList<>();
@@ -52,11 +49,13 @@ public class BuildingFactory {
             if (buildingNode.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
-            buildingFactories.add(new BuildingFactory(buildingNode));
+            buildingFactories.add(new BuildingFactory(buildingNode, nextId));
+            nextId ++;
         }
     }
 
-    private BuildingFactory(Node node) {
+    private BuildingFactory(Node node, int id) {
+        this.id = id;
         this.name = node.getNodeName();
         NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i ++) {
@@ -76,8 +75,10 @@ public class BuildingFactory {
                     break;
                 case "Terrain":
                     processTerrainList(child, terrain);
+                    break;
                 default:
-                    System.err.println("Warning: Unrecognized building attribute");
+                    System.err.println("Warning: Unrecognized building attribute, " +
+                            child.getNodeName());
             }
         }
     }
@@ -130,21 +131,23 @@ public class BuildingFactory {
         return new ResourceContainer(res, qty);
     }
 
+    /* getters and setters */
+
+    /**
+     * constructs and returns a building for province
+     * @param prov
+     * @return
+     */
     public Building getBuilding(Province prov) {
         return new Building(name, desc, prov, ins, outs);
     }
 
-    public String getName() {
-        return name;
-    }
-    public String getDesc() {
-        return desc;
-    }
-
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public String getDesc() { return desc; }
+    public List<TerrainType> getTerrain() { return Collections.unmodifiableList(terrain); }
     @Override
-    public String toString() {
-        return getName();
-    }
+    public String toString() { return getName(); }
 
     /**
      * parses buildingfactories if none have been parsed yet, then returns them.
@@ -176,5 +179,16 @@ public class BuildingFactory {
         return validFacs;
     }
 
-    public List<TerrainType> getTerrain() { return Collections.unmodifiableList(terrain); }
+    /**
+     * returns BuildingFactory corresponding to the given id
+     * @param id
+     * @return
+     */
+    public static BuildingFactory getBuildingFactory(int id) {
+        try {
+            return getBuildingFactories().stream().filter(b -> b.getId() == id).findAny().get();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
 }

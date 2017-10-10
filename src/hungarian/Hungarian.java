@@ -56,7 +56,7 @@ public class Hungarian<T extends Matchable, S extends Matchable> {
             }
         }
 
-        printMatrix();
+        //printMatrix();
     }
 
     /**
@@ -64,14 +64,14 @@ public class Hungarian<T extends Matchable, S extends Matchable> {
      */
     public void compute() {
         reduce();
-        printMatrix();
+        //printMatrix();
         int numMarks = markZeros();
 
         while (numMarks < leftNodes.size()) {
             unmark();
             numMarks = markZeros();
             markReduce();
-            printMatrix();
+            //printMatrix();
         }
         unmark();
         resolveMatches();
@@ -191,7 +191,7 @@ public class Hungarian<T extends Matchable, S extends Matchable> {
     }
 
     private void printMatrix() {
-        /*System.out.print("  ");
+        System.out.print("  ");
         for (Node i : rightNodes) {
             System.out.print(" " + i.getObj());
         }
@@ -202,7 +202,7 @@ public class Hungarian<T extends Matchable, S extends Matchable> {
                 System.out.print("  "  + j.getWeight());
             }
             System.out.println();
-        }*/
+        }
     }
 
     public static void main(String[] args) {
