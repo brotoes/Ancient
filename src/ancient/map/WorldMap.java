@@ -7,18 +7,14 @@ package ancient.map;
 
 import ancient.Main;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.util.BufferUtils;
 import fastnoise.FastNoise;
 import fastnoise.FastNoise.NoiseType;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.Serializable;
-import java.nio.FloatBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +25,7 @@ import mapGeneration.Voronoi;
 import mapGeneration.geometry.ProvVertex;
 import mapGeneration.geometry.Shape;
 import utils.ArrUtils;
+import utils.GeomUtils;
 
 /**
  *
@@ -43,12 +40,13 @@ public class WorldMap implements Serializable {
     private final static int HEIGHT = 90;
 
     private List<Province> provs;
+    private FastNoise elevationMap;
 
     private transient Node borderPivot;
 
     public WorldMap(int nProvs, int seed) {
         this.provs = new ObjectArrayList<>(nProvs);
-        FastNoise elevationMap = new FastNoise(seed);
+        elevationMap = new FastNoise(seed);
         elevationMap.SetFrequency(FREQ);
 
         TerrainType.load();
@@ -168,16 +166,7 @@ public class WorldMap implements Serializable {
         List<List<ProvVertex>> vertLists = ProvVertex.sortConnectedVertLoop(unsortedVerts);
 
         for (List<ProvVertex> verts : vertLists) {
-            FloatBuffer buf = BufferUtils.createFloatBuffer(verts.size()*3);
-            for (ProvVertex vert : verts) {
-                buf.put(vert.getX());
-                buf.put(vert.getY());
-                buf.put(vert.getZ());
-            }
-            Mesh mesh = new Mesh();
-            mesh.setMode(Mesh.Mode.LineLoop);
-            mesh.setBuffer(VertexBuffer.Type.Position, 3, buf);
-            mesh.updateBound();
+            Mesh mesh = GeomUtils.getBorderMesh(verts, 0.2, this);
 
             Geometry geom = new Geometry("Border", mesh);
 
@@ -192,11 +181,12 @@ public class WorldMap implements Serializable {
     }
 
     /* Getters and setters */
-    public Province getProvince(int index) {
-        return provs.get(index);
-    }
+    public Province getProvince(int index) { return provs.get(index); }
 
-    public int getNumProvs() {
-        return provs.size();
+    public int getNumProvs() { return provs.size(); }
+
+    public float getPointZ(float x, float y) {
+        float elevation = elevationMap.GetNoise(x/WIDTH, y/HEIGHT);
+        return elevation*ZFAC;
     }
 }
