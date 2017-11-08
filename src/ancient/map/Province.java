@@ -509,7 +509,7 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
         Province that = this;
         Player player = Main.app.getPlayerManager().getLocalPlayer();
         //TODO: test if next to a province owned by player and not claimed this turn
-        boolean claimable = getTerrainType().isClaimable();
+        boolean claimable = isClaimable();
         return new PanelBuilder() {{
             childLayoutVertical();
             visibleToMouse();
@@ -614,6 +614,22 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
             neighbors.add(a.getProvince());
         });
         return neighbors;
+    }
+
+    /**
+     * returns if this province is claimable. returns true if both terrain is
+     * claimable and there is an adjacent owned province
+     * @return
+     */
+    public boolean isClaimable() {
+        return getTerrainType().isClaimable() &&
+                getNeighbors().stream().anyMatch(p -> {
+                    try {
+                        return p.getOwner().isLocal();
+                    } catch (NullPointerException e) {
+                        return false;
+                    }
+                });
     }
 
     /* static */
