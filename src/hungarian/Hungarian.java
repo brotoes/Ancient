@@ -204,17 +204,4 @@ public class Hungarian<T extends Matchable, S extends Matchable> {
             System.out.println();
         }
     }
-
-    public static void main(String[] args) {
-        /*System.out.println("TEST:");
-        ArrayList<Seller> left = new ArrayList<>();
-        ArrayList<Buyer> right = new ArrayList<>();
-        int n = 300;
-        for (int i = 0; i < n; i ++) {
-            left.add("l" + i);
-            right.add("r" + i);
-        }
-        Hungarian<String, String> h = new Hungarian<>(left, right);
-        h.compute();*/
-    }
 }

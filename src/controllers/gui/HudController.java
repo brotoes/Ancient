@@ -6,7 +6,11 @@
 package controllers.gui;
 
 import ancient.Main;
+import controllers.mapModes.MapMode;
 import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.NiftyEventSubscriber;
+import de.lessvoid.nifty.controls.DropDown;
+import de.lessvoid.nifty.controls.DropDownSelectionChangedEvent;
 import de.lessvoid.nifty.elements.Element;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
@@ -28,6 +32,15 @@ public class HudController implements ScreenController {
     public void bind(Nifty nifty, Screen screen) {
         this.nifty = nifty;
         this.screen = screen;
+
+        try {
+            Element dropElem = screen.findElementById("map_mode_dropdown");
+            DropDown modeDrop = dropElem.getNiftyControl(DropDown.class);
+            modeDrop.addAllItems(Main.app.getPlayState().getMapModeController().getMapModes());
+            modeDrop.selectItemByIndex(0);
+        } catch (NullPointerException e) {
+            System.err.println("Error referencing drop down");
+        }
     }
 
     @Override
@@ -71,63 +84,15 @@ public class HudController implements ScreenController {
         }
     }
 
-    /*public void populateExistingBuildings(Province prov) {
-        ListBox list = provPanel.findNiftyControl("exist_build_list", ListBox.class);
-        if (list == null) {
-            System.err.println("Warning: No Existing Building List");
-            return;
-        }
-        list.clear();
-        for (int i = 0; i < prov.getNumBuildings(); i ++) {
-            list.addItem(prov.getBuilding(i));
-        }
+    @NiftyEventSubscriber(id = "map_mode_dropdown")
+    public void mapModeSelection(String id, DropDownSelectionChangedEvent<? extends MapMode> e) {
+        Main.app.getPlayState().getMapModeController().setMapMode(e.getSelection());
     }
-
-    public void populateAvailableBuildings(Province prov) {
-        ListBox list = provPanel.findNiftyControl("avail_build_list", ListBox.class);
-        List<BuildingFactory> availFacs = BuildingFactory.getValidBuildingFactories(prov);
-        if (list != null) {
-            list.clear();
-            for (int i = 0; i < availFacs.size(); i ++) {
-                list.addItem(availFacs.get(i));          }
-        }
-    }*/
-
-    /* functions for list interactions */
-    /*public void existingBuildingClicked() {
-        System.out.println("Existing");
-    }
-
-    public void availableBuildingClicked() {
-        System.out.println("available");
-    }*/
 
     /* functions for buttons */
     public void currencyButton() {
 
     }
-
-    /*public void buildButton() {
-        if (!(selected instanceof Province)) {
-            System.err.println("Warning: Province panel shown then province not selected");
-        }
-        /* get selected building
-        ListBox buildingList = provPanel.findNiftyControl("avail_build_list", ListBox.class);
-        if (buildingList == null) {
-            System.err.println("Warning: no building list found");
-            return;
-        }
-        List<BuildingFactory> selection = buildingList.getSelection();
-        /* build that building
-        if (selection.isEmpty()) {
-            return;
-        }
-        BuildingFactory fac = selection.get(0);
-        ((Province)selected).addBuilding(fac.getBuilding((Province)selected));
-        /*update the interface
-        populateExistingBuildings((Province)selected);
-        populateAvailableBuildings((Province)selected);
-    }*/
 
     public void turnButton() {
         Main.app.getPlayState().getTurnController().dispatchNextTurn();

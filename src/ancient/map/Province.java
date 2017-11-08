@@ -15,7 +15,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.VertexBuffer;
-import com.jme3.shader.VarType;
 import com.jme3.util.BufferUtils;
 import controllers.game.TurnListener;
 import java.nio.FloatBuffer;
@@ -106,13 +105,11 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
      */
     public void init() {
         /* Define faces */
-        faceGeom = new Geometry("faceMesh", shape.getFaceMesh());
+        //TODO: width and height should be retreived from texture
+        faceGeom = new Geometry("faceMesh", shape.getFaceMesh(100, 100));
 
-        faceMat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
-        faceMat.setColor("Diffuse", terrainType.getColor());
-        faceMat.setParam("UseMaterialColors", VarType.Boolean, true);
+        setFaceMaterial(Main.app.getPlayState().getMapModeController().getActiveMapMode().getProvinceMaterial(this));
 
-        faceGeom.setMaterial(faceMat);
         faceGeom.setUserData("clickTarget", new Selectable[]{this});
 
         facePivot = new Node("facePivot");
@@ -147,6 +144,11 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
 
         updateLevel();
         Main.app.getPlayState().getTurnController().addListener(this);
+    }
+
+    public void setFaceMaterial(Material mat) {
+        faceMat = mat;
+        faceGeom.setMaterial(faceMat);
     }
 
     /**

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import ancient.map.WorldMap;
 import ancient.players.Player;
 import ancient.resources.Resource;
+import controllers.mapModes.MapModeController;
 import controllers.gui.HudController;
 import controllers.network.messages.StartGameMessage;
 import de.lessvoid.nifty.screen.ScreenController;
@@ -38,6 +39,7 @@ public class PlayState extends AppState {
     private TurnController turnCon;
     private CameraController camCon;
     private WorldMap worldMap;
+    private MapModeController mapModeCon;
     private final List<Pawn> pawns = new ArrayList<>();
 
     public PointLight camLight;
@@ -96,6 +98,8 @@ public class PlayState extends AppState {
             Message msg = new StartGameMessage(worldMap);
             Main.app.getNetworkController().send(msg);
         }
+
+        mapModeCon = new MapModeController();
 
         worldMap.init();
         enable();
@@ -162,4 +166,5 @@ public class PlayState extends AppState {
             return null;
         }
     }
+    public MapModeController getMapModeController() { return mapModeCon; }
 }

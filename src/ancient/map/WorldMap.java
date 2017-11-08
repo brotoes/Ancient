@@ -17,6 +17,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import kn.uni.voronoitreemap.j2d.Point2D;
@@ -182,11 +183,11 @@ public class WorldMap implements Serializable {
 
     /* Getters and setters */
     public Province getProvince(int index) { return provs.get(index); }
-
     public int getNumProvs() { return provs.size(); }
+    public List<Province> getProvinces() { return Collections.unmodifiableList(provs); }
 
     public float getPointZ(float x, float y) {
         float elevation = elevationMap.GetNoise(x/WIDTH, y/HEIGHT);
-        return elevation*ZFAC;
+        return Math.max(0.0f, elevation*ZFAC);
     }
 }

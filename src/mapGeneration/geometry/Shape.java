@@ -11,11 +11,13 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import kn.uni.voronoitreemap.j2d.PolygonSimple;
 import mapGeneration.Voronoi;
+import utils.MathUtils;
 
 /**
  *
@@ -141,12 +143,50 @@ public class Shape {
 
         return buf;
     }
-    public Mesh getFaceMesh() {
+
+    public FloatBuffer getTextureBuffer(int w, int h) {
+        FloatBuffer buf = BufferUtils.createFloatBuffer((verts.size() + 2)*2);
+
+        buf.put(center.getX()/w);
+        buf.put(center.getY()/h);
+
+        for (int i = 0; i < verts.size(); i ++) {
+            buf.put(verts.get(i).getX()/w);
+            buf.put(verts.get(i).getY()/h);
+        }
+
+        buf.put(verts.get(0).getX()/w);
+        buf.put(verts.get(0).getY()/h);
+
+        return buf;
+    }
+
+    public IntBuffer getIndexBuffer() {
+        IntBuffer buf = BufferUtils.createIntBuffer((verts.size() + 2));
+
+        for (int i = 0; i < buf.limit(); i ++) {
+            buf.put(i);
+        }
+
+        return buf;
+    }
+
+    /**
+     * returns a mesh corresponding to the shape's vertices
+     * @param w
+     * @param h
+     * @return
+     */
+    public Mesh getFaceMesh(int w, int h) {
         Mesh mesh = new Mesh();
         mesh.setMode(Mesh.Mode.TriangleFan);
+        mesh.setBuffer(VertexBuffer.Type.TexCoord, 2, getTextureBuffer(w, h));
         mesh.setBuffer(VertexBuffer.Type.Position, 3, getVertexBuffer());
         mesh.setBuffer(VertexBuffer.Type.Normal, 3, getNormalBuffer());
+        //mesh.setBuffer(VertexBuffer.Type.Index, 1, getIndexBuffer());
         mesh.updateBound();
+
+
 
         return mesh;
     }

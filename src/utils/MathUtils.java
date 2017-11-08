@@ -68,4 +68,15 @@ public class MathUtils {
     public String getColorHex(ColorRGBA color) {
         return null;
     }
+
+    /**
+     * returns flaoting point modulus equivalent
+     */
+    public static float flmod(float a, float b) {
+        while (a >= b) {
+            a -= b;
+        }
+
+        return a;
+    }
 }

@@ -22,6 +22,7 @@ and open the template in the editor.
     <Water>
         <Color>33,42,96</Color>
         <Image>Interface/images/seaimg.png</Image>
+        <Texture>Textures/waterTexture.png</Texture>
         <Unclaimable/>
         <Metrics>
             <Elevation>Low</Elevation>
