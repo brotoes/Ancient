@@ -106,6 +106,7 @@ public class WorldMap implements Serializable {
         Main.app.getPlayState().getNode().attachChild(borderPivot);
         borderPivot.setLocalTranslation(new Vector3f(0, 0, 0.1f));
         provs.stream().forEach(p -> p.init());
+        updateBorders();
     }
 
     /**

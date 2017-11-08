@@ -6,6 +6,7 @@
 package appStates;
 
 import ancient.Main;
+import ancient.map.Province;
 import ancient.pawns.Pawn;
 import com.jme3.app.Application;
 import com.jme3.app.state.AppStateManager;
@@ -28,6 +29,8 @@ import controllers.gui.HudController;
 import controllers.network.messages.StartGameMessage;
 import de.lessvoid.nifty.screen.ScreenController;
 import java.util.List;
+import java.util.Random;
+import static java.util.stream.Collectors.toList;
 import network.messages.Message;
 
 /**
@@ -86,8 +89,21 @@ public class PlayState extends AppState {
         turnCon = new TurnController();
         tradeCon = new TradeController();
         boolean generated = false;
+
         if (worldMap == null) {
             worldMap = new WorldMap(1000, 1337);
+
+            /* put players in their start positions */
+            Main.app.getPlayerManager().getPlayers().stream().forEach(player -> {
+                List<Province> starts = worldMap.getProvinces().stream().filter(p ->
+                    p.getOwner() == null && !p.getTerrainType().getName().equals("Water"))
+                    .collect(toList());
+
+                Random rand = new Random();
+                Province startProv = starts.get(rand.nextInt(starts.size()));
+                startProv.setStartClaim(player);
+            });
+
             generated = true;
         }
         camCon = new CameraController(this);

@@ -276,6 +276,15 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
     }
 
     /**
+     * called to have a player start here
+     * @param player
+     */
+    public void setStartClaim(Player player) {
+        claimants.add(player);
+        this.owner = player;
+    }
+
+    /**
      * builds a building and updates the province
      * @param fac
      */
