@@ -32,6 +32,7 @@ and open the template in the editor.
     <Land>
         <Color>6,94,13</Color>
         <Image>Interface/images/forestimg.png</Image>
+        <Texture>Textures/landTexture.png</Texture>
         <Metrics>
             <Elevation>High</Elevation>
             <Temperature>Cold,Temperate,Hot</Temperature>

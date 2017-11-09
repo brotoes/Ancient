@@ -25,7 +25,7 @@ and open the template in the editor.
         <panel childLayout="horizontal">
           <text text="Player Name: " style="text-style" />
           <panel width="*" height="1px" />
-          <control id="name_field" name="textfield" width="70%"></control>
+          <control id="name_field" name="textfield" text="Player1" width="70%"></control>
         </panel>
         <panel height="20px" />
         <control name="button" id="join_button" label="Join Game" width="*">

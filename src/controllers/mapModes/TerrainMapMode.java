@@ -8,6 +8,7 @@ package controllers.mapModes;
 import ancient.Main;
 import ancient.map.Province;
 import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 
 /**
  *
@@ -17,12 +18,13 @@ public class TerrainMapMode implements MapMode {
     @Override
     public Material getProvinceMaterial(Province prov) {
         Material mat = new Material(Main.app.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
-        if (prov.getTerrainType().getName().equals("Water")) {
-            mat.setTexture("DiffuseMap",
-                    Main.app.getAssetManager().loadTexture("Textures/waterTexture.png"));
+        String fname = prov.getTerrainType().getTextureFile();
+        if (fname == null) {
+            mat.setColor("Diffuse", ColorRGBA.Magenta);
+            mat.setBoolean("UseMaterialColors", true);
         } else {
             mat.setTexture("DiffuseMap",
-                    Main.app.getAssetManager().loadTexture("Textures/landTexture.png"));
+                    Main.app.getAssetManager().loadTexture(prov.getTerrainType().getTextureFile()));
         }
 
         return mat;

@@ -30,6 +30,7 @@ public class TerrainType {
     /* Instance Variables */
     private String name;
     private ColorRGBA color;
+    private String textureFile;
     private boolean claimable = true;
     private ArrayList<TerrainMetric> metrics = new ArrayList<>();
 
@@ -185,6 +186,9 @@ public class TerrainType {
                 case "Unclaimable":
                     claimable = false;
                     break;
+                case "Texture":
+                    textureFile = childNode.getTextContent().trim();
+                    break;
             }
         }
     }
@@ -218,6 +222,7 @@ public class TerrainType {
     }
 
     public ColorRGBA getColor() { return color; }
+    public String getTextureFile() { return textureFile; }
     public String getName() { return name; }
     public boolean isClaimable() { return claimable; }
 }
