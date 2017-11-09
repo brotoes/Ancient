@@ -61,6 +61,7 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
     private transient Node outlinePivot;
     private transient Node modelPivot;
     private transient Node pawnPivot;
+    private transient Node flagPivot;
     private Shape shape;
 
     /* Pathing vars */
@@ -72,6 +73,7 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
     private final List<Pawn> pawns = new ArrayList<>();
     private final List<Building> buildings = new ArrayList<>();
     private final List<Player> claimants = new ArrayList<>();
+    private final List<Flag> claimFlags = new ArrayList<>();
     private transient ProvinceLevel level;
     private transient Player owner;
     private transient Element infoPanel;
@@ -131,16 +133,19 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
 
         modelPivot = new Node("modelPivot");
         pawnPivot = new Node("pawnPivot");
+        flagPivot = new Node("flagPivot");
         Random rand = new Random();
         modelPivot.rotate(0, 0, rand.nextFloat()*6.28f);
         pivot.attachChild(modelPivot);
         pivot.attachChild(pawnPivot);
+        pivot.attachChild(flagPivot);
 
         /* display everything */
         Main.app.getPlayState().getNode().attachChild(pivot);
         outlinePivot.setLocalTranslation(new Vector3f(0.0f, 0.0f, OUTLINE_OFFSET));
         modelPivot.setLocalTranslation(shape.getCenter().getVector());
         pawnPivot.setLocalTranslation(shape.getCenter().getVector());
+        flagPivot.setLocalTranslation(shape.getCenter().getVector());
 
         updateLevel();
         Main.app.getPlayState().getTurnController().addListener(this);
@@ -262,10 +267,14 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
     public void claim(Player player) {
         /* Add player to claimants */
         claimants.add(player);
+        Flag flag = new Flag(this, player);
+        claimFlags.add(flag);
+        flagPivot.attachChild(flag.getPivot());
         /* Oldest claim gets the province */
-        if (claimants.get(0) != getOwner()) {
+        //TODO: This code should be run at end of turn
+        /*if (claimants.get(0) != getOwner()) {
             setOwner(claimants.get(0));
-        }
+        }*/
         refreshInfoPanel();
     }
     public void claim(int id) {
@@ -273,6 +282,21 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
     }
     public void claim(String id) {
         claim(Integer.valueOf(id));
+    }
+    /**
+     * Removes a players claim from a province
+     * @param player
+     */
+    public void releaseClaim(Player player) {
+        claimants.remove(player);
+        claimFlags.remove(claimFlags.stream().filter(f -> f.getPlayer().equals(player)).findAny().get());
+        claimFlags.stream().forEach(f -> f.updatePosition());
+    }
+    public void releaseClaim(int id) {
+        releaseClaim(Main.app.getPlayerManager().getPlayer(id));
+    }
+    public void releaseClaim(String id) {
+        releaseClaim(Integer.valueOf(id));
     }
 
     /**
@@ -307,6 +331,7 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
      */
     private void setOwner(Player owner) {
         this.owner = owner;
+        setFaceMaterial(Main.app.getPlayState().getMapModeController().getActiveMapMode().getProvinceMaterial(this));
         Main.app.getPlayState().getWorldMap().updateBorders();
     }
 
@@ -364,6 +389,9 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
         switch (method) {
             case "claim":
                 claim(args[1]);
+                break;
+            case "releaseClaim":
+                releaseClaim(args[1]);
                 break;
             case "build":
                 build(args[1]);
@@ -545,7 +573,12 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
                 childLayoutHorizontal();
                 text(new TextBuilder() {{ width("*"); }});
 
-                if (claimable) {
+                if (isClaimed()) {
+                    control(new ControlBuilder("releaseclaim_button", "button") {{
+                        parameter("label", "Release Claim");
+                        interactOnClick("infoClick(releaseClaim|" + player.getId() + ")");
+                    }});
+                } else if (claimable) {
                     control(new ControlBuilder("claim_button", "button") {{
                         parameter("label", "Claim");
                         interactOnClick("infoClick(claim|" + player.getId() + ")");
@@ -601,6 +634,7 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
         pawnPivot.attachChild(pawn.getPivot());
     }
     public Player getOwner() { return owner; }
+    public List<Player> getClaimants() { return Collections.unmodifiableList(claimants); }
     public TerrainType getTerrainType() { return terrainType; }
     public ProvinceLevel getLevel() { return level; }
     public Shape getShape() { return shape; }
@@ -617,12 +651,20 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
     }
 
     /**
+     * returns true if the local player has claimed this province.
+     * @return
+     */
+    public boolean isClaimed() {
+        return getClaimants().stream().anyMatch(p -> p.isLocal());
+    }
+
+    /**
      * returns if this province is claimable. returns true if both terrain is
      * claimable and there is an adjacent owned province
      * @return
      */
     public boolean isClaimable() {
-        return getTerrainType().isClaimable() &&
+        return !isClaimed() && getTerrainType().isClaimable() &&
                 getNeighbors().stream().anyMatch(p -> {
                     try {
                         return p.getOwner().isLocal();
