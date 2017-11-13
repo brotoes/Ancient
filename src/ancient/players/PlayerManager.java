@@ -40,23 +40,27 @@ public class PlayerManager {
     public Player addPlayer(int id, String name) {
         /* determine if name already exists */
         //TODO
-        boolean local = players.isEmpty();
-        Player player = new Player(id, name, local);
+        Player player = new Player(id, name);
         player.setColor(nextColor());
         players.add(player);
         listeners.stream().forEach(l -> l.playerAdded(player));
 
         return player;
     }
-    public void addPlayer(Player player) {
+    /**
+     * Adds player to list. if player already exists, returns false
+     * @param player
+     * @return
+     */
+    public boolean addPlayer(Player player) {
         Player existing = getPlayer(player.getId());
         if (existing != null) {
             existing.update(player);
-            return;
+            return false;
         }
-        player.setLocal(players.isEmpty());
         players.add(player);
-        listeners.stream().forEach(l-> l.playerAdded(player));
+        listeners.stream().forEach(l -> l.playerAdded(player));
+        return true;
     }
     /**
      * adds a player and generates an id. Should only be called from host

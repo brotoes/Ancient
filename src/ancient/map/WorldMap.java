@@ -50,7 +50,6 @@ public class WorldMap implements Serializable {
         elevationMap = new FastNoise(seed);
         elevationMap.SetFrequency(FREQ);
 
-        TerrainType.load();
         elevationMap.SetFrequency(FREQ);
         elevationMap.SetNoiseType(NoiseType.SimplexFractal);
 
@@ -95,7 +94,7 @@ public class WorldMap implements Serializable {
     /**
      * Empty constructor for Kryo serializer
      */
-    public WorldMap() {}
+    private WorldMap() {}
 
     /**
      * attaches everything to the outside world. separated from constructor
@@ -126,7 +125,6 @@ public class WorldMap implements Serializable {
             Queue<Province> checkQueue = new ArrayDeque<>();
             checkQueue.add(i);
             added.add(i);
-            //group.add(i);
             groups.add(group);
 
             /* search all adjacent provinces until add adjacents added to group */

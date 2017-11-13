@@ -14,6 +14,7 @@ import ancient.resources.Resource;
 import ancient.resources.ResourceContainer;
 import java.util.Collections;
 import java.util.NoSuchElementException;
+import static java.util.stream.Collectors.toList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -167,16 +168,8 @@ public class BuildingFactory {
      * @return
      */
     public static List<BuildingFactory> getValidBuildingFactories(Province prov) {
-        List<BuildingFactory> allFacs = getBuildingFactories();
-        List<BuildingFactory> validFacs = new ArrayList<>();
-
-        for (int i = 0; i < allFacs.size(); i ++) {
-            if (prov.isValid(allFacs.get(i))) {
-                validFacs.add(allFacs.get(i));
-            }
-        }
-
-        return validFacs;
+        return getBuildingFactories().stream()
+                .filter(f -> prov.isValid(f)).collect(toList());
     }
 
     /**

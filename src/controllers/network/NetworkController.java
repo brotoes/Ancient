@@ -5,8 +5,8 @@
  */
 package controllers.network;
 
-import ancient.Main;
 import ancient.players.Player;
+import controllers.network.messages.ActionsMessage;
 import controllers.network.messages.ChatMessage;
 import controllers.network.messages.JoinMessage;
 import controllers.network.messages.PlayerUpdateMessage;
@@ -15,6 +15,10 @@ import exceptions.CreateException;
 import exceptions.JoinException;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import network.Connection;
 import network.messages.EchoMessage;
 import network.MessageManager;
 import network.messages.Message;
@@ -25,9 +29,8 @@ import network.messages.Message;
  */
 public class NetworkController {
     private final int PORT = 8124;
-
-    private MessageManager hostMgr;
-    private MessageManager clientMgr;
+    private final Map<Player, Connection> connMap = new HashMap<>();
+    private MessageManager mm;
 
     /**
      * hosts a game and joins own game
@@ -36,15 +39,13 @@ public class NetworkController {
      * @throws exceptions.JoinException
      */
     public void host(String name) throws CreateException, JoinException {
-        hostMgr = new MessageManager(PORT);
-        register(hostMgr);
+        mm = new MessageManager(PORT);
+        register();
         try {
-            hostMgr.listen();
+            mm.listen();
         } catch (IOException e) {
             throw new CreateException(e);
         }
-
-        Main.app.getPlayerManager().addPlayer(new Player(name));
     }
 
     /**
@@ -54,36 +55,32 @@ public class NetworkController {
      * @throws exceptions.JoinException
      */
     public void connect(String address, String name) throws JoinException {
-        hostMgr = null;
-
-        clientMgr = new MessageManager(PORT);
-        register(clientMgr);
+        mm = new MessageManager(PORT);
+        register();
         try {
-            clientMgr.connect(address);
+            mm.connect(address);
         } catch (ConnectException e) {
             throw new JoinException(e);
         }
         JoinMessage joinMsg = new JoinMessage(name);
-        clientMgr.send(joinMsg);
+        mm.send(joinMsg);
     }
 
     /**
      * registers all required messages for m
      * @param m
      */
-    private void register(MessageManager m) {
-        m.register(JoinMessage.class);
-        m.register(PlayerUpdateMessage.class);
-        m.register(ChatMessage.class);
-        m.register(StartGameMessage.class);
+    private void register() {
+        mm.register(JoinMessage.class);
+        mm.register(PlayerUpdateMessage.class);
+        mm.register(ChatMessage.class);
+        mm.register(StartGameMessage.class);
+        mm.register(ActionsMessage.class);
     }
 
     public void update() {
-        if (clientMgr != null) {
-            clientMgr.receive();
-        }
-        if (hostMgr != null) {
-            hostMgr.receive();
+        if (mm != null) {
+            mm.receive();
         }
     }
 
@@ -91,11 +88,8 @@ public class NetworkController {
      * closes all connections
      */
     public void close() {
-        if (clientMgr != null) {
-            clientMgr.close();
-        }
-        if (hostMgr != null) {
-            hostMgr.close();
+        if (mm != null) {
+            mm.close();
         }
     }
 
@@ -105,17 +99,29 @@ public class NetworkController {
      */
     public void echo(String line) {
         EchoMessage msg = new EchoMessage(line);
-        clientMgr.send(msg);
+        mm.send(msg);
     }
 
     public void send(Message msg) {
-        if (clientMgr != null) {
-            clientMgr.send(msg);
-        }
-        if (hostMgr != null) {
-            hostMgr.send(msg);
+        if (mm != null) {
+            mm.send(msg);
         }
     }
 
-    public boolean isHost() { return hostMgr != null; }
+    public void send(Message msg, Player player) {
+        Connection conn = getConnection(player);
+        msg.setConnection(conn);
+        send(msg);
+    }
+
+    public boolean isHost() { return mm.isServer(); }
+    public void setPlayerConnection(Player player, Connection conn) {
+        connMap.put(player, conn);
+    }
+    public Connection getConnection(Player player) {
+        return connMap.get(player);
+    }
+    public Map<Player, Connection> getConnectionMap() {
+        return Collections.unmodifiableMap(connMap);
+    }
 }

@@ -154,4 +154,6 @@ public class MessageManager {
         }
     }
     public int getPort() { return PORT; }
+    public boolean isServer() { return server != null; }
+    public boolean isClient() { return client != null; }
 }

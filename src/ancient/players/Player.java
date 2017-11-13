@@ -17,34 +17,30 @@ public class Player {
     private String name;
     private int colorInd = 0;
     /* stores if this player is the local player */
-    private boolean local;
+    private transient boolean local = false;
     private boolean ready = false;
 
     /* convenience var */
     private transient PlayerManager pm;
 
-
-    //TODO: Test for these constructors only being called from game host
     public Player(int id, String name) {
-        this(id, name, false);
-    }
-
-    public Player(int id, String name, boolean local) {
         this.id = id;
         this.name = name;
         this.pm = Main.app.getPlayerManager();
 
-        this.local = local;
+        local = pm.getPlayers().isEmpty();
     }
 
     public Player(String name) {
-        this(0, name, true);
+        this(0, name);
     }
 
     /**
      * zero-arg constructor for use by Kryo serializer
      */
-    public Player() {}
+    public Player() {
+
+    }
 
     /**
      * takes data from player

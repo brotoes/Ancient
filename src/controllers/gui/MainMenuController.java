@@ -6,6 +6,7 @@
 package controllers.gui;
 
 import ancient.Main;
+import ancient.players.Player;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.controls.TextField;
 import de.lessvoid.nifty.elements.Element;
@@ -60,6 +61,7 @@ public class MainMenuController implements ScreenController {
         String name = getElementText("name_field");
         try {
             Main.app.getNetworkController().host(name);
+            Main.app.getPlayerManager().addPlayer(new Player(name));
             displayText("Hosted Game!");
             Main.app.gotoLobby();
         } catch (JoinException | CreateException e) {

@@ -6,7 +6,9 @@
 package controllers.game;
 
 import ancient.Main;
+import controllers.network.messages.ActionsMessage;
 import java.util.ArrayList;
+import network.messages.Message;
 
 /**
  * Watches for when the turn is done. Dispatches a turn event
@@ -30,8 +32,13 @@ public class TurnController {
         dispatching = false;
         processAddQueue();
 
+        /* do end of turn stuff */
         /* process trades */
         Main.app.getPlayState().getTradeController().processTrades();
+        if (!Main.app.getNetworkController().isHost()) {
+            Message msg = new ActionsMessage(Main.app.getPlayState().getActionTracker());
+            Main.app.getNetworkController().send(msg);
+        }
     }
 
     /**

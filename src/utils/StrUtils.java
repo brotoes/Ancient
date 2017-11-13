@@ -47,14 +47,10 @@ public class StrUtils {
     public static String toString(Object obj) throws IOException {
         Kryo kryo = new Kryo();
 
-        System.out.println("To String: " + obj);
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Output output = new Output(baos);
         kryo.writeObject(output, obj);
         output.flush();
-
-        System.out.println("gives string: " + baos.toString());
 
         return Base64.getEncoder().encodeToString(baos.toByteArray());
     }

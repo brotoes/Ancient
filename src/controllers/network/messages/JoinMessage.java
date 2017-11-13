@@ -45,12 +45,13 @@ public class JoinMessage extends Message {
         List<Player> players = Main.app.getPlayerManager().getPlayers();
 
         //broadcast playerupdatemessage for new player
-        Message msg = new PlayerUpdateMessage(player);
+        Message msg = new PlayerUpdateMessage(player, true);
         server.send(msg);
+        Main.app.getNetworkController().setPlayerConnection(player, getConnection());
 
         for (int i = players.size() - 2; i >= 0; i --) {
             //send playerupdatemessage for each other player to new connection
-            msg = new PlayerUpdateMessage(players.get(i));
+            msg = new PlayerUpdateMessage(players.get(i), false);
             msg.setConnection(getConnection());
             server.send(msg);
         }

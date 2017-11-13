@@ -5,6 +5,8 @@
  */
 package ancient.map;
 
+import actionTracker.ActionTracker;
+import actionTracker.BuildAction;
 import ancient.Main;
 import ancient.buildings.Building;
 import ancient.buildings.BuildingFactory;
@@ -69,13 +71,13 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
 
     /* Gameplay Vars */
     private int id;
-    private TerrainType terrainType;
+    private String terrainTypeName;
     private final List<Pawn> pawns = new ArrayList<>();
     private final List<Building> buildings = new ArrayList<>();
     private final List<Player> claimants = new ArrayList<>();
     private final List<Flag> claimFlags = new ArrayList<>();
+    private int owner = -1;
     private transient ProvinceLevel level;
-    private transient Player owner;
     private transient Element infoPanel;
     private transient Element parentPanel;
     private transient Nifty nifty;
@@ -92,14 +94,14 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
     public Province(float elevation, float temp, Shape shape) {
         id = Province.nextId();
         /* Set up province properties */
-        terrainType = TerrainType.getTerrainType(elevation, temp);
+        terrainTypeName = TerrainType.getTerrainType(elevation, temp).getName();
         this.shape = shape;
     }
 
     /**
      * No-arg constructor for use by Kryo Serializer
      */
-    public Province() {}
+    private Province() {}
 
     /**
      * constructor things to be done after the constructor. such as initializing
@@ -163,7 +165,7 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
      */
     public boolean isValid(BuildingFactory fac) {
         /* test if terrain is valid */
-        if (!fac.getTerrain().contains(this.terrainType)) {
+        if (!fac.getTerrain().contains(getTerrainType())) {
             return false;
         }
 
@@ -289,8 +291,11 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
      */
     public void releaseClaim(Player player) {
         claimants.remove(player);
-        claimFlags.remove(claimFlags.stream().filter(f -> f.getPlayer().equals(player)).findAny().get());
+        Flag flag = claimFlags.stream().filter(f -> f.getPlayer().equals(player)).findAny().get();
+        flagPivot.detachChild(flag.getPivot());
+        claimFlags.remove(flag);
         claimFlags.stream().forEach(f -> f.updatePosition());
+        refreshInfoPanel();
     }
     public void releaseClaim(int id) {
         releaseClaim(Main.app.getPlayerManager().getPlayer(id));
@@ -305,7 +310,7 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
      */
     public void setStartClaim(Player player) {
         claimants.add(player);
-        this.owner = player;
+        setOwner(player);
     }
 
     /**
@@ -330,7 +335,11 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
      * @param owner
      */
     private void setOwner(Player owner) {
-        this.owner = owner;
+        if (owner != null) {
+            this.owner = owner.getId();
+        } else {
+            this.owner = -1;
+        }
         setFaceMaterial(Main.app.getPlayState().getMapModeController().getActiveMapMode().getProvinceMaterial(this));
         Main.app.getPlayState().getWorldMap().updateBorders();
     }
@@ -385,6 +394,7 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
 
     @Override
     public void infoClick(String... args) {
+        ActionTracker at = Main.app.getPlayState().getActionTracker();
         String method = args[0];
         switch (method) {
             case "claim":
@@ -394,7 +404,7 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
                 releaseClaim(args[1]);
                 break;
             case "build":
-                build(args[1]);
+                at.act(new BuildAction(this, Integer.valueOf(args[1])));
                 break;
             default:
                 System.err.println("Error: Invalid infoClick Method");
@@ -633,9 +643,15 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
         pawns.add(pawn);
         pawnPivot.attachChild(pawn.getPivot());
     }
-    public Player getOwner() { return owner; }
+    public Player getOwner() {
+        if (owner < 0) {
+            return null;
+        } else {
+            return Main.app.getPlayerManager().getPlayer(owner);
+        }
+    }
     public List<Player> getClaimants() { return Collections.unmodifiableList(claimants); }
-    public TerrainType getTerrainType() { return terrainType; }
+    public TerrainType getTerrainType() { return TerrainType.getTerrainType(terrainTypeName); }
     public ProvinceLevel getLevel() { return level; }
     public Shape getShape() { return shape; }
     @Override

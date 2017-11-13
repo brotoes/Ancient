@@ -23,24 +23,32 @@ public class PlayerUpdateMessage extends Message {
     public final static String ID = "PLAYERUPDATE";
 
     private final Player player;
+    /* indicates this is the client's player */
+    private final Boolean local;
 
     /**
      * assembles the existing list of players from PlayerManager
      * @param player
+     * @param local
      */
-    public PlayerUpdateMessage(Player player) {
+    public PlayerUpdateMessage(Player player, Boolean local) {
         this.player = player;
+        this.local = local;
+    }
+    public PlayerUpdateMessage(Player player) {
+        this(player, false);
     }
 
     public static PlayerUpdateMessage parse(Connection conn, String msg) throws MalformedMessageException {
-        String[] split = msg.split(" ", 2);
+        String[] split = msg.split(" ", 3);
         if (!split[0].equals(ID)) {
             throw new MalformedMessageException();
         }
 
         try {
             Player player = (Player) StrUtils.fromString(split[1], Player.class);
-            PlayerUpdateMessage parsed = new PlayerUpdateMessage(player);
+            Boolean local = (Boolean) StrUtils.fromString(split[2], Boolean.class);
+            PlayerUpdateMessage parsed = new PlayerUpdateMessage(player, local);
             parsed.setConnection(conn);
 
             return parsed;
@@ -68,8 +76,11 @@ public class PlayerUpdateMessage extends Message {
 
     @Override
     public void receive(Client client) {
-        Main.app.getPlayerManager().addPlayer(player);
+        if (Main.app.getPlayerManager().addPlayer(player)) {
+            player.setLocal(local);
+        }
         Main.app.getState().updatePlayer(player);
+        System.out.println(player + " " + player.isLocal());
     }
 
     @Override
@@ -77,7 +88,7 @@ public class PlayerUpdateMessage extends Message {
         String str = getId();
 
         try {
-            str += " " + StrUtils.toString(player);
+            str += " " + StrUtils.toString(player) + " " + StrUtils.toString(local);
 
             return str;
         } catch (IOException e) {

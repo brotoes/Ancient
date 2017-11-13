@@ -10,6 +10,7 @@ import com.jme3.math.ColorRGBA;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -23,9 +24,9 @@ import utils.XMLUtils;
 public class TerrainType {
     /* Static Variables */
     private final static String FNAME = "Config/TerrainTypes.xml";
-    private final static HashMap<String, TerrainType> TYPES = new HashMap<>();
-    private final static HashMap<String, TerrainMetric> METRICS_NAME = new HashMap<>();
-    private final static HashMap<String, ArrayList<TerrainMetric>> METRICS_CAT = new HashMap<>();
+    private final static Map<String, TerrainType> ttypes = new HashMap<>();
+    private final static Map<String, TerrainMetric> metricsByName = new HashMap<>();
+    private final static Map<String, ArrayList<TerrainMetric>> metricsByCat = new HashMap<>();
 
     /* Instance Variables */
     private String name;
@@ -60,13 +61,13 @@ public class TerrainType {
                     TerrainMetric metric = new TerrainMetric(catNode.getNodeName(), metricNode);
 
                     /* store loaded metric */
-                    METRICS_NAME.put(metric.getName(), metric);
-                    if (METRICS_CAT.get(metric.getCategory()) == null) {
+                    metricsByName.put(metric.getName(), metric);
+                    if (metricsByCat.get(metric.getCategory()) == null) {
                         ArrayList<TerrainMetric> newList = new ArrayList<>();
                         newList.add(metric);
-                        METRICS_CAT.put(metric.getCategory(), newList);
+                        metricsByCat.put(metric.getCategory(), newList);
                     } else {
-                        METRICS_CAT.get(metric.getCategory()).add(metric);
+                        metricsByCat.get(metric.getCategory()).add(metric);
                     }
                 }
             }
@@ -79,7 +80,7 @@ public class TerrainType {
                     continue;
                 }
                 TerrainType nextTerrainType = new TerrainType(typeNode);
-                TYPES.put(typeNode.getNodeName(), nextTerrainType);
+                ttypes.put(typeNode.getNodeName(), nextTerrainType);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -97,7 +98,7 @@ public class TerrainType {
         ArrayList<TerrainMetric> metrics = new ArrayList<>(2);
 
         /* find elevation */
-        ArrayList<TerrainMetric> elevations = METRICS_CAT.get("Elevation");
+        ArrayList<TerrainMetric> elevations = metricsByCat.get("Elevation");
         if (elevations != null) {
             for (int i = 0; i < elevations.size(); i ++) {
                 Float min = elevations.get(i).getMin();
@@ -113,7 +114,7 @@ public class TerrainType {
         }
 
         /* find temperature */
-        ArrayList<TerrainMetric> temps = METRICS_CAT.get("Temperature");
+        ArrayList<TerrainMetric> temps = metricsByCat.get("Temperature");
         if (temps != null) {
             for (int i = 0; i < temps.size(); i ++) {
                 Float min = temps.get(i).getMin();
@@ -137,7 +138,7 @@ public class TerrainType {
      * @return
      */
     public static TerrainType getTerrainType(String name) {
-        return TYPES.get(name);
+        return ttypes.get(name);
     }
 
     /**
@@ -147,7 +148,7 @@ public class TerrainType {
      * @return
      */
     public static TerrainType getTerrainType(ArrayList<TerrainMetric> neededMetrics) {
-        Iterator i = TYPES.entrySet().iterator();
+        Iterator i = ttypes.entrySet().iterator();
         while (i.hasNext()) {
             HashMap.Entry<String, TerrainType> pair = (HashMap.Entry)i.next();
             TerrainType curType = pair.getValue();
@@ -196,7 +197,7 @@ public class TerrainType {
     /**
      * no-arg constructor for use by Kryo serializer
      */
-    public TerrainType() {}
+    private TerrainType() {}
 
     /**
      * Takes Node containing valid metrics and adds them to the instance
@@ -210,8 +211,8 @@ public class TerrainType {
             }
             String catName = cat.getNodeName();
             String[] metricNames = cat.getTextContent().split(",");
-            for (int j = 0; j < metricNames.length; j ++) {
-                TerrainMetric metric = METRICS_NAME.get(metricNames[j]);
+            for (String mName : metricNames) {
+                TerrainMetric metric = TerrainType.metricsByName.get(mName);
                 if (metric != null) {
                     metrics.add(metric);
                 } else {

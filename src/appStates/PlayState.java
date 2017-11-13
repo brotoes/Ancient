@@ -5,8 +5,10 @@
  */
 package appStates;
 
+import actionTracker.ActionTracker;
 import ancient.Main;
 import ancient.map.Province;
+import ancient.map.TerrainType;
 import ancient.pawns.Pawn;
 import com.jme3.app.Application;
 import com.jme3.app.state.AppStateManager;
@@ -44,6 +46,7 @@ public class PlayState extends AppState {
     private WorldMap worldMap;
     private MapModeController mapModeCon;
     private final List<Pawn> pawns = new ArrayList<>();
+    private final ActionTracker actionTracker = new ActionTracker();
 
     public PointLight camLight;
 
@@ -84,14 +87,17 @@ public class PlayState extends AppState {
 
         /* set up world data */
         Resource.parseResources();
+        TerrainType.load();
 
         /* set up the scene */
+        mapModeCon = new MapModeController();
         turnCon = new TurnController();
         tradeCon = new TradeController();
         boolean generated = false;
 
         if (worldMap == null) {
             worldMap = new WorldMap(1000, 1337);
+            worldMap.init();
 
             /* put players in their start positions */
             Main.app.getPlayerManager().getPlayers().stream().forEach(player -> {
@@ -105,6 +111,8 @@ public class PlayState extends AppState {
             });
 
             generated = true;
+        } else {
+            worldMap.init();
         }
         camCon = new CameraController(this);
         inputCon = new PlayInputController(this);
@@ -115,9 +123,6 @@ public class PlayState extends AppState {
             Main.app.getNetworkController().send(msg);
         }
 
-        mapModeCon = new MapModeController();
-
-        worldMap.init();
         enable();
     }
 
@@ -173,6 +178,8 @@ public class PlayState extends AppState {
     public TurnController getTurnController() { return turnCon; }
     public TradeController getTradeController() { return tradeCon; }
     public WorldMap getWorldMap() { return worldMap; }
+    public MapModeController getMapModeController() { return mapModeCon; }
+    public ActionTracker getActionTracker() { return actionTracker; }
     public HudController getHudController() {
         ScreenController con = Main.app.getScreenController();
         if (con instanceof HudController) {
@@ -182,5 +189,4 @@ public class PlayState extends AppState {
             return null;
         }
     }
-    public MapModeController getMapModeController() { return mapModeCon; }
 }
