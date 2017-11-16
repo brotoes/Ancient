@@ -5,10 +5,11 @@
  */
 package network.messages;
 
-import java.lang.reflect.Field;
+import java.io.IOException;
 import network.Client;
 import network.Connection;
 import network.Server;
+import utils.StrUtils;
 
 /**
  *
@@ -16,35 +17,39 @@ import network.Server;
  */
 public abstract class Message {
     /**
+     * No-arg constructor for Kryo
+     */
+    protected Message() {}
+
+    /**
      * key for socket of sender. Should only be set serverside
      */
     private Connection connection = null;
 
     public void send(Server server) {
-        throw new UnsupportedOperationException(getId() + " Not to be sent from server.");
+        throw new UnsupportedOperationException(this.getClass().getName() + " Not to be sent from server.");
     }
 
     public void receive(Server server) {
-        throw new UnsupportedOperationException(getId() + " Not to be received on server.");
+        throw new UnsupportedOperationException(this.getClass().getName() + " Not to be received on server.");
     }
 
     public void send(Client client) {
-        throw new UnsupportedOperationException(getId() + " Not to be sent from client.");
+        throw new UnsupportedOperationException(this.getClass().getName() + " Not to be sent from client.");
     }
 
     public void receive(Client client) {
-        throw new UnsupportedOperationException(getId() + " Not to be received on server.");
+        throw new UnsupportedOperationException(this.getClass().getName() + " Not to be received on server.");
     }
 
     /* getters and setters */
     public final void setConnection(Connection connection) { this.connection = connection; }
     public final Connection getConnection() { return connection; }
-
-    public final String getId() {
+    @Override
+    public String toString() {
         try {
-            Field field = this.getClass().getDeclaredField("ID");
-            return (String)field.get(null);
-        } catch (IllegalArgumentException | IllegalAccessException| NoSuchFieldException ex) {
+            return StrUtils.toString(this);
+        } catch (IOException ex) {
             ex.printStackTrace();
             return null;
         }

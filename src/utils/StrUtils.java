@@ -16,6 +16,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Base64;
+import network.messages.EchoMessage;
 
 
 /**
@@ -26,16 +27,15 @@ public class StrUtils {
     /**
      * Unserialize using the kryo serializer with deep nesting suppoert
      * @param str
-     * @param cls
      * @return
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static Object fromString(String str, Class cls) throws IOException, ClassNotFoundException {
+    public static Object fromString(String str) throws IOException, ClassNotFoundException {
         Kryo kryo = new Kryo();
         byte[] data = Base64.getDecoder().decode(str);
         Input input = new Input(new ByteArrayInputStream(data));
-        return kryo.readObject(input, cls);
+        return kryo.readClassAndObject(input);
     }
 
     /**
@@ -49,7 +49,7 @@ public class StrUtils {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Output output = new Output(baos);
-        kryo.writeObject(output, obj);
+        kryo.writeClassAndObject(output, obj);
         output.flush();
 
         return Base64.getEncoder().encodeToString(baos.toByteArray());

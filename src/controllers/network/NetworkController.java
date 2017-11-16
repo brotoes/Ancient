@@ -40,7 +40,6 @@ public class NetworkController {
      */
     public void host(String name) throws CreateException, JoinException {
         mm = new MessageManager(PORT);
-        register();
         try {
             mm.listen();
         } catch (IOException e) {
@@ -56,7 +55,6 @@ public class NetworkController {
      */
     public void connect(String address, String name) throws JoinException {
         mm = new MessageManager(PORT);
-        register();
         try {
             mm.connect(address);
         } catch (ConnectException e) {
@@ -64,18 +62,6 @@ public class NetworkController {
         }
         JoinMessage joinMsg = new JoinMessage(name);
         mm.send(joinMsg);
-    }
-
-    /**
-     * registers all required messages for m
-     * @param m
-     */
-    private void register() {
-        mm.register(JoinMessage.class);
-        mm.register(PlayerUpdateMessage.class);
-        mm.register(ChatMessage.class);
-        mm.register(StartGameMessage.class);
-        mm.register(ActionsMessage.class);
     }
 
     public void update() {

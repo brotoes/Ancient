@@ -8,37 +8,26 @@ package controllers.network.messages;
 import ancient.Main;
 import controllers.gui.ParentScreenController;
 import network.Client;
-import network.Connection;
 import network.messages.Message;
 import network.Server;
-import network.exceptions.MalformedMessageException;
 
 /**
  *
  * @author brock
  */
 public class ChatMessage extends Message {
-    public final static String ID = "CHAT";
-
-    private final ParentScreenController con;
-    private final String line;
+    private ParentScreenController con;
+    private String line;
 
     public ChatMessage(String line) {
         con = (ParentScreenController)Main.app.getNifty().getCurrentScreen().getScreenController();
         this.line = line;
     }
 
-    public static ChatMessage parse(Connection conn, String msg) throws MalformedMessageException {
-        String[] split = msg.split(" ", 2);
-        if (!split[0].equals(ID)) {
-            throw new MalformedMessageException();
-        }
-
-        ChatMessage parsed = new ChatMessage(split[1]);
-        parsed.setConnection(conn);
-
-        return parsed;
-    }
+    /**
+     * No-arg constructor for Kryo
+     */
+    private ChatMessage() {}
 
     @Override
     public void receive(Server server) {
@@ -61,12 +50,5 @@ public class ChatMessage extends Message {
     @Override
     public void receive(Client client) {
         con.receiveChat(line);
-    }
-
-    @Override
-    public String toString() {
-        String str = getId() + " " + line;
-
-        return str;
     }
 }

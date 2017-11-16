@@ -33,8 +33,11 @@ import de.lessvoid.nifty.builder.PanelBuilder;
 import de.lessvoid.nifty.builder.TextBuilder;
 import de.lessvoid.nifty.elements.Element;
 import de.lessvoid.nifty.screen.Screen;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import mapGeneration.geometry.Shape;
 import utils.StrUtils;
@@ -45,6 +48,7 @@ import utils.StrUtils;
  */
 public class Province implements Selectable, Infoable, Pathable, TurnListener {
     private static int nextId = 0;
+    private static Map<Integer, Province> provs = new HashMap<>();
 
     /* static constants */
     private static final float LINE_WIDTH = 1.0f;
@@ -91,7 +95,7 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
      * @param temp Temperature of region, from -1.0 to 1.0
      * @param shape Shape of province
      */
-    public Province(float elevation, float temp, Shape shape) {
+    private Province(float elevation, float temp, Shape shape) {
         id = Province.nextId();
         /* Set up province properties */
         terrainTypeName = TerrainType.getTerrainType(elevation, temp).getName();
@@ -404,7 +408,7 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
                 releaseClaim(args[1]);
                 break;
             case "build":
-                at.act(new BuildAction(this, Integer.valueOf(args[1])));
+                at.act(new BuildAction(this.getId(), Integer.valueOf(args[1])));
                 break;
             default:
                 System.err.println("Error: Invalid infoClick Method");
@@ -692,6 +696,28 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
 
     /* static */
     /**
+     * Creates and returns a new province and stores in provs map
+     * @param elev
+     * @param temp
+     * @param shape
+     * @return
+     */
+    public static Province newProvince(float elev, float temp, Shape shape) {
+        Province prov = new Province(elev, temp, shape);
+        provs.put(prov.getId(), prov);
+
+        return prov;
+    }
+
+    /**
+     * stores a collection of provinces by their IDs
+     * @param newProvs
+     */
+    public static void updateProvs(Collection<Province> newProvs) {
+        newProvs.stream().forEach(p -> provs.put(p.getId(), p));
+    }
+
+    /**
      * returns true if all provinces in a list share an owner
      * @param provs
      * @return
@@ -714,5 +740,14 @@ public class Province implements Selectable, Infoable, Pathable, TurnListener {
         int id = nextId;
         nextId ++;
         return id;
+    }
+
+    /**
+     * gets province by ID
+     * @param id
+     * @return
+     */
+    public static Province get(int id) {
+        return provs.get(id);
     }
 }

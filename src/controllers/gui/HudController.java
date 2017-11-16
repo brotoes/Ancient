@@ -95,6 +95,6 @@ public class HudController implements ScreenController {
     }
 
     public void turnButton() {
-        Main.app.getPlayState().getTurnController().dispatchNextTurn();
+        Main.app.getPlayState().getTurnController().nextTurn();
     }
 }

@@ -7,15 +7,14 @@ package network;
 
 import network.messages.QuitMessage;
 import network.messages.Message;
-import network.messages.EchoMessage;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import network.exceptions.MalformedMessageException;
+import utils.StrUtils;
 
 /**
  *
@@ -30,22 +29,6 @@ public class MessageManager {
 
     public MessageManager(int port) {
         this.PORT = port;
-
-        register(EchoMessage.class);
-        register(QuitMessage.class);
-    }
-
-    /**
-     * takes a Message and adds its class to the map of messages.
-     * The message itself it not used an may be discarded.
-     * @param cls
-     */
-    public final void register(Class<? extends Message> cls) {
-        try {
-            msgs.put((String)cls.getField("ID").get(null), cls);
-        } catch (NoSuchFieldException | SecurityException | IllegalAccessException ex) {
-            ex.printStackTrace();
-        }
     }
 
     /**
@@ -56,18 +39,10 @@ public class MessageManager {
      */
     public void parse(Connection conn, String msg) throws MalformedMessageException {
         msg = msg.trim();
-        String id = msg.split(" ", 2)[0];
-        Class<? extends Message> cls = msgs.get(id);
-
-        if (cls == null) {
-            throw new MalformedMessageException("Invalid Message ID: " + id);
-        }
         try {
-            Message parsed = (Message)cls
-                    .getDeclaredMethod("parse", Connection.class, String.class)
-                    .invoke(null, conn, msg);
+            Message parsed = (Message) StrUtils.fromString(msg);
             receiveQueue.put(parsed);
-        } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             throw new MalformedMessageException(e);
         } catch (InterruptedException ex) {}

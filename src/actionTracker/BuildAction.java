@@ -12,7 +12,7 @@ import ancient.map.Province;
  * @author brock
  */
 public class BuildAction extends Action {
-    Province prov;
+    int provId;
     int facId;
 
     /**
@@ -20,13 +20,13 @@ public class BuildAction extends Action {
      */
     private BuildAction() {}
 
-    public BuildAction(Province prov, int facId) {
-        this.prov = prov;
+    public BuildAction(int provId, int facId) {
+        this.provId = provId;
         this.facId = facId;
     }
 
     @Override
     void perform() {
-        prov.build(facId);
+        Province.get(provId).build(facId);
     }
 }

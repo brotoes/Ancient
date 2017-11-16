@@ -93,7 +93,6 @@ public class PlayState extends AppState {
         mapModeCon = new MapModeController();
         turnCon = new TurnController();
         tradeCon = new TradeController();
-        boolean generated = false;
 
         if (worldMap == null) {
             worldMap = new WorldMap(1000, 1337);
@@ -110,18 +109,18 @@ public class PlayState extends AppState {
                 startProv.setStartClaim(player);
             });
 
-            generated = true;
+            Message msg = new StartGameMessage(worldMap);
+            Main.app.getNetworkController().send(msg);
         } else {
+            Province.updateProvs(worldMap.getProvinces());
             worldMap.init();
         }
+
         camCon = new CameraController(this);
         inputCon = new PlayInputController(this);
 
-        /* if worldmap was generated instead of received, send it out. */
-        if (generated) {
-            Message msg = new StartGameMessage(worldMap);
-            Main.app.getNetworkController().send(msg);
-        }
+        /* Set all players to not ready */
+        Main.app.getPlayerManager().getPlayers().stream().forEach(p -> p.setReady(false));
 
         enable();
     }

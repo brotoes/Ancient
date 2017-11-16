@@ -5,6 +5,7 @@
  */
 package controllers.game;
 
+import actionTracker.ActionTracker;
 import ancient.Main;
 import controllers.network.messages.ActionsMessage;
 import java.util.ArrayList;
@@ -24,6 +25,18 @@ public class TurnController {
         addQueue = new ArrayList<>();
     }
 
+    public void nextTurn() {
+        if (Main.app.getNetworkController().isHost()) {
+            dispatchNextTurn();
+        } else {
+            ActionTracker at = Main.app.getPlayState().getActionTracker();
+            Message msg = new ActionsMessage(at);
+            Main.app.getNetworkController().send(msg);
+
+            at.clear();
+        }
+    }
+
     public void dispatchNextTurn() {
         dispatching = true;
         for (TurnListener i : turnListeners) {
@@ -39,6 +52,9 @@ public class TurnController {
             Message msg = new ActionsMessage(Main.app.getPlayState().getActionTracker());
             Main.app.getNetworkController().send(msg);
         }
+
+        /* unset player ready status */
+        Main.app.getPlayerManager().getPlayers().stream().forEach(p -> p.setReady(false));
     }
 
     /**

@@ -6,7 +6,6 @@
 package network;
 
 import network.messages.Message;
-import network.messages.EchoMessage;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.List;
@@ -73,7 +72,6 @@ public class Server {
 
     public static void main(String args[]) {
         MessageManager msgMgr = new MessageManager(1234);
-        msgMgr.register(EchoMessage.class);
         try {
             msgMgr.listen();
         } catch (IOException e) {
@@ -82,7 +80,6 @@ public class Server {
 
         while (true) {
             msgMgr.receive();
-
         }
     }
 

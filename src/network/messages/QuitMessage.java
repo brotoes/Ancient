@@ -6,36 +6,13 @@
 package network.messages;
 
 import network.Client;
-import network.Connection;
 import network.Server;
-import network.exceptions.MalformedMessageException;
 
 /**
  *
  * @author brock
  */
 public class QuitMessage extends Message {
-    public final static String ID = "QUIT";
-
-    /**
-     * parses a string representing an EchoMessage sent from key
-     * @param conn
-     * @param msg
-     * @return
-     * @throws MalformedMessageException
-     */
-    public static QuitMessage parse(Connection conn, String msg) throws MalformedMessageException {
-        msg = msg.trim();
-        if (!msg.equals(ID)) {
-            throw new MalformedMessageException();
-        }
-
-        QuitMessage parsed = new QuitMessage();
-        parsed.setConnection(conn);
-
-        return parsed;
-    }
-
     @Override
     public void send(Server server) {
         server.send(this);
@@ -54,10 +31,5 @@ public class QuitMessage extends Message {
     @Override
     public void receive(Client client) {
         System.out.println("Client got close message");
-    }
-
-    @Override
-    public String toString() {
-        return getId();
     }
 }

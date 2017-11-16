@@ -81,7 +81,7 @@ public class WorldMap implements Serializable {
             Shape shape = new Shape(voronoi, i, zPoints, Math.max(0.0f,elevation*ZFAC));
             shapes.add(shape);
             voronoi.setShape(i, shape);
-            Province prov = new Province(elevation, temperature, shape);
+            Province prov = Province.newProvince(elevation, temperature, shape);
             shape.getVertices().stream().forEach(v -> v.addProvince(prov));
             provs.add(prov);
             shape.setProvince(prov);

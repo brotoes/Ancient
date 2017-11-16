@@ -55,7 +55,6 @@ public class Client {
 
     public static void main(String args[]) {
         MessageManager msgMgr = new MessageManager(1234);
-        msgMgr.register(EchoMessage.class);
         try {
             msgMgr.connect("127.0.0.1");
         } catch (ConnectException e) {
